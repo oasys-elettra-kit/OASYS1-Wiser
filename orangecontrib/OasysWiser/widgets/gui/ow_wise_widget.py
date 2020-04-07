@@ -304,23 +304,23 @@ class WiserWidget(widget.OWWidget):
 
         # Build a combo box with the choice of positioning directions phrases
 
-        box_type = oasysgui.widgetBox(box_combos, "", orientation="horizontal", width=width-90)
-        gui.label(box_type, self, label="Type", labelWidth=50)
+        box_type = oasysgui.widgetBox(box_combos, "", orientation="horizontal", width=width-20)
+        gui.label(box_type, self, label="Type", labelWidth=100)
         gui.comboBox(box_type, self, "WhatWhereReferTo",
                      items=positioning_directives_combos,
                      sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives) # Send the value
 
         gui.separator(box_combos)
 
-        self.use_distance_box       = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-90)
-        self.use_distance_box_empty = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-90)
+        self.use_distance_box       = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-20)
+        self.use_distance_box_empty = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-20)
 
-        oasysgui.lineEdit(self.use_distance_box, self, "Distance", "Distance [m]", labelWidth=85, valueType=float, orientation="horizontal")
+        oasysgui.lineEdit(self.use_distance_box, self, "Distance", "Distance [m]", labelWidth=220, valueType=float, orientation="horizontal")
 
-        self.use_defocus_box       = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-90)
-        self.use_defocus_box_empty = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-90)
+        self.use_defocus_box       = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-20)
+        self.use_defocus_box_empty = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-20)
 
-        oasysgui.lineEdit(self.use_defocus_box, self, "Distance", "Defocus [m]", labelWidth=85, valueType=float, orientation="horizontal")
+        oasysgui.lineEdit(self.use_defocus_box, self, "Distance", "Defocus [m]", labelWidth=220, valueType=float, orientation="horizontal")
 
         # box_what = oasysgui.widgetBox(box_combos, "", orientation="horizontal")
         # gui.label(box_what, self, label="  ", labelWidth=20)
