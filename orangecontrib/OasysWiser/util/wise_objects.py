@@ -43,15 +43,12 @@ class WiserData(object):
 		if not self.wise_beamline is None:
 			duplicated_wise_beamline = WisePropagationElements()
 			for beamline_element in self.wise_beamline.get_propagation_elements():
-				duplicated_wise_optical_element = copy.deepcopy(
-					beamline_element.get_optical_element().wise_optical_element)
-				duplicated_wise_beamline.add_beamline_element(WiserBeamlineElement(
-					optical_element=WiserOpticalElement(native_OpticalElement=duplicated_wise_optical_element)))
+				duplicated_wise_optical_element = copy.deepcopy(beamline_element.get_optical_element().native_optical_element)
+
+				duplicated_wise_beamline.add_beamline_element(WiserBeamlineElement(optical_element=WiserOpticalElement(native_OpticalElement=duplicated_wise_optical_element)))
 
 		duplicated_wise_wavefront = None
 		if not self.wise_wavefront is None:
-			duplicated_wise_wavefront = WiseWavefront(
-				wise_computation_results=copy.deepcopy(self.wise_wavefront.wise_computation_result))
+			duplicated_wise_wavefront = WiseWavefront(wise_computation_results=copy.deepcopy(self.wise_wavefront.wise_computation_result))
 
-		return WiserData(wise_beamline=duplicated_wise_beamline,
-						 wise_wavefront=duplicated_wise_wavefront)
+		return WiserData(wise_beamline=duplicated_wise_beamline, wise_wavefront=duplicated_wise_wavefront)

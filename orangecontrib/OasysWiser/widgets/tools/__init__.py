@@ -9,9 +9,9 @@ Widgets for association rules.
 
 # Category description for the widget registry
 
-NAME = "WISE 2 Tools"
+NAME = "Wiser Tools"
 
-DESCRIPTION = "Widgets for WISE 2"
+DESCRIPTION = "Widgets for Wiser"
 
 BACKGROUND = "#FD8D8D"
 

@@ -8,33 +8,33 @@ except AttributeError:
     from setuptools import find_packages, setup
 
 
-NAME = 'OASYS1-WISEr'
-VERSION = '1.0.8'
-ISRELEASED = True
+NAME = 'OASYS1-Wiser'
+VERSION = '0.0.3'
+ISRELEASED = False
 
-DESCRIPTION = 'WISEr in Python'
+DESCRIPTION = 'Wiser in Python'
 README_FILE = os.path.join(os.path.dirname(__file__), 'README.txt')
 LONG_DESCRIPTION = open(README_FILE).read()
-AUTHOR = 'Michele Manfredda, Lorenzo Raimondi, Luca Rebuffi'
+AUTHOR = 'Michele Manfredda, Lorenzo Raimondi, Luca Rebuffi, Aljosa Hafner'
 AUTHOR_EMAIL = 'luca.rebuffi@elettra.eu'
 URL = 'https://github.com/oasys-elettra-kit/WISE2'
 DOWNLOAD_URL = 'https://github.com/oasys-elettra-kit/WISE2'
 LICENSE = 'GPLv3'
 
-KEYWORDS = (
+KEYWORDS = [
     'waveoptics',
     'simulator',
     'oasys1',
-)
+]
 
-CLASSIFIERS = (
+CLASSIFIERS = [
     'Development Status :: 4 - Beta',
     'Environment :: X11 Applications :: Qt',
     'Environment :: Console',
     'Environment :: Plugins',
     'Programming Language :: Python :: 3',
     'Intended Audience :: Science/Research',
-)
+]
 
 SETUP_REQUIRES = (
     'setuptools',
@@ -54,14 +54,14 @@ PACKAGE_DATA = {
     "orangecontrib.OasysWiser.widgets.tools":["icons/*.png", "icons/*.jpg"],
 }
 
-NAMESPACE_PACAKGES = ["orangecontrib", "orangecontrib.wise2", "orangecontrib.wise2.widgets"]
+NAMESPACE_PACAKGES = ["orangecontrib", "orangecontrib.OasysWiser", "orangecontrib.OasysWiser.widgets"]
 
 ENTRY_POINTS = {
     'oasys.addons' : ("wise = orangecontrib.wise", ),
     'oasys.widgets' : (
-        "WISEr Light Sources = orangecontrib.OasysWiser.widgets.light_sources",
-        "WISEr Optical Elements = orangecontrib.OasysWiser.widgets.optical_elements",
-        "WISEr Tools = orangecontrib.OasysWiser.widgets.tools",
+        "Wiser Light Sources = orangecontrib.OasysWiser.widgets.light_sources",
+        "Wiser Optical Elements = orangecontrib.OasysWiser.widgets.optical_elements",
+        "Wiser Tools = orangecontrib.OasysWiser.widgets.tools",
     ),
     'oasys.menus' : ("wisemenu = orangecontrib.OasysWiser.menu",)
 }
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     try:
         import PyMca5, PyQt4
 
-        is_beta = True
+        is_beta = False
     except:
         setup(
               name = NAME,

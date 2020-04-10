@@ -9,9 +9,9 @@ Widgets for association rules.
 
 # Category description for the widget registry
 
-NAME = "WISE 2 Light Sources"
+NAME = "Wiser Light Sources"
 
-DESCRIPTION = "Widgets for WISE 2"
+DESCRIPTION = "Widgets for Wiser"
 
 BACKGROUND = "#FD8D8D"
 

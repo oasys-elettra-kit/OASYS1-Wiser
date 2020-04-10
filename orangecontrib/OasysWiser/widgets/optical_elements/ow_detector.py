@@ -27,6 +27,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
     icon = "icons/screen.png"
     priority = 10
 
+    oe_name = Setting("Detector")
+
     has_figure_error_box = False
     is_full_propagator = True
     run_calculation = False
@@ -98,15 +100,15 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             tab.setFixedHeight(self.IMAGE_HEIGHT)
             tab.setFixedWidth(self.IMAGE_WIDTH)
 
-    def get_inner_wise_optical_element(self):
+    def get_native_optical_element(self):
         return Optics.Detector(L=self.length*self.workspace_units_to_m,
                                AngleGrazing=numpy.deg2rad(self.alpha))
 
-    def get_optical_element(self, inner_wise_optical_element):
+    def get_optical_element(self, native_optical_element):
          return WiserOpticalElement(name=self.oe_name,
                                     boundary_shape=None,
-                                    native_CoreOptics=inner_wise_optical_element,
-                                    native_PositioningDirectives=self.Get_PositionDirectives())
+                                    native_CoreOptics=native_optical_element,
+                                    native_PositioningDirectives=self.get_PositionDirectives())
 
 
     def receive_specific_syned_data(self, optical_element):

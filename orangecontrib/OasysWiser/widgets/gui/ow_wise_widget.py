@@ -59,10 +59,10 @@ positioning_directives_which_angle = [Optics.TypeOfAngle.GrazingNominal,
 
 class PositioningDirectivesPhrases:
     class Type:
-        Autofocus = 'Autofocus'
-        DistanceFromPrevious = 'Fixed distance from previous OE'
-        DistanceFromSource = 'Fixed distance from source'
-        Custom = 'Custom positioning directives'
+        Autofocus = 'Autofocus (Focus of last focusing O.E.)'
+        DistanceFromPrevious = 'Set fixed distance from previous O.E.'
+        DistanceFromSource = 'Set fixed distance from source'
+        Custom = 'Set custom positioning directives'
 
 positioning_directives_combos = [PositioningDirectivesPhrases.Type.Autofocus,
                                  PositioningDirectivesPhrases.Type.DistanceFromSource,
@@ -105,12 +105,15 @@ class WiserWidget(widget.OWWidget):
     WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.DistanceFromSource)
     UseDistance = Setting(0)
     UseDefocus = Setting(0)
+    UseCustom = Setting(0)
     Distance = Setting(0.0)
     XCentre = Setting(0.0)
     YCentre = Setting(0.0)
     GrazingAngle = Setting(0.0)
     Angle = Setting(0.0)
     WhichAngle = Setting(0)
+
+    PreviousOE = Setting('TO DO!')
 
     Distance_checked = Setting(0)
     XYCentre_checked = Setting(0)
@@ -220,15 +223,11 @@ class WiserWidget(widget.OWWidget):
 
     def build_positioning_directive_box(self, container_box, width, element_type=ElementType.SOURCE):
 
-        box = oasysgui.widgetBox(container_box, "Positioning Directives", orientation="vertical", width=width)
+        box = oasysgui.widgetBox(container_box, "", orientation="vertical", width=width-20)
 
         box_combos = oasysgui.widgetBox(box, "", orientation="vertical", width=width-20)
 
         box_Distance = oasysgui.widgetBox(box, "", orientation="vertical", width=width-20)
-
-        # box_XYCentre = oasysgui.widgetBox(box, "", orientation="horizontal", width=width-20)
-        # box_XYCentre_check = oasysgui.widgetBox(box_XYCentre, "", orientation="horizontal", width=20)
-        # box_XYCentre_value = oasysgui.widgetBox(box_XYCentre, "", orientation="vertical")
 
         '''
         box_GrazingAngle = oasysgui.widgetBox(box, "", orientation="horizontal", width=width-20)
@@ -272,6 +271,7 @@ class WiserWidget(widget.OWWidget):
 
             self.set_UseDistance()
             self.set_UseDefocus()
+            self.set_UseCustom()
 
             if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
                 self.What = PositioningDirectives.What.Centre
@@ -299,13 +299,29 @@ class WiserWidget(widget.OWWidget):
 
             self.use_defocus_box.setVisible(self.UseDefocus)
             self.use_defocus_box_empty.setVisible(self.UseDefocus)
+
+            self.use_custom_box.setVisible(self.UseCustom)
+            self.use_custom_box_empty.setVisible(self.UseCustom)
+
             pass
             #set_WhichAngle()
 
         # Build a combo box with the choice of positioning directions phrases
 
+        le = oasysgui.lineEdit(box_Distance, self, "PreviousOE", "Reference O.E.", labelWidth=220,
+                               valueType=str, orientation="horizontal")
+
+        le.setReadOnly(True)
+        font = QFont(le.font())
+        # font.setBold(True)
+        le.setFont(font)
+        palette = QPalette(le.palette())
+        palette.setColor(QPalette.Text, QColor('grey'))
+        palette.setColor(QPalette.Base, QColor(243, 240, 140))
+        le.setPalette(palette)
+
         box_type = oasysgui.widgetBox(box_combos, "", orientation="horizontal", width=width-20)
-        gui.label(box_type, self, label="Type", labelWidth=100)
+        gui.label(box_type, self, label="Type", labelWidth=87)
         gui.comboBox(box_type, self, "WhatWhereReferTo",
                      items=positioning_directives_combos,
                      sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives) # Send the value
@@ -322,26 +338,37 @@ class WiserWidget(widget.OWWidget):
 
         oasysgui.lineEdit(self.use_defocus_box, self, "Distance", "Defocus [m]", labelWidth=220, valueType=float, orientation="horizontal")
 
-        # box_what = oasysgui.widgetBox(box_combos, "", orientation="horizontal")
-        # gui.label(box_what, self, label="  ", labelWidth=20)
-        # gui.comboBox(box_what, self, "What", label="",
-        #              items=positioning_directives_what,
-        #              sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
-        # gui.label(box_what, self, label=" of this O.E.", labelWidth=80)
-        #
-        # box_where = oasysgui.widgetBox(box_combos, "", orientation="horizontal")
-        # gui.label(box_where, self, label="at", labelWidth=20)
-        # gui.comboBox(box_where, self, "Where", label="",
-        #              items=positioning_directives_where,
-        #              sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
-        # gui.label(box_where, self, label=" of", labelWidth=80)
-        #
-        # box_refer_to = oasysgui.widgetBox(box_combos, "", orientation="horizontal")
-        # gui.label(box_refer_to, self, label=" ", labelWidth=20)
-        # gui.comboBox(box_refer_to, self, "ReferTo", label="",
-        #              items=positioning_directives_refer_to,
-        #              sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
-        # gui.label(box_refer_to, self, label=" O.E.", labelWidth=80)
+        self.use_custom_box			= oasysgui.widgetBox(box, "", orientation="vertical", width=width-20)
+        self.use_custom_box_empty 	= oasysgui.widgetBox(box, "", orientation="vertical", width=width-20)
+        box_XYDistance = oasysgui.widgetBox(self.use_custom_box, "", orientation="horizontal", width=width-20)
+        box_Distance_check = oasysgui.widgetBox(box_XYDistance, "", orientation="horizontal", width=20)
+        box_Distance_value = oasysgui.widgetBox(box_XYDistance, "", orientation="vertical")
+        box_XYCentre = oasysgui.widgetBox(self.use_custom_box, "", orientation="horizontal", width=width-20)
+        box_XYCentre_check = oasysgui.widgetBox(box_XYCentre, "", orientation="horizontal", width=20)
+        box_XYCentre_value = oasysgui.widgetBox(box_XYCentre, "", orientation="vertical")
+ # = oasysgui.widgetBox(box_Distance, "", orientation="vertical", width=width - 20)
+ #    	self.use_custom_box_empty = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width - 20)
+
+        box_what = oasysgui.widgetBox(self.use_custom_box, "", orientation="horizontal")
+        gui.label(box_what, self, label="Place", labelWidth=87)
+        gui.comboBox(box_what, self, "What", label="",
+                     items=positioning_directives_what,
+                     sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
+        gui.label(box_what, self, label=" of this O.E.", labelWidth=80)
+
+        box_where = oasysgui.widgetBox(self.use_custom_box, "", orientation="horizontal")
+        gui.label(box_where, self, label="at", labelWidth=87)
+        gui.comboBox(box_where, self, "Where", label="",
+                     items=positioning_directives_where,
+                     sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
+        gui.label(box_where, self, label=" of", labelWidth=80)
+
+        box_refer_to = oasysgui.widgetBox(self.use_custom_box, "", orientation="horizontal")
+        gui.label(box_refer_to, self, label=" ", labelWidth=87)
+        gui.comboBox(box_refer_to, self, "ReferTo", label="",
+                     items=positioning_directives_refer_to,
+                     sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
+        gui.label(box_refer_to, self, label=" O.E.", labelWidth=80)
 
         '''
         gui.comboBox(box_combos, self, "WhichAngle", label="Type Of Angle",
@@ -349,23 +376,23 @@ class WiserWidget(widget.OWWidget):
                      sendSelectedValue=True, orientation="horizontal", callback=set_WhichAngle)
         '''
 
-        # gui.checkBox(box_Distance_check, self, "Distance_checked", "", callback=set_Distance_checked)
-        # gui.checkBox(box_XYCentre_check, self, "XYCentre_checked", "", callback=set_XYCentre_checked)
+        gui.checkBox(box_Distance_check, self, "Distance_checked", "", callback=set_Distance_checked)
+        gui.checkBox(box_XYCentre_check, self, "XYCentre_checked", "", callback=set_XYCentre_checked)
         '''
         gui.checkBox(box_GrazingAngle_check, self, "GrazingAngle_checked", "", callback=set_GrazingAngle_checked)
         gui.checkBox(box_Angle_check, self, "Angle_checked", "", callback=set_Angle_checked)
         '''
 
-        # set_Distance_checked()
-        # set_XYCentre_checked()
+        set_Distance_checked()
+        set_XYCentre_checked()
         '''
         set_Angle_checked()
         set_GrazingAngle_checked()
         '''
 
-        # self.le_Distance = oasysgui.lineEdit(box_Distance_value, self, "Distance", "Distance", labelWidth=200, valueType=float, orientation="horizontal")
-        # self.le_XCentre = oasysgui.lineEdit(box_XYCentre_value, self, "XCentre", "X Centre", labelWidth=200, valueType=float, orientation="horizontal")
-        # self.le_YCentre = oasysgui.lineEdit(box_XYCentre_value, self, "YCentre", "Y Centre", labelWidth=200, valueType=float, orientation="horizontal")
+        self.le_Distance = oasysgui.lineEdit(box_Distance_value, self, "Distance", "Distance [m]", labelWidth=196, valueType=float, orientation="horizontal")
+        self.le_XCentre = oasysgui.lineEdit(box_XYCentre_value, self, "XCentre", "X Centre", labelWidth=196, valueType=float, orientation="horizontal")
+        self.le_YCentre = oasysgui.lineEdit(box_XYCentre_value, self, "YCentre", "Y Centre", labelWidth=196, valueType=float, orientation="horizontal")
 
         '''
         oasysgui.lineEdit(box_Angle_value, self, "Angle", "Angle [deg]", labelWidth=200, valueType=float, orientation="horizontal")
@@ -375,33 +402,59 @@ class WiserWidget(widget.OWWidget):
 
     def set_UseDistance(self):
         if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
+            self.Distance_checked = 0
             self.UseDistance = 0
 
         elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromPrevious:
+            self.Distance_checked = 1
             self.UseDistance = 1
 
         elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromSource:
+            self.Distance_checked = 1
             self.UseDistance = 1
 
         elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Custom:
-            self.UseDistance = 1
+            self.Distance_checked = 0
+            self.UseDistance = 0
         else:
             raise ValueError("Something wrong with set_UseDistance()")
 
     def set_UseDefocus(self):
         if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
+            self.Distance_checked = 0
             self.UseDefocus = 1
 
         elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromPrevious:
+            self.Distance_checked = 1
             self.UseDefocus = 0
 
         elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromSource:
+            self.Distance_checked = 1
             self.UseDefocus = 0
 
         elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Custom:
+            self.Distance_checked = 1
             self.UseDefocus = 0
         else:
-            raise ValueError("Something wrong with set_UseDistance()")
+            raise ValueError("Something wrong with set_UseDefocus()")
+
+    def set_UseCustom(self):
+        if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
+            self.Distance_checked = 1
+            self.UseCustom = 0
+
+        elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromPrevious:
+            self.Distance_checked = 1
+            self.UseCustom = 0
+
+        elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromSource:
+            self.Distance_checked = 1
+            self.UseCustom = 0
+
+        elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Custom:
+            self.UseCustom = 1
+        else:
+            raise ValueError("Something wrong with set_UseCustom()")
 
     def get_PositionDirectives(self):
         return PositioningDirectives(PlaceWhat=self.What,
@@ -566,7 +619,7 @@ class WiserWidget(widget.OWWidget):
                 self.setStatusMessage("")
 
                 wise_data = self.extract_wise_data_from_calculation_output(calculation_output)
-                if not wise_data is None: self.send("WiseData", wise_data)
+                if not wise_data is None: self.send("WiserData", wise_data)
 
         except Exception as exception:
             QtWidgets.QMessageBox.critical(self, "Error",
@@ -593,9 +646,9 @@ class WiserWidget(widget.OWWidget):
     def extract_wise_data_from_calculation_output(self, calculation_output):
         return calculation_output
 
-# if __name__ == "__main__":
-#     a = QApplication(sys.argv)
-#     ow = WiserWidget()
-#     ow.show()
-#     a.exec_()
-#     ow.saveSettings()
+if __name__ == "__main__":
+    a = QApplication(sys.argv)
+    ow = WiserWidget()
+    ow.show()
+    a.exec_()
+    ow.saveSettings()

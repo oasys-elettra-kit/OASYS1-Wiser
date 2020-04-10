@@ -6,18 +6,17 @@ from orangewidget.settings import Setting
 from oasys.widgets import gui as oasysgui
 from oasys.widgets import congruence
 
-from wiselib2 import Optics
-import wiselib2.FermiSource as Fermi
+from LibWiser import Optics
+import LibWiser.FermiSource as Fermi
 
-from wofrywise2.propagator.propagator1D.wise_propagator import WisePropagationElements
+from WofryWiser.propagator.propagator1D.wise_propagator import WisePropagationElements
 
-from wofrywise2.beamline.wise_beamline_element import WiseBeamlineElement
-from wofrywise2.beamline.light_sources.wise_gaussian_source import WiseGaussianSource
+from WofryWiser.beamline.beamline_elements import WiserBeamlineElement, WiserOpticalElement
 
-from orangecontrib.wise2.util.wise_objects import WiseData
-from orangecontrib.wise2.widgets.gui.ow_wise_widget import WiseWidget, ElementType
+from orangecontrib.OasysWiser.util.wise_objects import WiserData
+from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget, ElementType
 
-class OWGaussianSource1d(WiseWidget):
+class OWGaussianSource1d(WiserWidget):
     name = "GaussianSource1d"
     id = "GaussianSource1d"
     description = "GaussianSource1d"
@@ -31,18 +30,18 @@ class OWGaussianSource1d(WiseWidget):
     source_lambda = Setting(10)
    
     waist_calculation = Setting(0)
-    source_waist =  Setting(125e-3)
+    source_waist = Setting(125e-3)
     
 
     def build_gui(self):
 
         main_box = oasysgui.widgetBox(self.controlArea, "Gaussian Source 1D Input Parameters", orientation="vertical", width=self.CONTROL_AREA_WIDTH-5)
 
-        source_box = oasysgui.widgetBox(main_box, "Source Setting", orientation="vertical", width=self.CONTROL_AREA_WIDTH-25)
+        source_box = oasysgui.widgetBox(main_box, "Source Settings", orientation="vertical", width=self.CONTROL_AREA_WIDTH-25)
 
         oasysgui.lineEdit(source_box, self, "source_name", "Source Name", labelWidth=120, valueType=str, orientation="horizontal")
 
-        oasysgui.lineEdit(source_box, self, "source_lambda", "Wavelength [nm]", labelWidth=260, valueType=float, orientation="horizontal", callback=self.set_WaistCalculation)
+        oasysgui.lineEdit(source_box, self, "source_lambda", "Wavelength [m]", labelWidth=260, valueType=float, orientation="horizontal", callback=self.set_WaistCalculation)
 
         gui.comboBox(source_box, self, "waist_calculation", label="Waist Data",
                      items=["User", "Fermi FEL1", "Fermi FEL2", "Fermi Auto"], labelWidth=260,
@@ -50,7 +49,9 @@ class OWGaussianSource1d(WiseWidget):
 
         self.le_source_waist = oasysgui.lineEdit(source_box, self, "source_waist", "Waist", labelWidth=260, valueType=float, orientation="horizontal")
 
-        super(OWGaussianSource1d, self).build_positioning_directive_box(container_box=main_box,
+        position_box = oasysgui.widgetBox(main_box, "Position Settings", orientation="vertical", width=self.CONTROL_AREA_WIDTH-25)
+
+        super(OWGaussianSource1d, self).build_positioning_directive_box(container_box=position_box,
                                                                         width=self.CONTROL_AREA_WIDTH-25,
                                                                         element_type=ElementType.SOURCE)
 
@@ -73,10 +74,12 @@ class OWGaussianSource1d(WiseWidget):
         position_directives.WhichAngle = Optics.TypeOfAngle.SelfFrameOfReference
         position_directives.Angle = 0.0
 
-        wise_source = WiseGaussianSource(name=self.source_name,
-                                         source_gaussian=Optics.SourceGaussian(self.source_lambda*1e-9,
-                                                                               self.source_waist*self.workspace_units_to_m) ,
-                                         position_directives=position_directives)
+        wise_source = WiserOpticalElement(name=self.source_name,
+                                          boundary_shape=None,
+                                          native_CoreOptics=Optics.SourceGaussian(self.source_lambda*1e-9,
+                                                                                  self.source_waist*self.workspace_units_to_m),
+                                          isSource=True,
+                                          native_PositioningDirectives=position_directives)
 
         data_to_plot = numpy.zeros((2, 100))
 
@@ -102,7 +105,16 @@ class OWGaussianSource1d(WiseWidget):
 
     def extract_wise_data_from_calculation_output(self, calculation_output):
         beamline = WisePropagationElements()
-        beamline.add_beamline_element(WiseBeamlineElement(optical_element=calculation_output[0]))
+        beamline.add_beamline_element(WiserBeamlineElement(optical_element=calculation_output[0]))
 
-        return WiseData(wise_wavefront=None, wise_beamline=beamline)
+        return WiserData(wise_wavefront=None, wise_beamline=beamline)
 
+from PyQt5.QtWidgets import QApplication, QMessageBox, QInputDialog
+import sys
+
+if __name__ == "__main__":
+    a = QApplication(sys.argv)
+    ow = OWGaussianSource1d()
+    ow.show()
+    a.exec_()
+    ow.saveSettings()

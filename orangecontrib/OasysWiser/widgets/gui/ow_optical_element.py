@@ -1,5 +1,5 @@
 import numpy
-import multiprocessing
+# import multiprocessing
 
 from PyQt5.QtWidgets import QApplication, QMessageBox, QInputDialog
 from PyQt5.QtGui import QPalette, QColor, QFont
@@ -53,7 +53,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
     use_multipool = Setting(0)
     n_pools = Setting(5)
-    number_of_cpus = multiprocessing.cpu_count() - 1
+    # number_of_cpus = multiprocessing.cpu_count() - 1
     force_cpus = Setting(1)
 
     calculation_type = Setting(0)
@@ -77,7 +77,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         oasysgui.lineEdit(main_box, self, "oe_name", "O.E. Name", labelWidth=120, valueType=str, orientation="horizontal")
 
         oasysgui.lineEdit(main_box, self, "alpha", "Incidence Angle [deg]", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_length = oasysgui.lineEdit(main_box, self, "length", "Length", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_length = oasysgui.lineEdit(main_box, self, "length", "Length [m]", labelWidth=240, valueType=float, orientation="horizontal")
 
 
         self.build_mirror_specific_gui(main_box)
@@ -95,7 +95,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         self.tab_dis = oasysgui.createTabPage(self.tabs_mirror, "Displacement")
 
         super(OWOpticalElement, self).build_positioning_directive_box(container_box=self.tab_pos,
-                                                                      width=self.CONTROL_AREA_WIDTH-50,
+                                                                      width=self.CONTROL_AREA_WIDTH-35,
                                                                       element_type=ElementType.MIRROR)
 
         displacement_box = oasysgui.widgetBox(self.tab_dis, "Small Displacements", orientation="vertical", width=self.CONTROL_AREA_WIDTH-50)
@@ -174,7 +174,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         oasysgui.lineEdit(self.number_box, self, "number_of_points", "Number of Points", labelWidth=240, valueType=int, orientation="horizontal")
 
         self.set_CalculationType()
-
+        '''
         parallel_box = oasysgui.widgetBox(self.tab_pro, "Parallel Computing", orientation="vertical", width=self.CONTROL_AREA_WIDTH-20)
 
         gui.comboBox(parallel_box, self, "use_multipool", label="Use Parallel Processing",
@@ -191,7 +191,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         gui.comboBox(self.use_multipool_box, self, "force_cpus", label="Ignore Nr. Processes > Nr. CPUs",
                      items=["No", "Yes"], labelWidth=240,
                      sendSelectedValue=False, orientation="horizontal")
-
+        
         le = oasysgui.lineEdit(self.use_multipool_box, self, "number_of_cpus", "Nr. Available CPUs", labelWidth=240, valueType=float, orientation="horizontal")
         le.setReadOnly(True)
         font = QFont(le.font())
@@ -203,6 +203,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         le.setPalette(palette)
 
         self.set_Multipool()
+        '''
 
     def selectFigureErrorFile(self):
         self.le_figure_error_file.setText(oasysgui.selectFileFromDialog(self, self.figure_error_file, "Select File", file_extension_filter="Data Files (*.dat *.txt)"))
@@ -320,9 +321,12 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         if self.input_data is None:
             raise Exception("No Input Data!")
 
-        optical_element = self.get_optical_element(self.get_inner_wise_optical_element())
+        optical_element = self.get_optical_element(self.get_native_optical_element())
 
         native_optical_element = optical_element.native_optical_element
+
+        if native_optical_element.Name == None:
+            raise ValueError("No native_optical_element found")
 
         native_optical_element.CoreOptics.ComputationSettings.Ignore = (self.ignore == 1)
 
@@ -363,6 +367,10 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
             native_optical_element.ComputationSettings.NSamples = self.number_of_points
 
         output_data = self.input_data.duplicate()
+
+        # if output_data != self.input_data:
+        #     raise ValueError("duplicate() does not work")
+
         input_wavefront = output_data.wise_wavefront
 
         if output_data.wise_beamline is None: output_data.wise_beamline = WisePropagationElements()
@@ -376,14 +384,17 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         parameters.set_additional_parameters("NPools", self.n_pools if self.use_multipool == 1 else 1)
         parameters.set_additional_parameters("is_full_propagator", self.is_full_propagator)
 
+        print("I came until here!")
+        print(output_data.wise_beamline.get_wise_propagation_elements())
+
         output_data.wise_wavefront = PropagationManager.Instance().do_propagation(propagation_parameters=parameters, handler_name=WisePropagator.HANDLER_NAME)
 
         return output_data
 
-    def get_inner_wise_optical_element(self):
+    def get_native_optical_element(self):
         raise NotImplementedError()
 
-    def get_optical_element(self, inner_wise_optical_element):
+    def get_optical_element(self, native_optical_element):
         raise NotImplementedError()
 
     def getTabTitles(self):
@@ -408,7 +419,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         output_wavefront = calculation_output.wise_wavefront
 
         if not output_wavefront is None and not output_wavefront.wise_computation_result is None:
-            wise_optical_element = calculation_output.wise_beamline.get_wise_propagation_element(-1)
+            native_optical_element = calculation_output.wise_beamline.get_wise_propagation_element(-1)
 
             S = output_wavefront.wise_computation_result.S
             E = output_wavefront.wise_computation_result.Field
@@ -426,13 +437,13 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
             self.is_tab_2_enabled = False
 
-            if not wise_optical_element.CoreOptics.FigureErrors is None and len(wise_optical_element.CoreOptics.FigureErrors) > 0:
+            if not native_optical_element.CoreOptics.FigureErrors is None and len(native_optical_element.CoreOptics.FigureErrors) > 0:
                 self.is_tab_2_enabled = True
-                figure_error_x = numpy.linspace(0, self.length, len(wise_optical_element.CoreOptics.FigureErrors[0]))
+                figure_error_x = numpy.linspace(0, self.length, len(native_optical_element.CoreOptics.FigureErrors[0]))
                 data_to_plot_fe = numpy.zeros((2, len(figure_error_x)))
 
                 data_to_plot_fe[0, :] = figure_error_x
-                data_to_plot_fe[1, :] = wise_optical_element.CoreOptics.FigureErrors[0]*1e9 # nm
+                data_to_plot_fe[1, :] = native_optical_element.CoreOptics.FigureErrors[0]*1e9 # nm
             else:
                 data_to_plot_fe = numpy.zeros((2, 1))
 
