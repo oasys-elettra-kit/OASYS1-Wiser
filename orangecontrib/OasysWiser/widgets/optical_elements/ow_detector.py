@@ -17,6 +17,7 @@ from LibWiser import Foundation, Optics
 from WofryWiser.beamline.beamline_elements import WiserOpticalElement
 
 from orangecontrib.OasysWiser.widgets.gui.ow_optical_element import OWOpticalElement
+from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import PositioningDirectivesPhrases
 
 WiseDetector = WiserOpticalElement()
 
@@ -28,6 +29,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
     priority = 10
 
     oe_name = Setting("Detector")
+    OWOpticalElement.WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.DistanceFromSource)
 
     has_figure_error_box = False
     is_full_propagator = True

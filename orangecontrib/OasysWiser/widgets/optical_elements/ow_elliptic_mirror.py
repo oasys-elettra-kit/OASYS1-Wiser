@@ -12,6 +12,7 @@ from LibWiser import Optics
 from WofryWiser.beamline.beamline_elements import WiserOpticalElement
 
 from orangecontrib.OasysWiser.widgets.gui.ow_optical_element import OWOpticalElement
+from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import PositioningDirectivesPhrases
 
 
 class OWEllipticMirror(OWOpticalElement, WidgetDecorator):
@@ -20,6 +21,8 @@ class OWEllipticMirror(OWOpticalElement, WidgetDecorator):
     description = "Elliptic Mirror"
     icon = "icons/ellipsoid_mirror.png"
     priority = 2
+
+    OWOpticalElement.WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.DistanceFromSource)
 
     oe_name = Setting("Elliptic mirror")
 

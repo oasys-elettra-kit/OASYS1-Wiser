@@ -14,7 +14,7 @@ from WofryWiser.propagator.propagator1D.wise_propagator import WisePropagationEl
 from WofryWiser.beamline.beamline_elements import WiserBeamlineElement, WiserOpticalElement
 
 from orangecontrib.OasysWiser.util.wise_objects import WiserData
-from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget, ElementType
+from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget, ElementType, PositioningDirectivesPhrases
 
 class OWGaussianSource1d(WiserWidget):
     name = "GaussianSource1d"
@@ -24,6 +24,8 @@ class OWGaussianSource1d(WiserWidget):
     priority = 1
     category = ""
     keywords = ["wise", "gaussian"]
+
+    WiserWidget.WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.Custom)
 
     source_name = Setting("Gaussian Source")
 
