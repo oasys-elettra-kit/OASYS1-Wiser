@@ -58,16 +58,29 @@ positioning_directives_which_angle = [Optics.TypeOfAngle.GrazingNominal,
                                       Optics.TypeOfAngle.TangentAbsolute]
 
 class PositioningDirectivesPhrases:
+
     class Type:
         Autofocus = 'Autofocus (Focus of last focusing O.E.)'
         DistanceFromPrevious = 'Set fixed distance from previous O.E.'
         DistanceFromSource = 'Set fixed distance from source'
         Custom = 'Set custom positioning directives'
 
+    class Orientation:
+        Isotropic = 'Isotropic'
+        Horizontal = 'Horizontal'
+        Vertical = 'Vertical'
+        Any = 'Any'
+
 positioning_directives_combos = [PositioningDirectivesPhrases.Type.Autofocus,
                                  PositioningDirectivesPhrases.Type.DistanceFromSource,
                                  PositioningDirectivesPhrases.Type.DistanceFromPrevious,
                                  PositioningDirectivesPhrases.Type.Custom]
+
+positioning_directives_orientation = [PositioningDirectivesPhrases.Orientation.Isotropic,
+                                      PositioningDirectivesPhrases.Orientation.Horizontal,
+                                      PositioningDirectivesPhrases.Orientation.Vertical,
+                                      PositioningDirectivesPhrases.Orientation.Any]
+
 
 class ElementType:
     SOURCE = 0
@@ -103,6 +116,8 @@ class WiserWidget(widget.OWWidget):
     What = Setting(PositioningDirectives.What.Centre)
     Where = Setting(PositioningDirectives.Where.Centre)
     WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.DistanceFromSource)
+    OrientationGUI = Setting(PositioningDirectivesPhrases.Orientation.Any)
+    Orientation = Setting(Optics.OPTICS_ORIENTATION.ANY)
     UseDistance = Setting(0)
     UseDefocus = Setting(0)
     UseCustom = Setting(0)
@@ -272,6 +287,7 @@ class WiserWidget(widget.OWWidget):
             self.set_UseDistance()
             self.set_UseDefocus()
             self.set_UseCustom()
+            self.set_Orientation()
 
             if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
                 self.What = PositioningDirectives.What.Centre
@@ -320,8 +336,14 @@ class WiserWidget(widget.OWWidget):
         palette.setColor(QPalette.Base, QColor(243, 240, 140))
         le.setPalette(palette)
 
+        box_orientation = oasysgui.widgetBox(box_combos, "", orientation="horizontal", width=width-20)
+        gui.label(box_orientation, self, label="Orientation", labelWidth=87)
+        gui.comboBox(box_orientation, self, "OrientationGUI",
+                                        items=positioning_directives_orientation,
+                                        sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
+
         box_type = oasysgui.widgetBox(box_combos, "", orientation="horizontal", width=width-20)
-        gui.label(box_type, self, label="Type", labelWidth=87)
+        gui.label(box_type, self, label="Mode", labelWidth=87)
         gui.comboBox(box_type, self, "WhatWhereReferTo",
                      items=positioning_directives_combos,
                      sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives) # Send the value
@@ -399,6 +421,21 @@ class WiserWidget(widget.OWWidget):
         oasysgui.lineEdit(box_GrazingAngle_value, self, "GrazingAngle", "Grazing Angle [deg]", labelWidth=200, valueType=float, orientation="horizontal")
         '''
         set_positioning_directives()
+
+    def set_Orientation(self):
+        if self.OrientationGUI == PositioningDirectivesPhrases.Orientation.Isotropic:
+            self.Orientation = Optics.OPTICS_ORIENTATION.ISOTROPIC
+
+        elif self.OrientationGUI == PositioningDirectivesPhrases.Orientation.Vertical:
+            self.Orientation = Optics.OPTICS_ORIENTATION.VERTICAL
+
+        elif self.OrientationGUI == PositioningDirectivesPhrases.Orientation.Horizontal:
+            self.Orientation = Optics.OPTICS_ORIENTATION.HORIZONTAL
+
+        elif self.OrientationGUI == PositioningDirectivesPhrases.Orientation.Any:
+            self.Orientation == Optics.OPTICS_ORIENTATION.ANY
+        else:
+            raise ValueError("Something wrong with set_Orientation()")
 
     def set_UseDistance(self):
         if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:

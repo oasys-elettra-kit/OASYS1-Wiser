@@ -329,6 +329,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
             raise ValueError("No native_optical_element found")
 
         native_optical_element.CoreOptics.ComputationSettings.Ignore = (self.ignore == 1)
+        native_optical_element.CoreOptics.Orientation = self.Orientation # Set orientation
 
         if self.use_small_displacements == 1:
             native_optical_element.CoreOptics.ComputationSettings.UseSmallDisplacements = True # serve per traslare/ruotare l'EO
