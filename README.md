@@ -10,7 +10,7 @@ Hierarchy:
 
 Work in progress
 ----------
-* Everything
+* Version 1.0 beta underway
 
 Installing
 ----------
