@@ -77,7 +77,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         oasysgui.lineEdit(main_box, self, "oe_name", "O.E. Name", labelWidth=120, valueType=str, orientation="horizontal")
 
         oasysgui.lineEdit(main_box, self, "alpha", "Incidence Angle [deg]", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_length = oasysgui.lineEdit(main_box, self, "length", "Length [m]", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_length = oasysgui.lineEdit(main_box, self, "length", "Length", labelWidth=240, valueType=float, orientation="horizontal")
 
 
         self.build_mirror_specific_gui(main_box)

@@ -30,6 +30,9 @@ class OWEllipticMirror(OWOpticalElement, WidgetDecorator):
     f2 = Setting(1.2)
 
     def after_change_workspace_units(self):
+        super(OWEllipticMirror, self).after_change_workspace_units()
+        label = self.le_length.parent().layout().itemAt(0).widget()
+        label.setText(label.text() + " [" + self.workspace_units_label + "]")
         label = self.le_f1.parent().layout().itemAt(0).widget()
         label.setText(label.text() + " [" + self.workspace_units_label + "]")
         label = self.le_f2.parent().layout().itemAt(0).widget()

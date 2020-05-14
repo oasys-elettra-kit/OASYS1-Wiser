@@ -331,12 +331,12 @@ class WiserWidget(widget.OWWidget):
         self.use_distance_box       = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-20)
         self.use_distance_box_empty = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-20)
 
-        oasysgui.lineEdit(self.use_distance_box, self, "Distance", "Distance [m]", labelWidth=220, valueType=float, orientation="horizontal")
+        self.le_Distance_default = oasysgui.lineEdit(self.use_distance_box, self, "Distance", "Distance", labelWidth=220, valueType=float, orientation="horizontal")
 
         self.use_defocus_box       = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-20)
         self.use_defocus_box_empty = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width-20)
 
-        oasysgui.lineEdit(self.use_defocus_box, self, "Distance", "Defocus [m]", labelWidth=220, valueType=float, orientation="horizontal")
+        self.le_defocus = oasysgui.lineEdit(self.use_defocus_box, self, "Distance", "Defocus", labelWidth=220, valueType=float, orientation="horizontal")
 
         self.use_custom_box			= oasysgui.widgetBox(box, "", orientation="vertical", width=width-20)
         self.use_custom_box_empty 	= oasysgui.widgetBox(box, "", orientation="vertical", width=width-20)
@@ -390,7 +390,7 @@ class WiserWidget(widget.OWWidget):
         set_GrazingAngle_checked()
         '''
 
-        self.le_Distance = oasysgui.lineEdit(box_Distance_value, self, "Distance", "Distance [m]", labelWidth=196, valueType=float, orientation="horizontal")
+        self.le_Distance = oasysgui.lineEdit(box_Distance_value, self, "Distance", "Distance", labelWidth=196, valueType=float, orientation="horizontal")
         self.le_XCentre = oasysgui.lineEdit(box_XYCentre_value, self, "XCentre", "X Centre", labelWidth=196, valueType=float, orientation="horizontal")
         self.le_YCentre = oasysgui.lineEdit(box_XYCentre_value, self, "YCentre", "Y Centre", labelWidth=196, valueType=float, orientation="horizontal")
 
@@ -468,6 +468,11 @@ class WiserWidget(widget.OWWidget):
 
 
     def after_change_workspace_units(self):
+        label = self.le_Distance_default.parent().layout().itemAt(0).widget()
+        label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        #if hasattr(self, "le_defocus"):
+        label = self.le_defocus.parent().layout().itemAt(0).widget()
+        label.setText(label.text() + " [" + self.workspace_units_label + "]")
         if hasattr(self, "le_Distance"):
             label = self.le_Distance.parent().layout().itemAt(0).widget()
             label.setText(label.text() + " [" + self.workspace_units_label + "]")

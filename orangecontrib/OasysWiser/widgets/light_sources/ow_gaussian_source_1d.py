@@ -43,7 +43,7 @@ class OWGaussianSource1d(WiserWidget):
 
         oasysgui.lineEdit(source_box, self, "source_name", "Source Name", labelWidth=120, valueType=str, orientation="horizontal")
 
-        oasysgui.lineEdit(source_box, self, "source_lambda", "Wavelength [m]", labelWidth=260, valueType=float, orientation="horizontal", callback=self.set_WaistCalculation)
+        self.le_source_wl = oasysgui.lineEdit(source_box, self, "source_lambda", "Wavelength", labelWidth=260, valueType=float, orientation="horizontal", callback=self.set_WaistCalculation)
 
         gui.comboBox(source_box, self, "waist_calculation", label="Waist Data",
                      items=["User", "Fermi FEL1", "Fermi FEL2", "Fermi Auto"], labelWidth=260,
@@ -64,6 +64,9 @@ class OWGaussianSource1d(WiserWidget):
     def after_change_workspace_units(self):
         super(OWGaussianSource1d, self).after_change_workspace_units()
 
+        label = self.le_source_wl.parent().layout().itemAt(0).widget()
+        label.setText(label.text() + " [" + self.workspace_units_label + "]")
+
         label = self.le_source_waist.parent().layout().itemAt(0).widget()
         label.setText(label.text() + " [" + self.workspace_units_label + "]")
 
@@ -78,7 +81,7 @@ class OWGaussianSource1d(WiserWidget):
 
         wise_source = WiserOpticalElement(name=self.source_name,
                                           boundary_shape=None,
-                                          native_CoreOptics=Optics.SourceGaussian(self.source_lambda*1e-9,
+                                          native_CoreOptics=Optics.SourceGaussian(self.source_lambda*self.workspace_units_to_m,
                                                                                   self.source_waist*self.workspace_units_to_m),
                                           isSource=True,
                                           native_PositioningDirectives=position_directives)
