@@ -128,7 +128,7 @@ class WiserWidget(widget.OWWidget):
     Angle = Setting(0.0)
     WhichAngle = Setting(0)
 
-    PreviousOE = Setting('TO DO!')
+    ReferenceOE = Setting('None')
 
     Distance_checked = Setting(0)
     XYCentre_checked = Setting(0)
@@ -288,6 +288,7 @@ class WiserWidget(widget.OWWidget):
             self.set_UseDefocus()
             self.set_UseCustom()
             self.set_Orientation()
+            self.get_PreviousOE()
 
             if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
                 self.What = PositioningDirectives.What.Centre
@@ -324,7 +325,7 @@ class WiserWidget(widget.OWWidget):
 
         # Build a combo box with the choice of positioning directions phrases
 
-        le = oasysgui.lineEdit(box_Distance, self, "PreviousOE", "Reference O.E.", labelWidth=220,
+        le = oasysgui.lineEdit(box_Distance, self, "ReferenceOE", "Reference O.E.", labelWidth=220,
                                valueType=str, orientation="horizontal")
 
         le.setReadOnly(True)
@@ -421,6 +422,10 @@ class WiserWidget(widget.OWWidget):
         oasysgui.lineEdit(box_GrazingAngle_value, self, "GrazingAngle", "Grazing Angle [deg]", labelWidth=200, valueType=float, orientation="horizontal")
         '''
         set_positioning_directives()
+
+    def get_PreviousOE(self):
+        # oe = self.get_native_optical_element()
+        self.ReferenceOE = 'None'
 
     def set_Orientation(self):
         if self.OrientationGUI == PositioningDirectivesPhrases.Orientation.Isotropic:
