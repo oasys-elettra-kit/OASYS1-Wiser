@@ -385,7 +385,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         parameters.set_additional_parameters("NPools", self.n_pools if self.use_multipool == 1 else 1)
         parameters.set_additional_parameters("is_full_propagator", self.is_full_propagator)
 
-        print("I came until here!")
+        print("Current beamline state, with distances...")
         print(output_data.wise_beamline.get_wise_propagation_elements())
 
         output_data.wise_wavefront = PropagationManager.Instance().do_propagation(propagation_parameters=parameters, handler_name=WisePropagator.HANDLER_NAME)
