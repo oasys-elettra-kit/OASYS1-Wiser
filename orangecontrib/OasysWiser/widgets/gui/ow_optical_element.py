@@ -316,41 +316,33 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                 elif self.n_pools >= self.number_of_cpus:
                     raise Exception("Max number of parallel processes allowed on this computer (" + str(self.number_of_cpus) + ")")
 
+    # Split do_wise_calculation into do_wiser_beamline and do_wiser_calculation
+    def do_wiser_beamline(self):
+        oasysWiserOE = self.get_optical_element(self.get_native_optical_element())
+        libWiserOE = oasysWiserOE.native_optical_element
 
-    def do_wise_calculation(self):
-        if self.input_data is None:
-            raise Exception("No Input Data!")
+        if libWiserOE.Name == None:
+            raise ValueError("No LibWiser optical element found")
 
-        optical_element = self.get_optical_element(self.get_native_optical_element())
-
-        native_optical_element = optical_element.native_optical_element
-
-        if native_optical_element.Name == None:
-            raise ValueError("No native_optical_element found")
-
-        native_optical_element.CoreOptics.ComputationSettings.Ignore = (self.ignore == 1)
-        native_optical_element.CoreOptics.Orientation = self.Orientation # Set orientation
+        libWiserOE.CoreOptics.ComputationSettings.Ignore = (self.ignore == 1)
+        libWiserOE.CoreOptics.Orientation = self.Orientation
 
         if self.use_small_displacements == 1:
-            native_optical_element.CoreOptics.ComputationSettings.UseSmallDisplacements = True # serve per traslare/ruotare l'EO
-            native_optical_element.CoreOptics.SmallDisplacements.Rotation = numpy.deg2rad(self.rotation)
-            native_optical_element.CoreOptics.SmallDisplacements.Trans = self.transverse*self.workspace_units_to_m # Transverse displacement (rispetto al raggio uscente, magari faremo scegliere)
-            native_optical_element.CoreOptics.SmallDisplacements.Long = self.longitudinal*self.workspace_units_to_m # Longitudinal displacement (idem)
+            libWiserOE.CoreOptics.ComputationSettings.UseSmallDisplacements = True  # serve per traslare/ruotare l'EO
+            libWiserOE.CoreOptics.SmallDisplacements.Rotation = numpy.deg2rad(self.rotation)
+            libWiserOE.CoreOptics.SmallDisplacements.Trans = self.transverse * self.workspace_units_to_m  # Transverse displacement (rispetto al raggio uscente, magari faremo scegliere)
+            libWiserOE.CoreOptics.SmallDisplacements.Long = self.longitudinal * self.workspace_units_to_m  # Longitudinal displacement (idem)
         else:
-            native_optical_element.CoreOptics.ComputationSettings.UseSmallDisplacements = False
-            native_optical_element.CoreOptics.SmallDisplacements.Rotation = 0.0
-            native_optical_element.CoreOptics.SmallDisplacements.Trans = 0.0
-            native_optical_element.CoreOptics.SmallDisplacements.Long = 0.0
+            libWiserOE.CoreOptics.ComputationSettings.UseSmallDisplacements = False
 
         if self.use_figure_error == 1:
-            native_optical_element.CoreOptics.ComputationSettings.UseFigureError = True
+            libWiserOE.CoreOptics.ComputationSettings.UseFigureError = True
 
-            native_optical_element.CoreOptics.FigureErrorLoad(File = self.figure_error_file,
-                                                              Step = self.figure_error_step * self.workspace_units_to_m, # passo del file
-                                                              AmplitudeScaling = self.figure_error_amplitude_scaling * self.figure_error_um_conversion # fattore di scala
-                                                              )
+            libWiserOE.CoreOptics.FigureErrorLoad(File = self.figure_error_file,
+                                                  Step = self.figure_error_step * self.workspace_units_to_m,
+                                                  AmplitudeScaling = self.figure_error_amplitude_scaling * self.figure_error_um_conversion)
         else:
-            native_optical_element.CoreOptics.ComputationSettings.UseFigureError = False
+            libWiserOE.CoreOptics.ComputationSettings.UseFigureError = False
 
         if self.use_roughness == 1:
             self.use_roughness = 0
@@ -358,39 +350,132 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
             raise NotImplementedError("Roughness Not yet supported")
         else:
-            native_optical_element.CoreOptics.ComputationSettings.UseRoughness = False
+            libWiserOE.CoreOptics.ComputationSettings.UseRoughness = False
 
         if self.calculation_type == 0:
-            native_optical_element.ComputationSettings.UseCustomSampling = False
+            libWiserOE.ComputationSettings.UseCustomSampling = False
         else:
             # l'utente decide di impostare a mano il campionamento
-            native_optical_element.ComputationSettings.UseCustomSampling = True
-            native_optical_element.ComputationSettings.NSamples = self.number_of_points
+            libWiserOE.ComputationSettings.UseCustomSampling = True
+            libWiserOE.ComputationSettings.NSamples = self.number_of_points
+
+        wiser_beamline = self.input_data.duplicate().wise_beamline
+
+        if wiser_beamline is None: wiser_beamline = WisePropagationElements()
+
+        wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=oasysWiserOE))
+
+        print("Current beamline state, with distances...")
+        print(wiser_beamline.get_wise_propagation_elements())
+
+        return wiser_beamline
+
+
+
+    def do_wiser_calculation(self, beamline=None):
+
+        if beamline == None:
+            beamline = self.do_wiser_beamline()
+
+        if self.input_data is None:
+            raise Exception("No Input Data!")
 
         output_data = self.input_data.duplicate()
 
-        # if output_data != self.input_data:
-        #     raise ValueError("duplicate() does not work")
-
         input_wavefront = output_data.wise_wavefront
 
-        if output_data.wise_beamline is None: output_data.wise_beamline = WisePropagationElements()
+        output_data.wise_beamline = beamline
 
-        output_data.wise_beamline.add_beamline_element(WiserBeamlineElement(optical_element=optical_element))
+        parameters = PropagationParameters(
+            wavefront=input_wavefront if not input_wavefront is None else WiseWavefront(wise_computation_results=None),
+            propagation_elements=output_data.wise_beamline)
 
-        parameters = PropagationParameters(wavefront=input_wavefront if not input_wavefront is None else WiseWavefront(wise_computation_results=None),
-                                           propagation_elements=output_data.wise_beamline)
-
-        parameters.set_additional_parameters("single_propagation", True if PropagationManager.Instance().get_propagation_mode(WISE_APPLICATION) == PropagationMode.STEP_BY_STEP else (not self.is_full_propagator))
+        parameters.set_additional_parameters("single_propagation",
+                                             True if PropagationManager.Instance().get_propagation_mode(
+                                                 WISE_APPLICATION) == PropagationMode.STEP_BY_STEP else (
+                                                 not self.is_full_propagator))
         parameters.set_additional_parameters("NPools", self.n_pools if self.use_multipool == 1 else 1)
         parameters.set_additional_parameters("is_full_propagator", self.is_full_propagator)
 
-        print("Current beamline state, with distances...")
-        print(output_data.wise_beamline.get_wise_propagation_elements())
-
-        output_data.wise_wavefront = PropagationManager.Instance().do_propagation(propagation_parameters=parameters, handler_name=WisePropagator.HANDLER_NAME)
-
+        output_data.wise_wavefront = PropagationManager.Instance().do_propagation(propagation_parameters=parameters,
+                                                                                  handler_name=WisePropagator.HANDLER_NAME)
         return output_data
+
+    #
+    # def do_wise_calculation(self):
+    #     if self.input_data is None:
+    #         raise Exception("No Input Data!")
+    #
+    #     optical_element = self.get_optical_element(self.get_native_optical_element())
+    #
+    #     native_optical_element = optical_element.native_optical_element
+    #
+    #     if native_optical_element.Name == None:
+    #         raise ValueError("No native_optical_element found")
+    #
+    #     native_optical_element.CoreOptics.ComputationSettings.Ignore = (self.ignore == 1)
+    #     native_optical_element.CoreOptics.Orientation = self.Orientation # Set orientation
+    #
+    #     if self.use_small_displacements == 1:
+    #         native_optical_element.CoreOptics.ComputationSettings.UseSmallDisplacements = True # serve per traslare/ruotare l'EO
+    #         native_optical_element.CoreOptics.SmallDisplacements.Rotation = numpy.deg2rad(self.rotation)
+    #         native_optical_element.CoreOptics.SmallDisplacements.Trans = self.transverse*self.workspace_units_to_m # Transverse displacement (rispetto al raggio uscente, magari faremo scegliere)
+    #         native_optical_element.CoreOptics.SmallDisplacements.Long = self.longitudinal*self.workspace_units_to_m # Longitudinal displacement (idem)
+    #     else:
+    #         native_optical_element.CoreOptics.ComputationSettings.UseSmallDisplacements = False
+    #         native_optical_element.CoreOptics.SmallDisplacements.Rotation = 0.0
+    #         native_optical_element.CoreOptics.SmallDisplacements.Trans = 0.0
+    #         native_optical_element.CoreOptics.SmallDisplacements.Long = 0.0
+    #
+    #     if self.use_figure_error == 1:
+    #         native_optical_element.CoreOptics.ComputationSettings.UseFigureError = True
+    #
+    #         native_optical_element.CoreOptics.FigureErrorLoad(File = self.figure_error_file,
+    #                                                           Step = self.figure_error_step * self.workspace_units_to_m, # passo del file
+    #                                                           AmplitudeScaling = self.figure_error_amplitude_scaling * self.figure_error_um_conversion # fattore di scala
+    #                                                           )
+    #     else:
+    #         native_optical_element.CoreOptics.ComputationSettings.UseFigureError = False
+    #
+    #     if self.use_roughness == 1:
+    #         self.use_roughness = 0
+    #         self.set_UseRoughness()
+    #
+    #         raise NotImplementedError("Roughness Not yet supported")
+    #     else:
+    #         native_optical_element.CoreOptics.ComputationSettings.UseRoughness = False
+    #
+    #     if self.calculation_type == 0:
+    #         native_optical_element.ComputationSettings.UseCustomSampling = False
+    #     else:
+    #         # l'utente decide di impostare a mano il campionamento
+    #         native_optical_element.ComputationSettings.UseCustomSampling = True
+    #         native_optical_element.ComputationSettings.NSamples = self.number_of_points
+    #
+    #     output_data = self.input_data.duplicate()
+    #
+    #     # if output_data != self.input_data:
+    #     #     raise ValueError("duplicate() does not work")
+    #
+    #     input_wavefront = output_data.wise_wavefront
+    #
+    #     if output_data.wise_beamline is None: output_data.wise_beamline = WisePropagationElements()
+    #
+    #     output_data.wise_beamline.add_beamline_element(WiserBeamlineElement(optical_element=optical_element))
+    #
+    #     parameters = PropagationParameters(wavefront=input_wavefront if not input_wavefront is None else WiseWavefront(wise_computation_results=None),
+    #                                        propagation_elements=output_data.wise_beamline)
+    #
+    #     parameters.set_additional_parameters("single_propagation", True if PropagationManager.Instance().get_propagation_mode(WISE_APPLICATION) == PropagationMode.STEP_BY_STEP else (not self.is_full_propagator))
+    #     parameters.set_additional_parameters("NPools", self.n_pools if self.use_multipool == 1 else 1)
+    #     parameters.set_additional_parameters("is_full_propagator", self.is_full_propagator)
+    #
+    #     print("Current beamline state, with distances...")
+    #     print(output_data.wise_beamline.get_wise_propagation_elements())
+    #
+    #     output_data.wise_wavefront = PropagationManager.Instance().do_propagation(propagation_parameters=parameters, handler_name=WisePropagator.HANDLER_NAME)
+    #
+    #     return output_data
 
     def get_native_optical_element(self):
         raise NotImplementedError()

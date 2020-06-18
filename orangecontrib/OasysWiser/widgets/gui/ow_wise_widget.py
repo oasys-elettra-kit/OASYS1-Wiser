@@ -650,7 +650,7 @@ class WiserWidget(widget.OWWidget):
 
             self.check_fields()
 
-            calculation_output = self.do_wise_calculation()
+            calculation_output = self.do_wiser_calculation()
 
             self.progressBarSet(50)
 
@@ -684,7 +684,7 @@ class WiserWidget(widget.OWWidget):
     def check_fields(self):
         raise Exception("This method should be reimplementd in subclasses!")
 
-    def do_wise_calculation(self):
+    def do_wiser_calculation(self):
         raise Exception("This method should be reimplementd in subclasses!")
 
     def extract_plot_data_from_calculation_output(self, calculation_output):
