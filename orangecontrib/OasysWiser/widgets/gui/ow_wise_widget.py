@@ -162,6 +162,7 @@ class WiserWidget(widget.OWWidget):
         #widget buttons: compute, set defaults, help
         gui.button(self.button_box, self, "Compute", callback=self.compute, height=35)
         gui.button(self.button_box, self, "Defaults", callback=self.defaults, height=35)
+        gui.button(self.button_box, self, "Beamline", callback=self.do_wiser_beamline, height=35)
 
         gui.separator(self.controlArea, height=10)
 
@@ -635,7 +636,6 @@ class WiserWidget(widget.OWWidget):
 
         self.progressBarSet(progressBarValue)
 
-
     # Underlying function under the big "Compute" button that executes computation
 
     def compute(self):
@@ -650,7 +650,7 @@ class WiserWidget(widget.OWWidget):
 
             self.check_fields()
 
-            calculation_output = self.do_wiser_calculation()
+            calculation_output = self.do_wise_calculation()
 
             self.progressBarSet(50)
 
@@ -682,13 +682,16 @@ class WiserWidget(widget.OWWidget):
          self.resetSettings()
 
     def check_fields(self):
-        raise Exception("This method should be reimplementd in subclasses!")
+        raise Exception("This method should be reimplemented in subclasses!")
 
-    def do_wiser_calculation(self):
-        raise Exception("This method should be reimplementd in subclasses!")
+    def do_wiser_beamline(self):
+        raise Exception("This method should be reimplemented in subclasses!")
+
+    def do_wise_calculation(self):
+        raise Exception("This method should be reimplemented in subclasses!")
 
     def extract_plot_data_from_calculation_output(self, calculation_output):
-        raise Exception("This method should be reimplementd in subclasses!")
+        raise Exception("This method should be reimplemented in subclasses!")
 
     def extract_wise_data_from_calculation_output(self, calculation_output):
         return calculation_output

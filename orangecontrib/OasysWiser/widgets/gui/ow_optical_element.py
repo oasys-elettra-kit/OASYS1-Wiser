@@ -316,7 +316,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                 elif self.n_pools >= self.number_of_cpus:
                     raise Exception("Max number of parallel processes allowed on this computer (" + str(self.number_of_cpus) + ")")
 
-    # Split do_wise_calculation into do_wiser_beamline and do_wiser_calculation
+    # Split do_wise_calculation into do_wiser_beamline and do_wise_calculation
     def do_wiser_beamline(self):
         oasysWiserOE = self.get_optical_element(self.get_native_optical_element())
         libWiserOE = oasysWiserOE.native_optical_element
@@ -372,7 +372,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
 
 
-    def do_wiser_calculation(self, beamline=None):
+    def do_wise_calculation(self, beamline=None):
 
         if beamline == None:
             beamline = self.do_wiser_beamline()
