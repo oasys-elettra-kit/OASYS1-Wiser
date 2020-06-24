@@ -140,6 +140,8 @@ class WiserWidget(widget.OWWidget):
     def __init__(self):
         super().__init__()
 
+        self.sourceOE = 'None'
+
         self.runaction = OWAction("Compute", self)
         self.runaction.triggered.connect(self.compute)
         self.addAction(self.runaction)
@@ -234,7 +236,6 @@ class WiserWidget(widget.OWWidget):
     def build_gui(self):
         pass
 
-
     # Here the positioning directives box is built. This is then called from each individual optical element widget
 
     def build_positioning_directive_box(self, container_box, width, element_type=ElementType.SOURCE):
@@ -289,7 +290,6 @@ class WiserWidget(widget.OWWidget):
             self.set_UseDefocus()
             self.set_UseCustom()
             self.set_Orientation()
-            self.get_PreviousOE()
 
             if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
                 self.What = PositioningDirectives.What.Centre
@@ -423,10 +423,6 @@ class WiserWidget(widget.OWWidget):
         oasysgui.lineEdit(box_GrazingAngle_value, self, "GrazingAngle", "Grazing Angle [deg]", labelWidth=200, valueType=float, orientation="horizontal")
         '''
         set_positioning_directives()
-
-    def get_PreviousOE(self):
-        # oe = self.get_native_optical_element()
-        self.ReferenceOE = 'None'
 
     def set_Orientation(self):
         if self.OrientationGUI == PositioningDirectivesPhrases.Orientation.Isotropic:

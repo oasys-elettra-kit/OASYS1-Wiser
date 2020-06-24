@@ -7,6 +7,7 @@ from orangewidget import gui
 from orangewidget.settings import Setting
 from oasys.widgets import gui as oasysgui
 from oasys.widgets import congruence
+from oasys.util.oasys_util import EmittingStream
 
 from syned.widget.widget_decorator import WidgetDecorator
 from syned.beamline.optical_elements.mirrors.mirror import Mirror
@@ -18,7 +19,7 @@ from WofryWiser.propagator.wavefront1D.wise_wavefront import WiseWavefront
 from WofryWiser.beamline.beamline_elements import WiserBeamlineElement
 
 from orangecontrib.OasysWiser.util.wise_objects import WiserData, WiserPreInputData
-from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget, ElementType
+from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget, ElementType, PositioningDirectivesPhrases
 
 class OWOpticalElement(WiserWidget, WidgetDecorator):
     category = ""
@@ -316,8 +317,20 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                 elif self.n_pools >= self.number_of_cpus:
                     raise Exception("Max number of parallel processes allowed on this computer (" + str(self.number_of_cpus) + ")")
 
+    def get_ReferenceOE(self, beamline):
+        # Two different scenarios: refer to previous O. E. and refer to source
+
+        if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromSource:
+            self.ReferenceOE = beamline.get_wise_propagation_element(0).Name
+
+        else:
+            self.ReferenceOE = beamline.get_wise_propagation_element(-1).GetParent(SameOrientation=True, OnlyReference=True).Name
+
     # Split do_wise_calculation into do_wiser_beamline and do_wise_calculation
     def do_wiser_beamline(self):
+
+        sys.stdout = EmittingStream(textWritten=self.writeStdOut)
+
         oasysWiserOE = self.get_optical_element(self.get_native_optical_element())
         libWiserOE = oasysWiserOE.native_optical_element
 
@@ -364,6 +377,11 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         if wiser_beamline is None: wiser_beamline = WisePropagationElements()
 
         wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=oasysWiserOE))
+
+        # self.ReferenceOE = libWiserOE.GetParent(SameOrientation=True, OnlyReference=True).Name
+        # self.sourceOE = wiser_beamline.get_wise_propagation_element(0).Name
+
+        self.get_ReferenceOE(beamline=wiser_beamline)
 
         print("Current beamline state, with distances...")
         print(wiser_beamline.get_wise_propagation_elements())
