@@ -60,6 +60,7 @@ positioning_directives_which_angle = [Optics.TypeOfAngle.GrazingNominal,
 class PositioningDirectivesPhrases:
 
     class Type:
+        OasysDefault = 'OASYS Default (distance from previous O.E.)'
         Autofocus = 'Autofocus (Focus of last focusing O.E.)'
         DistanceFromPrevious = 'Set fixed distance from previous O.E.'
         DistanceFromSource = 'Set fixed distance from source'
@@ -71,7 +72,8 @@ class PositioningDirectivesPhrases:
         Vertical = 'Vertical'
         Any = 'Any'
 
-positioning_directives_combos = [PositioningDirectivesPhrases.Type.Autofocus,
+positioning_directives_combos = [PositioningDirectivesPhrases.Type.OasysDefault,
+                                 PositioningDirectivesPhrases.Type.Autofocus,
                                  PositioningDirectivesPhrases.Type.DistanceFromSource,
                                  PositioningDirectivesPhrases.Type.DistanceFromPrevious,
                                  PositioningDirectivesPhrases.Type.Custom]
@@ -115,7 +117,7 @@ class WiserWidget(widget.OWWidget):
     ReferTo = Setting(PositioningDirectives.ReferTo.AbsoluteReference)
     What = Setting(PositioningDirectives.What.Centre)
     Where = Setting(PositioningDirectives.Where.Centre)
-    WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.DistanceFromSource)
+    WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.OasysDefault)
     OrientationGUI = Setting(PositioningDirectivesPhrases.Orientation.Any)
     Orientation = Setting(Optics.OPTICS_ORIENTATION.ANY)
     UseDistance = Setting(0)
@@ -290,6 +292,12 @@ class WiserWidget(widget.OWWidget):
             self.set_UseDefocus()
             self.set_UseCustom()
             self.set_Orientation()
+
+            if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.OasysDefault:
+                self.What = PositioningDirectives.What.Centre
+                self.Where = PositioningDirectives.Where.Centre
+                self.ReferTo = PositioningDirectives.ReferTo.UpstreamElement
+                self.UseAsReference = True
 
             if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
                 self.What = PositioningDirectives.What.Centre
