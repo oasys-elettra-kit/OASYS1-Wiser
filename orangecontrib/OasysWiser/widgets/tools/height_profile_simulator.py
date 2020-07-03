@@ -15,8 +15,8 @@ from oasys.widgets import congruence
 from oasys.widgets.gui import ConfirmDialog
 from oasys.util.oasys_util import EmittingStream
 
-from orangecontrib.wise2.util.wise_objects import WisePreInputData
-from orangecontrib.wise2.util.wise_util import WisePlot
+from orangecontrib.OasysWiser.util.wise_objects import WiserPreInputData
+from orangecontrib.OasysWiser.util.wise_util import WiserPlot
 
 class OWheight_profile_simulator(OWWidget):
     name = "Height Profile Simulator"
@@ -30,7 +30,7 @@ class OWheight_profile_simulator(OWWidget):
     keywords = ["height_profile_simulator"]
 
     outputs = [{"name": "PreInput",
-                "type": WisePreInputData,
+                "type": WiserPreInputData,
                 "doc": "PreInput",
                 "id": "PreInput"}]
 
@@ -239,7 +239,7 @@ class OWheight_profile_simulator(OWWidget):
 
                 self.plot_tab.layout().addWidget(self.plot_canvas)
 
-            WisePlot.plot_histo(self.plot_canvas, xx_to_plot, yy_to_plot, title, "X [" + self.workspace_units_label + "]", "Z [nm]")
+            WiserPlot.plot_histo(self.plot_canvas, xx_to_plot, yy_to_plot, title, "X [" + self.workspace_units_label + "]", "Z [nm]")
 
             QMessageBox.information(self, "QMessageBox.information()",
                                     "Height Profile calculated: if the result is satisfactory,\nclick \'Generate Height Profile File\' to complete the operation ",
@@ -264,9 +264,9 @@ class OWheight_profile_simulator(OWWidget):
                                             QMessageBox.Ok)
 
 
-                self.send("PreInput", WisePreInputData(figure_error_file=self.heigth_profile_file_name,
-                                                       figure_error_step=self.step_y,
-                                                       figure_user_units_to_m=self.workspace_units_to_m))
+                self.send("PreInput", WiserPreInputData(figure_error_file=self.heigth_profile_file_name,
+                                                        figure_error_step=self.step_y,
+                                                        figure_user_units_to_m=self.workspace_units_to_m))
             except Exception as exception:
                 QMessageBox.critical(self, "Error",
                                      exception.args[0],

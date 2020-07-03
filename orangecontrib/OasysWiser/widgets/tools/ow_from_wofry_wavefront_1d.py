@@ -7,19 +7,19 @@ from orangewidget.settings import Setting
 from oasys.widgets import gui as oasysgui
 from oasys.widgets import congruence
 
-from orangecontrib.wise2.util.wise_objects import WiseData
-from orangecontrib.wise2.widgets.gui.ow_wise_widget import WiseWidget
+from orangecontrib.OasysWiser.util.wise_objects import WiserData
+from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget
 
 from wofry.propagator.wavefront1D.generic_wavefront import GenericWavefront1D
 
-from wofrywise2.propagator.propagator1D.wise_propagator import WisePropagationElements
-from wofrywise2.propagator.wavefront1D.wise_wavefront import WiseWavefront
-from wofrywise2.beamline.wise_beamline_element import WiseBeamlineElement
-from wofrywise2.beamline.wise_optical_element import WiseOpticalElement
+from WofryWiser.propagator.propagator1D.wise_propagator import WisePropagationElements
+from WofryWiser.propagator.wavefront1D.wise_wavefront import WiseWavefront
+from WofryWiser.beamline.beamline_elements import WiserBeamlineElement
+from WofryWiser.beamline.beamline_elements import WiserOpticalElement
 
-from wiselib2 import Fundation, Optics
+from LibWiser import Foundation, Optics
 
-class OWFromWofryWavefront1d(WiseWidget):
+class OWFromWofryWavefront1d(WiserWidget):
     name = "From Wofry Wavefront 1D"
     id = "FromWofryWavefront1d"
     description = "From Wofry Wavefront 1D"
@@ -94,9 +94,9 @@ class OWFromWofryWavefront1d(WiseWidget):
         wise_wavefront = calculation_output[1]
 
         beamline = WisePropagationElements()
-        beamline.add_beamline_element(WiseBeamlineElement(optical_element=WiseOpticalElement(wise_optical_element=get_dummy_source(wofry_wavefront))))
+        beamline.add_beamline_element(WiserBeamlineElement(optical_element=WiserOpticalElement(native_OpticalElement=get_dummy_source(wofry_wavefront))))
 
-        return WiseData(wise_wavefront=wise_wavefront, wise_beamline=beamline)
+        return WiserData(wise_wavefront=wise_wavefront, wise_beamline=beamline)
 
     def set_input(self, input_data):
         self.setStatusMessage("")
@@ -108,12 +108,12 @@ class OWFromWofryWavefront1d(WiseWidget):
             if self.is_automatic_run: self.compute()
 
 def get_dummy_source(wofry_wavefront):
-    return Fundation.OpticalElement(Name="Wofry Source",
-                                    IsSource = True,
-                                    Element=DummyElement(wofry_wavefront=wofry_wavefront),
-                                    PositioningDirectives = Fundation.PositioningDirectives(ReferTo = Fundation.PositioningDirectives.ReferTo.AbsoluteReference,
-                                                                                            XYCentre = [0.0, 0.0],
-                                                                                            Angle = 0.0))
+    return Foundation.OpticalElement(Name="Wofry Source",
+                                     IsSource=True,
+                                     Element=DummyElement(wofry_wavefront=wofry_wavefront),
+                                     PositioningDirectives=Foundation.PositioningDirectives(ReferTo=Foundation.PositioningDirectives.ReferTo.AbsoluteReference,
+                                                                                            XYCentre=[0.0, 0.0],
+                                                                                            Angle=0.0))
 
 class DummyElement(Optics.SourceGaussian):
     def __init__(self, wofry_wavefront=GenericWavefront1D()):

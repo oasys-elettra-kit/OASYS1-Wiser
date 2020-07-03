@@ -8,17 +8,19 @@ except AttributeError:
     from setuptools import find_packages, setup
 
 
-NAME = 'OASYS1-Wiser'
-VERSION = '0.0.3'
-ISRELEASED = False
+NAME = 'OASYS1-OasysWiser'
+VERSION = '0.0.8'
+ISRELEASED = True
 
 DESCRIPTION = 'Wiser in Python'
 README_FILE = os.path.join(os.path.dirname(__file__), 'README.txt')
 LONG_DESCRIPTION = open(README_FILE).read()
 AUTHOR = 'Michele Manfredda, Lorenzo Raimondi, Luca Rebuffi, Aljosa Hafner'
-AUTHOR_EMAIL = 'luca.rebuffi@elettra.eu'
-URL = 'https://github.com/oasys-elettra-kit/WISE2'
-DOWNLOAD_URL = 'https://github.com/oasys-elettra-kit/WISE2'
+AUTHOR_EMAIL = 'michele.manfredda@elettra.eu'
+URL = 'https://github.com/oasys-elettra-kit/OasysWiser'
+DOWNLOAD_URL = 'https://github.com/oasys-elettra-kit/OasysWiser'
+MAINTAINER = 'Aljosa Hafner'
+MAINTAINER_EMAIL = 'aljosa.hafner@ceric-eric.eu'
 LICENSE = 'GPLv3'
 
 KEYWORDS = [
@@ -36,15 +38,15 @@ CLASSIFIERS = [
     'Intended Audience :: Science/Research',
 ]
 
-SETUP_REQUIRES = (
+SETUP_REQUIRES = [
     'setuptools',
-)
+]
 
-INSTALL_REQUIRES = (
+INSTALL_REQUIRES = [
     'LibWiser',
     'oasys1>=1.1.19',
     'WofryWiser'
-)
+]
 
 PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))
 
@@ -57,7 +59,7 @@ PACKAGE_DATA = {
 NAMESPACE_PACAKGES = ["orangecontrib", "orangecontrib.OasysWiser", "orangecontrib.OasysWiser.widgets"]
 
 ENTRY_POINTS = {
-    'oasys.addons' : ("wise = orangecontrib.wise", ),
+    'oasys.addons' : ("wise = orangecontrib.OasysWiser", ),
     'oasys.widgets' : (
         "Wiser Light Sources = orangecontrib.OasysWiser.widgets.light_sources",
         "Wiser Optical Elements = orangecontrib.OasysWiser.widgets.optical_elements",
@@ -78,6 +80,7 @@ if __name__ == '__main__':
               name = NAME,
               version = VERSION,
               description = DESCRIPTION,
+              long_description_content_type = 'text/markdown',
               long_description = LONG_DESCRIPTION,
               author = AUTHOR,
               author_email = AUTHOR_EMAIL,

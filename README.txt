@@ -1,5 +1,4 @@
-# Wiser for OASYS
-----------
+Wiser for OASYS
 
 OasysWiser is the GUI part of Wiser in Oasys. It is a reboot of OASYS1-WISE2.
 
@@ -9,11 +8,10 @@ Hierarchy:
 * OasysWiser - GUI part, calling WofryWiser intermediate routines
 
 Work in progress
-----------
+
 * Everything
 
 Installing
-----------
 
 OasysWiser will be pip installable (https://pip.pypa.io/) by:
 

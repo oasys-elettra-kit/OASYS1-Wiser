@@ -22,8 +22,7 @@ from oasys.widgets import congruence
 from oasys.widgets.gui import ConfirmDialog
 from oasys.util.oasys_util import EmittingStream
 
-from orangecontrib.wise2.util.wise_objects import WisePreInputData
-from orangecontrib.wise2.util.wise_util import WisePlot
+from orangecontrib.OasysWiser.util.wise_objects import WiserPreInputData
 
 from srxraylib.metrology import profiles_simulation, dabam
 from Shadow import ShadowTools as ST
@@ -40,7 +39,7 @@ class OWdabam_height_profile(OWWidget):
     keywords = ["dabam_height_profile"]
 
     outputs = [{"name": "PreInput",
-                "type": WisePreInputData,
+                "type": WiserPreInputData,
                 "doc": "PreInput",
                 "id": "PreInput"}]
 
@@ -647,9 +646,9 @@ class OWdabam_height_profile(OWWidget):
                                             "Height Profile file " + self.heigth_profile_file_name + " written on disk",
                                             QMessageBox.Ok)
 
-                self.send("PreInput", WisePreInputData(figure_error_file=self.heigth_profile_file_name,
-                                                       figure_error_step=numpy.abs(self.xx[1]-self.xx[0]),
-                                                       figure_user_units_to_m=self.workspace_units_to_m))
+                self.send("PreInput", WiserPreInputData(figure_error_file=self.heigth_profile_file_name,
+                                                        figure_error_step=numpy.abs(self.xx[1]-self.xx[0]),
+                                                        figure_user_units_to_m=self.workspace_units_to_m))
             except Exception as exception:
                 QMessageBox.critical(self, "Error",
                                      exception.args[0],

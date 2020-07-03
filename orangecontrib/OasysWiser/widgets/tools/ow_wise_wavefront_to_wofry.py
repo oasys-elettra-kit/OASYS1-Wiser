@@ -11,9 +11,9 @@ from oasys.widgets.widget import AutomaticWidget
 
 from wofry.propagator.wavefront1D.generic_wavefront import GenericWavefront1D
 
-from wofrywise2.propagator.wavefront1D.wise_wavefront import WiseWavefront
+from WofryWiser.propagator.wavefront1D.wise_wavefront import WiseWavefront
 
-from orangecontrib.wise2.util.wise_objects import WiseData
+from orangecontrib.OasysWiser.util.wise_objects import WiserData
 
 class OWWiseSourceToWofryWavefront1d(AutomaticWidget):
     name = "Wise Wavefront To Wofry Wavefront 1D"
@@ -24,7 +24,7 @@ class OWWiseSourceToWofryWavefront1d(AutomaticWidget):
     category = ""
     keywords = ["wise", "gaussian"]
 
-    inputs = [("WiseData", WiseData, "set_input")]
+    inputs = [("WiseData", WiserData, "set_input")]
 
     outputs = [{"name":"GenericWavefront1D",
                 "type":GenericWavefront1D,
