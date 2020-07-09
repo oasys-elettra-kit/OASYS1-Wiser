@@ -329,6 +329,8 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
     # Split do_wise_calculation into do_wiser_beamline and do_wise_calculation
     def do_wiser_beamline(self):
 
+        self.check_fields()
+
         sys.stdout = EmittingStream(textWritten=self.writeStdOut)
 
         oasysWiserOE = self.get_optical_element(self.get_native_optical_element())

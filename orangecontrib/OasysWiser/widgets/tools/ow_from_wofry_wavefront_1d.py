@@ -93,10 +93,10 @@ class OWFromWofryWavefront1d(WiserWidget):
         wofry_wavefront = calculation_output[0]
         wise_wavefront = calculation_output[1]
 
-        beamline = WisePropagationElements()
-        beamline.add_beamline_element(WiserBeamlineElement(optical_element=WiserOpticalElement(native_OpticalElement=get_dummy_source(wofry_wavefront))))
+        wiser_beamline = WisePropagationElements()
+        wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=WiserOpticalElement(native_OpticalElement=get_dummy_source(wofry_wavefront))))
 
-        return WiserData(wise_wavefront=wise_wavefront, wise_beamline=beamline)
+        return WiserData(wise_wavefront=wise_wavefront, wise_beamline=wiser_beamline)
 
     def set_input(self, input_data):
         self.setStatusMessage("")
