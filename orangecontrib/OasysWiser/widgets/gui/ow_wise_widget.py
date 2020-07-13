@@ -299,7 +299,7 @@ class WiserWidget(widget.OWWidget):
                 self.ReferTo = PositioningDirectives.ReferTo.UpstreamElement
                 self.UseAsReference = True
 
-            if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
+            elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
                 self.What = PositioningDirectives.What.Centre
                 self.Where = PositioningDirectives.Where.DownstreamFocus
                 self.ReferTo = PositioningDirectives.ReferTo.UpstreamElement
