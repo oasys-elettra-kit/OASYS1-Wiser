@@ -448,7 +448,12 @@ class WiserWidget(widget.OWWidget):
             raise ValueError("Something wrong with set_Orientation()")
 
     def set_UseDistance(self):
-        if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
+
+        if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.OasysDefault:
+            self.Distance_checked = 1
+            self.UseDistance = 1
+
+        elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
             self.Distance_checked = 0
             self.UseDistance = 0
 
@@ -467,7 +472,12 @@ class WiserWidget(widget.OWWidget):
             raise ValueError("Something wrong with set_UseDistance()")
 
     def set_UseDefocus(self):
-        if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
+
+        if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.OasysDefault:
+            self.Distance_checked = 1
+            self.UseDefocus = 0
+
+        elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
             self.Distance_checked = 0
             self.UseDefocus = 1
 
@@ -486,7 +496,12 @@ class WiserWidget(widget.OWWidget):
             raise ValueError("Something wrong with set_UseDefocus()")
 
     def set_UseCustom(self):
-        if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
+
+        if self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.OasysDefault:
+            self.Distance_checked = 1
+            self.UseCustom = 0
+
+        elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
             self.Distance_checked = 1
             self.UseCustom = 0
 
