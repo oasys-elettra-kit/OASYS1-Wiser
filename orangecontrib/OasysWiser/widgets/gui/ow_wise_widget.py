@@ -60,10 +60,9 @@ positioning_directives_which_angle = [Optics.TypeOfAngle.GrazingNominal,
 class PositioningDirectivesPhrases:
 
     class Type:
-        OasysDefault = 'OASYS Default (distance from previous O.E.)'
-        Autofocus = 'Autofocus (Focus of last focusing O.E.)'
-        DistanceFromPrevious = 'Set fixed distance from previous O.E.'
-        DistanceFromSource = 'Set fixed distance from source'
+        OasysDefault = 'relative to previous O.E. (OASYS default)'
+        DistanceFromSource = 'relative to source (WISER default)'
+        Autofocus = 'smart autofocus'
         Custom = 'Set custom positioning directives'
 
     class Orientation:
@@ -73,9 +72,8 @@ class PositioningDirectivesPhrases:
         Any = 'Any'
 
 positioning_directives_combos = [PositioningDirectivesPhrases.Type.OasysDefault,
-                                 PositioningDirectivesPhrases.Type.Autofocus,
                                  PositioningDirectivesPhrases.Type.DistanceFromSource,
-                                 PositioningDirectivesPhrases.Type.DistanceFromPrevious,
+                                 PositioningDirectivesPhrases.Type.Autofocus,
                                  PositioningDirectivesPhrases.Type.Custom]
 
 positioning_directives_orientation = [PositioningDirectivesPhrases.Orientation.Isotropic,
@@ -90,8 +88,8 @@ class ElementType:
     DETECTOR = 10
 
 class WiserWidget(widget.OWWidget):
-    author = "Luca Rebuffi"
-    maintainer_email = "luca.rebuffi@elettra.eu"
+    author = "Aljosa Hafner"
+    maintainer_email = "aljosa.hafner@ceric-eric.eu"
 
     outputs = [{"name": "WiserData",
                 "type": WiserData,
@@ -164,9 +162,10 @@ class WiserWidget(widget.OWWidget):
 
         self.button_box = gui.widgetBox(self.controlArea, "", orientation="horizontal")
         #widget buttons: compute, set defaults, help
+        gui.button(self.button_box, self, "Apply", callback=self.do_wiser_beamline, height=35)
         gui.button(self.button_box, self, "Compute", callback=self.compute, height=35)
-        gui.button(self.button_box, self, "Defaults", callback=self.defaults, height=35)
-        gui.button(self.button_box, self, "Beamline", callback=self.do_wiser_beamline, height=35)
+        gui.button(self.button_box, self, "Reset", callback=self.defaults, height=35)
+
 
         gui.separator(self.controlArea, height=10)
 
@@ -283,7 +282,6 @@ class WiserWidget(widget.OWWidget):
             phrases.
             Possibilities are:
                 Autofocus - self.What='centre', self.Where='downstream focus', self.ReferTo='upstream'
-                DistanceFromPrevious - self.What='centre', self.Where='centre', self.ReferTo='upstream'
                 DistanceFromSource - self.What='centre', self.Where='centre', self.ReferTo='source'
                 Custom - allows you to set your own self.What, self.Where and self.ReferTo
             '''
@@ -302,11 +300,6 @@ class WiserWidget(widget.OWWidget):
             elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
                 self.What = PositioningDirectives.What.Centre
                 self.Where = PositioningDirectives.Where.DownstreamFocus
-                self.ReferTo = PositioningDirectives.ReferTo.UpstreamElement
-
-            elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromPrevious:
-                self.What = PositioningDirectives.What.Centre
-                self.Where = PositioningDirectives.Where.Centre
                 self.ReferTo = PositioningDirectives.ReferTo.UpstreamElement
 
             elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromSource:
@@ -353,7 +346,7 @@ class WiserWidget(widget.OWWidget):
                                         sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
 
         box_type = oasysgui.widgetBox(box_combos, "", orientation="horizontal", width=width-20)
-        gui.label(box_type, self, label="Mode", labelWidth=87)
+        gui.label(box_type, self, label="Position", labelWidth=87)
         gui.comboBox(box_type, self, "WhatWhereReferTo",
                      items=positioning_directives_combos,
                      sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives) # Send the value
@@ -457,10 +450,6 @@ class WiserWidget(widget.OWWidget):
             self.Distance_checked = 0
             self.UseDistance = 0
 
-        elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromPrevious:
-            self.Distance_checked = 1
-            self.UseDistance = 1
-
         elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromSource:
             self.Distance_checked = 1
             self.UseDistance = 1
@@ -481,10 +470,6 @@ class WiserWidget(widget.OWWidget):
             self.Distance_checked = 0
             self.UseDefocus = 1
 
-        elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromPrevious:
-            self.Distance_checked = 1
-            self.UseDefocus = 0
-
         elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromSource:
             self.Distance_checked = 1
             self.UseDefocus = 0
@@ -502,10 +487,6 @@ class WiserWidget(widget.OWWidget):
             self.UseCustom = 0
 
         elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Autofocus:
-            self.Distance_checked = 1
-            self.UseCustom = 0
-
-        elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.DistanceFromPrevious:
             self.Distance_checked = 1
             self.UseCustom = 0
 

@@ -22,7 +22,7 @@ from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget, Ele
 
 class PositioningDirectivesSource:
     class Type:
-        Custom = 'Set custom positioning directives'
+        Custom = 'Absolute'
 
     class Orientation:
         Isotropic = 'Isotropic'
@@ -67,15 +67,18 @@ class OWGaussianSource1d(WiserWidget):
     category = ""
     keywords = ["wise", "gaussian"]
 
-    WiserWidget.WhatWhereReferTo = Setting(PositioningDirectivesSource.Type.Custom)
+    WhatWhereReferTo = Setting(PositioningDirectivesSource.Type.Custom)
+    ReferTo = Setting(PositioningDirectives.ReferTo.AbsoluteReference)
+    What = Setting(PositioningDirectives.What.Centre)
+    Where = Setting(PositioningDirectives.Where.Centre)
 
     source_name = Setting("Gaussian Source")
 
-    source_lambda = Setting(10e-9)
+    source_lambda = Setting(10)
     XYCentre_checked = Setting(1)
 
     waist_calculation = Setting(0)
-    source_waist = Setting(0.00018)
+    source_waist = Setting(180)
 
     def build_positioning_directive_box(self, container_box, width, element_type=ElementType.SOURCE):
 
@@ -132,6 +135,9 @@ class OWGaussianSource1d(WiserWidget):
                 self.UseDistance = 0
                 self.UseDefocus = 0
                 self.UseCustom = 1
+                self.What = None
+                self.Where = None
+                self.ReferTo = PositioningDirectives.ReferTo.AbsoluteReference
                 pass
 
             else:
@@ -170,7 +176,7 @@ class OWGaussianSource1d(WiserWidget):
                      sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
 
         box_type = oasysgui.widgetBox(box_combos, "", orientation="horizontal", width=width - 20)
-        gui.label(box_type, self, label="Mode", labelWidth=87)
+        gui.label(box_type, self, label="Position", labelWidth=87)
         gui.comboBox(box_type, self, "WhatWhereReferTo",
                      items=positioning_directives_source,
                      sendSelectedValue=True, orientation="horizontal",
@@ -263,13 +269,13 @@ class OWGaussianSource1d(WiserWidget):
 
         oasysgui.lineEdit(source_box, self, "source_name", "Source Name", labelWidth=120, valueType=str, orientation="horizontal")
 
-        self.le_source_wl = oasysgui.lineEdit(source_box, self, "source_lambda", "Wavelength", labelWidth=260, valueType=float, orientation="horizontal", callback=self.set_WaistCalculation)
+        self.le_source_wl = oasysgui.lineEdit(source_box, self, "source_lambda", "Wavelength [nm]", labelWidth=260, valueType=float, orientation="horizontal", callback=self.set_WaistCalculation)
 
-        gui.comboBox(source_box, self, "waist_calculation", label="Waist Data",
-                     items=["User", "Fermi FEL1", "Fermi FEL2", "Fermi Auto"], labelWidth=260,
+        gui.comboBox(source_box, self, "waist_calculation", label="Preset Waist",
+                     items=["None", "Fermi FEL1-like", "Fermi FEL2-like", "Fermi Auto"], labelWidth=260,
                      callback=self.set_WaistCalculation, sendSelectedValue=False, orientation="horizontal")
 
-        self.le_source_waist = oasysgui.lineEdit(source_box, self, "source_waist", "Waist", labelWidth=260, valueType=float, orientation="horizontal")
+        self.le_source_waist = oasysgui.lineEdit(source_box, self, "source_waist", "Waist [um]", labelWidth=260, valueType=float, orientation="horizontal")
 
         position_box = oasysgui.widgetBox(main_box, "Position Settings", orientation="vertical", width=self.CONTROL_AREA_WIDTH-25)
 
@@ -284,14 +290,14 @@ class OWGaussianSource1d(WiserWidget):
     def after_change_workspace_units(self):
         super(OWGaussianSource1d, self).after_change_workspace_units()
 
-        self.source_lambda = self.source_lambda / self.workspace_units_to_m
-        self.source_waist = self.source_waist / self.workspace_units_to_m
+        # self.source_lambda = self.source_lambda / self.workspace_units_to_m
+        # self.source_waist = self.source_waist / self.workspace_units_to_m
 
-        label = self.le_source_wl.parent().layout().itemAt(0).widget()
-        label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # label = self.le_source_wl.parent().layout().itemAt(0).widget()
+        # label.setText(label.text() + " [" + self.workspace_units_label + "]")
 
-        label = self.le_source_waist.parent().layout().itemAt(0).widget()
-        label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # label = self.le_source_waist.parent().layout().itemAt(0).widget()
+        # label.setText(label.text() + " [" + self.workspace_units_label + "]")
 
     def check_fields(self):
         self.source_lambda = congruence.checkStrictlyPositiveNumber(self.source_lambda, "Wavelength")
@@ -304,8 +310,8 @@ class OWGaussianSource1d(WiserWidget):
 
         wise_source = WiserOpticalElement(name=self.source_name,
                                           boundary_shape=None,
-                                          native_CoreOptics=Optics.SourceGaussian(self.source_lambda*self.workspace_units_to_m,
-                                                                                  self.source_waist*self.workspace_units_to_m),
+                                          native_CoreOptics=Optics.SourceGaussian(self.source_lambda*1e-9,
+                                                                                  self.source_waist*1e-6),
                                           isSource=True,
                                           native_PositioningDirectives=position_directives)
 

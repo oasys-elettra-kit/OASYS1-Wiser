@@ -18,7 +18,7 @@ class OWSlits(OWOpticalElement, WidgetDecorator):
     icon = "icons/slit.png"
     priority = 1
 
-    length = Setting(1e-3)
+    length = Setting(0.001)
 
     OWOpticalElement.WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.DistanceFromPrevious)
 
