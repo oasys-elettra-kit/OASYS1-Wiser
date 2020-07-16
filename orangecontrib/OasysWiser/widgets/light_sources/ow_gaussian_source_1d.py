@@ -6,8 +6,11 @@ from orangewidget.settings import Setting
 from oasys.widgets import gui as oasysgui
 from oasys.widgets import congruence
 
+from PyQt5.QtGui import QPalette, QColor, QFont
+
 from LibWiser import Optics
 import LibWiser.FermiSource as Fermi
+from LibWiser.Foundation import PositioningDirectives
 
 from WofryWiser.propagator.propagator1D.wise_propagator import WisePropagationElements
 
@@ -15,6 +18,45 @@ from WofryWiser.beamline.beamline_elements import WiserBeamlineElement, WiserOpt
 
 from orangecontrib.OasysWiser.util.wise_objects import WiserData
 from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget, ElementType, PositioningDirectivesPhrases
+
+
+class PositioningDirectivesSource:
+    class Type:
+        Custom = 'Set custom positioning directives'
+
+    class Orientation:
+        Isotropic = 'Isotropic'
+        Horizontal = 'Horizontal'
+        Vertical = 'Vertical'
+        Any = 'Any'
+
+positioning_directives_what = [PositioningDirectives.What.Centre,
+                               PositioningDirectives.What.UpstreamFocus,
+                               PositioningDirectives.What.DownstreamFocus]
+
+positioning_directives_where = [PositioningDirectives.Where.Centre,
+                                PositioningDirectives.Where.UpstreamFocus,
+                                PositioningDirectives.Where.DownstreamFocus]
+
+positioning_directives_refer_to = [PositioningDirectives.ReferTo.AbsoluteReference,
+                                   PositioningDirectives.ReferTo.UpstreamElement,
+                                   PositioningDirectives.ReferTo.DownstreamElement,
+                                   PositioningDirectives.ReferTo.DoNotMove,
+                                   PositioningDirectives.ReferTo.Source]
+
+positioning_directives_which_angle = [Optics.TypeOfAngle.GrazingNominal,
+                                      Optics.TypeOfAngle.InputNominal,
+                                      Optics.TypeOfAngle.OutputNominal,
+                                      Optics.TypeOfAngle.SelfFrameOfReference,
+                                      Optics.TypeOfAngle.NormalAbsolute,
+                                      Optics.TypeOfAngle.TangentAbsolute]
+
+positioning_directives_source = [PositioningDirectivesSource.Type.Custom]
+
+positioning_directives_orientation = [PositioningDirectivesPhrases.Orientation.Isotropic,
+                                      PositioningDirectivesPhrases.Orientation.Horizontal,
+                                      PositioningDirectivesPhrases.Orientation.Vertical,
+                                      PositioningDirectivesPhrases.Orientation.Any]
 
 class OWGaussianSource1d(WiserWidget):
     name = "GaussianSource1d"
@@ -25,15 +67,193 @@ class OWGaussianSource1d(WiserWidget):
     category = ""
     keywords = ["wise", "gaussian"]
 
-    WiserWidget.WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.Custom)
+    WiserWidget.WhatWhereReferTo = Setting(PositioningDirectivesSource.Type.Custom)
 
     source_name = Setting("Gaussian Source")
 
     source_lambda = Setting(10)
-   
+    XYCentre_checked = Setting(1)
+
     waist_calculation = Setting(0)
     source_waist = Setting(125e-3)
-    
+
+    def build_positioning_directive_box(self, container_box, width, element_type=ElementType.SOURCE):
+
+        box = oasysgui.widgetBox(container_box, "", orientation="vertical", width=width - 20)
+
+        box_combos = oasysgui.widgetBox(box, "", orientation="vertical", width=width - 20)
+
+        box_Distance = oasysgui.widgetBox(box, "", orientation="vertical", width=width - 20)
+
+        '''
+        box_GrazingAngle = oasysgui.widgetBox(box, "", orientation="horizontal", width=width-20)
+        box_GrazingAngle_check = oasysgui.widgetBox(box_GrazingAngle, "", orientation="horizontal", width=20)
+        box_GrazingAngle_value = oasysgui.widgetBox(box_GrazingAngle, "", orientation="horizontal")
+
+        box_Angle = oasysgui.widgetBox(box, "", orientation="horizontal", width=width-20)
+        box_Angle_check = oasysgui.widgetBox(box_Angle, "", orientation="horizontal", width=20)
+        box_Angle_value = oasysgui.widgetBox(box_Angle, "", orientation="horizontal")
+
+        def set_WhichAngle():
+            box_GrazingAngle.setVisible(getattr(self, "WhichAngle") == positioning_directives_which_angle[0])
+            box_Angle.setVisible(getattr(self, "WhichAngle") != positioning_directives_which_angle[0])
+        '''
+
+        def set_Distance_checked():
+            box_Distance_value.setEnabled(getattr(self, "Distance_checked") == 1)
+
+        def set_XYCentre_checked():
+            box_XYCentre_value.setEnabled(getattr(self, "XYCentre_checked") == 1)
+
+        '''
+        def set_GrazingAngle_checked():
+            box_GrazingAngle_value.setEnabled(getattr(self, "GrazingAngle_checked") == 1)
+
+        def set_Angle_checked():
+            box_Angle_value.setEnabled(getattr(self, "Angle_checked") == 1)
+        '''
+
+        def set_positioning_directives():
+            '''
+            This function correctly sets the positioning directives by setting correct
+            settings for self.What, self.Where and self.ReferTo from the descriptive
+            phrases.
+            Possibilities are:
+                Autofocus - self.What='centre', self.Where='downstream focus', self.ReferTo='upstream'
+                DistanceFromPrevious - self.What='centre', self.Where='centre', self.ReferTo='upstream'
+                DistanceFromSource - self.What='centre', self.Where='centre', self.ReferTo='source'
+                Custom - allows you to set your own self.What, self.Where and self.ReferTo
+            '''
+
+            self.set_Orientation()
+
+            if self.WhatWhereReferTo == PositioningDirectivesSource.Type.Custom:
+                self.Distance_checked = 0
+                self.UseDistance = 0
+                self.UseDefocus = 0
+                self.UseCustom = 1
+                pass
+
+            else:
+                raise ValueError("Wrong PositioningDirectives, source can only have Custom!")
+
+            self.use_distance_box.setVisible(self.UseDistance)
+            self.use_distance_box_empty.setVisible(self.UseDistance)
+
+            self.use_defocus_box.setVisible(self.UseDefocus)
+            self.use_defocus_box_empty.setVisible(self.UseDefocus)
+
+            self.use_custom_box.setVisible(self.UseCustom)
+            self.use_custom_box_empty.setVisible(self.UseCustom)
+
+            pass
+            # set_WhichAngle()
+
+        # Build a combo box with the choice of positioning directions phrases
+
+        le = oasysgui.lineEdit(box_Distance, self, "ReferenceOE", "Reference O.E.", labelWidth=220,
+                               valueType=str, orientation="horizontal")
+
+        le.setReadOnly(True)
+        font = QFont(le.font())
+        # font.setBold(True)
+        le.setFont(font)
+        palette = QPalette(le.palette())
+        palette.setColor(QPalette.Text, QColor('grey'))
+        palette.setColor(QPalette.Base, QColor(243, 240, 140))
+        le.setPalette(palette)
+
+        box_orientation = oasysgui.widgetBox(box_combos, "", orientation="horizontal", width=width - 20)
+        gui.label(box_orientation, self, label="Orientation", labelWidth=87)
+        gui.comboBox(box_orientation, self, "OrientationGUI",
+                     items=positioning_directives_orientation,
+                     sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
+
+        box_type = oasysgui.widgetBox(box_combos, "", orientation="horizontal", width=width - 20)
+        gui.label(box_type, self, label="Mode", labelWidth=87)
+        gui.comboBox(box_type, self, "WhatWhereReferTo",
+                     items=positioning_directives_source,
+                     sendSelectedValue=True, orientation="horizontal",
+                     callback=set_positioning_directives)  # Send the value
+
+        gui.separator(box_combos)
+
+        self.use_distance_box = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width - 20)
+        self.use_distance_box_empty = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width - 20)
+
+        self.le_Distance_default = oasysgui.lineEdit(self.use_distance_box, self, "Distance", "Distance",
+                                                     labelWidth=220, valueType=float, orientation="horizontal")
+
+        self.use_defocus_box = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width - 20)
+        self.use_defocus_box_empty = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width - 20)
+
+        self.le_defocus = oasysgui.lineEdit(self.use_defocus_box, self, "Distance", "Defocus", labelWidth=220,
+                                            valueType=float, orientation="horizontal")
+
+        self.use_custom_box = oasysgui.widgetBox(box, "", orientation="vertical", width=width - 20)
+        self.use_custom_box_empty = oasysgui.widgetBox(box, "", orientation="vertical", width=width - 20)
+        box_XYDistance = oasysgui.widgetBox(self.use_custom_box, "", orientation="horizontal", width=width - 20)
+        box_Distance_check = oasysgui.widgetBox(box_XYDistance, "", orientation="horizontal", width=20)
+        box_Distance_value = oasysgui.widgetBox(box_XYDistance, "", orientation="vertical")
+        box_XYCentre = oasysgui.widgetBox(self.use_custom_box, "", orientation="horizontal", width=width - 20)
+        box_XYCentre_check = oasysgui.widgetBox(box_XYCentre, "", orientation="horizontal", width=20)
+        box_XYCentre_value = oasysgui.widgetBox(box_XYCentre, "", orientation="vertical")
+        # = oasysgui.widgetBox(box_Distance, "", orientation="vertical", width=width - 20)
+        #    	self.use_custom_box_empty = oasysgui.widgetBox(box_Distance, "", orientation="horizontal", width=width - 20)
+
+        box_what = oasysgui.widgetBox(self.use_custom_box, "", orientation="horizontal")
+        gui.label(box_what, self, label="Place", labelWidth=87)
+        gui.comboBox(box_what, self, "What", label="",
+                     items=positioning_directives_what,
+                     sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
+        gui.label(box_what, self, label=" of this O.E.", labelWidth=80)
+
+        box_where = oasysgui.widgetBox(self.use_custom_box, "", orientation="horizontal")
+        gui.label(box_where, self, label="at", labelWidth=87)
+        gui.comboBox(box_where, self, "Where", label="",
+                     items=positioning_directives_where,
+                     sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
+        gui.label(box_where, self, label=" of", labelWidth=80)
+
+        box_refer_to = oasysgui.widgetBox(self.use_custom_box, "", orientation="horizontal")
+        gui.label(box_refer_to, self, label=" ", labelWidth=87)
+        gui.comboBox(box_refer_to, self, "ReferTo", label="",
+                     items=positioning_directives_refer_to,
+                     sendSelectedValue=True, orientation="horizontal", callback=set_positioning_directives)
+        gui.label(box_refer_to, self, label=" O.E.", labelWidth=80)
+
+        '''
+        gui.comboBox(box_combos, self, "WhichAngle", label="Type Of Angle",
+                     items=positioning_directives_which_angle, labelWidth=box_combos.width()-150,
+                     sendSelectedValue=True, orientation="horizontal", callback=set_WhichAngle)
+        '''
+
+        gui.checkBox(box_Distance_check, self, "Distance_checked", "", callback=set_Distance_checked)
+        gui.checkBox(box_XYCentre_check, self, "XYCentre_checked", "", callback=set_XYCentre_checked)
+        '''
+        gui.checkBox(box_GrazingAngle_check, self, "GrazingAngle_checked", "", callback=set_GrazingAngle_checked)
+        gui.checkBox(box_Angle_check, self, "Angle_checked", "", callback=set_Angle_checked)
+        '''
+
+        set_Distance_checked()
+        set_XYCentre_checked()
+        '''
+        set_Angle_checked()
+        set_GrazingAngle_checked()
+        '''
+
+        self.le_Distance = oasysgui.lineEdit(box_Distance_value, self, "Distance", "Distance", labelWidth=196,
+                                             valueType=float, orientation="horizontal")
+        self.le_XCentre = oasysgui.lineEdit(box_XYCentre_value, self, "XCentre", "X Centre", labelWidth=196,
+                                            valueType=float, orientation="horizontal")
+        self.le_YCentre = oasysgui.lineEdit(box_XYCentre_value, self, "YCentre", "Y Centre", labelWidth=196,
+                                            valueType=float, orientation="horizontal")
+
+        '''
+        oasysgui.lineEdit(box_Angle_value, self, "Angle", "Angle [deg]", labelWidth=200, valueType=float, orientation="horizontal")
+        oasysgui.lineEdit(box_GrazingAngle_value, self, "GrazingAngle", "Grazing Angle [deg]", labelWidth=200, valueType=float, orientation="horizontal")
+        '''
+        set_positioning_directives()
 
     def build_gui(self):
 
@@ -53,9 +273,9 @@ class OWGaussianSource1d(WiserWidget):
 
         position_box = oasysgui.widgetBox(main_box, "Position Settings", orientation="vertical", width=self.CONTROL_AREA_WIDTH-25)
 
-        super(OWGaussianSource1d, self).build_positioning_directive_box(container_box=position_box,
-                                                                        width=self.CONTROL_AREA_WIDTH-25,
-                                                                        element_type=ElementType.SOURCE)
+        self.build_positioning_directive_box(container_box=position_box,
+                                             width=self.CONTROL_AREA_WIDTH-25,
+                                             element_type=ElementType.SOURCE)
 
     def set_WaistCalculation(self):
         if self.source_lambda > 0.0:
