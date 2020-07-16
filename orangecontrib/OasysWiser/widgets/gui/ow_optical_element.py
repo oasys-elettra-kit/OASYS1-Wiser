@@ -32,7 +32,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
     oe_name = Setting("Optical Element")
 
     alpha = Setting(2.0)
-    length = Setting(400.0)
+    length = Setting(0.4)
     ignore = Setting(False)
 
     use_small_displacements = Setting(0)
@@ -57,8 +57,8 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
     # number_of_cpus = multiprocessing.cpu_count() - 1
     force_cpus = Setting(1)
 
-    calculation_type = Setting(0)
-    number_of_points = Setting(7000)
+    calculation_type = Setting(1)
+    number_of_points = Setting(5000)
 
     input_data = None
 
@@ -242,6 +242,8 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
     def after_change_workspace_units(self):
         super(OWOpticalElement, self).after_change_workspace_units()
+
+        self.length = self.length / self.workspace_units_to_m
 
         label = self.le_length.parent().layout().itemAt(0).widget()
         label.setText(label.text() + " [" + self.workspace_units_label + "]")

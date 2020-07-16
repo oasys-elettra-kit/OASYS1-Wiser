@@ -71,11 +71,11 @@ class OWGaussianSource1d(WiserWidget):
 
     source_name = Setting("Gaussian Source")
 
-    source_lambda = Setting(10)
+    source_lambda = Setting(10e-9)
     XYCentre_checked = Setting(1)
 
     waist_calculation = Setting(0)
-    source_waist = Setting(125e-3)
+    source_waist = Setting(0.00018)
 
     def build_positioning_directive_box(self, container_box, width, element_type=ElementType.SOURCE):
 
@@ -283,6 +283,9 @@ class OWGaussianSource1d(WiserWidget):
 
     def after_change_workspace_units(self):
         super(OWGaussianSource1d, self).after_change_workspace_units()
+
+        self.source_lambda = self.source_lambda / self.workspace_units_to_m
+        self.source_waist = self.source_waist / self.workspace_units_to_m
 
         label = self.le_source_wl.parent().layout().itemAt(0).widget()
         label.setText(label.text() + " [" + self.workspace_units_label + "]")

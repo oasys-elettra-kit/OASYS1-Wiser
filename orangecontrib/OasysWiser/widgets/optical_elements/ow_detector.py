@@ -35,6 +35,9 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
     is_full_propagator = True
     run_calculation = False
 
+    alpha = Setting(90.0)
+    length = Setting(0.00015)
+
     defocus_sweep = Setting(0.0)
     defocus_start = Setting(-1.0)
     defocus_stop = Setting(1.0)
