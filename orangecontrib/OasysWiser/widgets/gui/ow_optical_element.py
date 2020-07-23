@@ -99,18 +99,29 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                                                                       width=self.CONTROL_AREA_WIDTH-35,
                                                                       element_type=ElementType.MIRROR)
 
-        displacement_box = oasysgui.widgetBox(self.tab_dis, "Small Displacements", orientation="vertical", width=self.CONTROL_AREA_WIDTH-50)
+        # displacement_box = oasysgui.widgetBox(self.tab_dis, "Small Displacements", orientation="vertical", width=self.CONTROL_AREA_WIDTH-50)
+        #
+        # gui.comboBox(displacement_box, self, "use_small_displacements", label="Small Displacements",
+        #              items=["No", "Yes"], labelWidth=240,
+        #              callback=self.set_UseSmallDisplacement, sendSelectedValue=False, orientation="horizontal")
+        #
+        # self.use_small_displacements_box       = oasysgui.widgetBox(displacement_box, "", addSpace=True, orientation="vertical", height=150, width=self.CONTROL_AREA_WIDTH-65)
+        # self.use_small_displacements_box_empty = oasysgui.widgetBox(displacement_box, "", addSpace=True, orientation="vertical", height=150, width=self.CONTROL_AREA_WIDTH-65)
+        #
+        # oasysgui.lineEdit(self.use_small_displacements_box, self, "rotation", "Rotation [deg]", labelWidth=240, valueType=float, orientation="horizontal")
+        # self.le_transverse = oasysgui.lineEdit(self.use_small_displacements_box, self, "transverse", "Transverse displacement", labelWidth=240, valueType=float, orientation="horizontal")
+        # self.le_longitudinal = oasysgui.lineEdit(self.use_small_displacements_box, self, "longitudinal", "Longitudinal displacement", labelWidth=240, valueType=float, orientation="horizontal")
 
-        gui.comboBox(displacement_box, self, "use_small_displacements", label="Small Displacements",
-                     items=["No", "Yes"], labelWidth=240,
+        gui.comboBox(self.tab_dis, self, "use_small_displacements", label="Small Displacements",
+                     items=["No", "Yes"], labelWidth=260,
                      callback=self.set_UseSmallDisplacement, sendSelectedValue=False, orientation="horizontal")
 
-        self.use_small_displacements_box       = oasysgui.widgetBox(displacement_box, "", addSpace=True, orientation="vertical", height=150, width=self.CONTROL_AREA_WIDTH-65)
-        self.use_small_displacements_box_empty = oasysgui.widgetBox(displacement_box, "", addSpace=True, orientation="vertical", height=150, width=self.CONTROL_AREA_WIDTH-65)
+        self.use_small_displacements_box = oasysgui.widgetBox(self.tab_dis, "", addSpace=True, orientation="vertical", height=150, width=self.CONTROL_AREA_WIDTH - 55)
+        self.use_small_displacements_box_empty = oasysgui.widgetBox(self.tab_dis, "", addSpace=True, orientation="vertical", height=150, width=self.CONTROL_AREA_WIDTH - 55)
 
-        oasysgui.lineEdit(self.use_small_displacements_box, self, "rotation", "Rotation [deg]", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_transverse = oasysgui.lineEdit(self.use_small_displacements_box, self, "transverse", "Transverse displacement", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_longitudinal = oasysgui.lineEdit(self.use_small_displacements_box, self, "longitudinal", "Longitudinal displacement", labelWidth=240, valueType=float, orientation="horizontal")
+        oasysgui.lineEdit(self.use_small_displacements_box, self, "rotation", "Rotation [deg]", labelWidth=260, valueType=float, orientation="horizontal")
+        self.le_transverse = oasysgui.lineEdit(self.use_small_displacements_box, self, "transverse", "Transverse displacement", labelWidth=260, valueType=float, orientation="horizontal")
+        self.le_longitudinal = oasysgui.lineEdit(self.use_small_displacements_box, self, "longitudinal", "Longitudinal displacement", labelWidth=260, valueType=float, orientation="horizontal")
 
         self.set_UseSmallDisplacement()
 
@@ -132,7 +143,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
 
             file_box =  oasysgui.widgetBox(self.use_figure_error_box, "", addSpace=False, orientation="horizontal")
-            self.le_figure_error_file = oasysgui.lineEdit(file_box, self, "figure_error_file", "File Name", labelWidth=100, valueType=str, orientation="horizontal")
+            self.le_figure_error_file = oasysgui.lineEdit(file_box, self, "figure_error_file", "File Name", labelWidth=65, valueType=str, orientation="horizontal")
             gui.button(file_box, self, "...", callback=self.selectFigureErrorFile)
 
             self.le_figure_error_step = oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_step", "Step", labelWidth=240, valueType=float, orientation="horizontal")
@@ -149,7 +160,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
             self.use_roughness_box_empty = oasysgui.widgetBox(roughness_box, "", addSpace=True, orientation="vertical", height=150)
 
             file_box = oasysgui.widgetBox(self.use_roughness_box, "", addSpace=False, orientation="horizontal")
-            self.le_roughness_file = oasysgui.lineEdit(file_box, self, "roughness_file", "File Name", labelWidth=100, valueType=str, orientation="horizontal")
+            self.le_roughness_file = oasysgui.lineEdit(file_box, self, "roughness_file", "File Name", labelWidth=65, valueType=str, orientation="horizontal")
             gui.button(file_box, self, "...", callback=self.selectRoughnessFile)
 
             oasysgui.lineEdit(self.use_roughness_box, self, "roughness_x_scaling", "x user file u.m. to [m]   factor", labelWidth=240, valueType=float, orientation="horizontal")
