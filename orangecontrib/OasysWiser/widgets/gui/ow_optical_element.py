@@ -41,6 +41,8 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
     longitudinal = Setting(0.0)
 
     use_figure_error = Setting(0)
+    select_file_format = Setting(0)
+    skip_rows = Setting(0)
     figure_error_file = Setting("figure_error.dat")
     figure_error_step = Setting(0.002)
     figure_error_amplitude_scaling = Setting(1.0)
@@ -135,20 +137,24 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
             roughness_box = oasysgui.widgetBox(roughness_tab, "", orientation="vertical", width=self.CONTROL_AREA_WIDTH-65)
 
             gui.comboBox(figure_error_box, self, "use_figure_error", label="Error Profile",
-                         items=["None", "User Defined"], labelWidth=240,
+                         items=["None", "User Defined"], labelWidth=230,
                          callback=self.set_UseFigureError, sendSelectedValue=False, orientation="horizontal")
 
-            self.use_figure_error_box = oasysgui.widgetBox(figure_error_box, "", addSpace=True, orientation="vertical", height=150)
-            self.use_figure_error_box_empty = oasysgui.widgetBox(figure_error_box, "", addSpace=True, orientation="vertical", height=150)
+            self.use_figure_error_box = oasysgui.widgetBox(figure_error_box, "", addSpace=True, orientation="vertical", height=210)
+            self.use_figure_error_box_empty = oasysgui.widgetBox(figure_error_box, "", addSpace=True, orientation="vertical", height=210)
 
+            gui.comboBox(self.use_figure_error_box, self, "select_file_format", label="File Format",
+                         items=["Single column (height)", "Single column (slopes)", "Two columns (position, height)"],
+                         labelWidth=230, sendSelectedValue=False, orientation="horizontal")
 
-            file_box =  oasysgui.widgetBox(self.use_figure_error_box, "", addSpace=False, orientation="horizontal")
-            self.le_figure_error_file = oasysgui.lineEdit(file_box, self, "figure_error_file", "File Name", labelWidth=65, valueType=str, orientation="horizontal")
-            gui.button(file_box, self, "...", callback=self.selectFigureErrorFile)
+            file_box =  oasysgui.widgetBox(self.use_figure_error_box, "", addSpace=False, orientation="vertical")
+            self.le_figure_error_file = oasysgui.lineEdit(file_box, self, "figure_error_file", "File Name", labelWidth=60, valueType=str, orientation="horizontal")
+            gui.button(file_box, self, "Load", callback=self.selectFigureErrorFile)
 
-            self.le_figure_error_step = oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_step", "Step", labelWidth=240, valueType=float, orientation="horizontal")
-            oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_amplitude_scaling", "Amplitude scaling factor", labelWidth=240, valueType=float, orientation="horizontal")
-            oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_um_conversion", "User file u.m. to [m] factor", labelWidth=240, valueType=float, orientation="horizontal")
+            self.le_figure_error_step = oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_step", "Step", labelWidth=230, valueType=float, orientation="horizontal")
+            oasysgui.lineEdit(self.use_figure_error_box, self, "skip_rows", "Skip rows", labelWidth=230, valueType=float, orientation="horizontal")
+            oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_amplitude_scaling", "Amplitude scaling factor", labelWidth=230, valueType=float, orientation="horizontal")
+            oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_um_conversion", "User file u.m. to [m] factor", labelWidth=230, valueType=float, orientation="horizontal")
 
             self.set_UseFigureError()
 
@@ -368,7 +374,9 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
             libWiserOE.CoreOptics.FigureErrorLoad(File = self.figure_error_file,
                                                   Step = self.figure_error_step * self.workspace_units_to_m,
-                                                  AmplitudeScaling = self.figure_error_amplitude_scaling * self.figure_error_um_conversion)
+                                                  AmplitudeScaling = self.figure_error_amplitude_scaling * self.figure_error_um_conversion,
+                                                  FileFormat = self.select_file_format,
+                                                  SkipRows = self.skip_rows)
         else:
             libWiserOE.CoreOptics.ComputationSettings.UseFigureError = False
 
