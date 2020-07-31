@@ -21,6 +21,40 @@ from WofryWiser.beamline.beamline_elements import WiserBeamlineElement
 from orangecontrib.OasysWiser.util.wise_objects import WiserData, WiserPreInputData
 from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget, ElementType, PositioningDirectivesPhrases
 
+from LibWiser.Optics import FIGURE_ERROR_FILE_FORMAT
+import LibWiser.Units as Units
+
+class figure_error_selector_phrases:
+    class type:
+        height_only = "Height (Y)"
+        position_and_height = "Position, Height (X,Y)"
+        slope_only = "Slope (dY)"
+        elettra_ltp_java1 = "ELETTRA LTP-JAVA1"
+        elettra_ltp_dos = "ELETTRA LTP"
+
+    class units:
+        fm = "fm"
+        nm = "nm"
+        um = "um"
+        mm = "mm"
+        cm = "cm"
+        m = "m"
+
+figure_error_selector_combos = [figure_error_selector_phrases.type.height_only,
+                                figure_error_selector_phrases.type.position_and_height,
+                                figure_error_selector_phrases.type.slope_only,
+                                figure_error_selector_phrases.type.elettra_ltp_java1,
+                                figure_error_selector_phrases.type.elettra_ltp_dos]
+
+figure_error_units_combos = [figure_error_selector_phrases.units.fm,
+                             figure_error_selector_phrases.units.nm,
+                             figure_error_selector_phrases.units.um,
+                             figure_error_selector_phrases.units.mm,
+                             figure_error_selector_phrases.units.cm,
+                             figure_error_selector_phrases.units.m]
+
+figure_error_units = [1e-12, 1e-9, 1e-6, 1e-3, 1e-2, 1e0]
+
 class OWOpticalElement(WiserWidget, WidgetDecorator):
     category = ""
     keywords = ["wise", "mirror"]
@@ -41,12 +75,23 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
     longitudinal = Setting(0.0)
 
     use_figure_error = Setting(0)
-    select_file_format = Setting(0)
+    select_file_format = Setting(figure_error_selector_phrases.type.height_only)
     skip_rows = Setting(0)
     figure_error_file = Setting("figure_error.dat")
+    figure_error_select_file_format = Setting(FIGURE_ERROR_FILE_FORMAT.HEIGHT_ONLY)
     figure_error_step = Setting(0.002)
-    figure_error_amplitude_scaling = Setting(1.0)
-    figure_error_um_conversion = Setting(1.0)
+    figure_error_delimiter = Setting("\t")
+    figure_error_skip_rows = Setting(0)
+    figure_error_XScaling = Setting(1)
+    figure_error_YScaling = Setting(1)
+    figure_error_height_unit = Setting(figure_error_selector_phrases.units.mm)
+    figure_error_step_unit = Setting(figure_error_selector_phrases.units.mm)
+
+    useHeightOnly = Setting(1)
+    usePositionAndHeight = Setting(0)
+    useSlopeOnly = Setting(0)
+    useElettraLTPJava = Setting(0)
+    useElettraLTPDos = Setting(0)
 
     use_roughness = Setting(0)
     roughness_file = Setting("roughness.dat")
@@ -128,7 +173,60 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         self.set_UseSmallDisplacement()
 
         # ---------------------------------------------------------------------------
+
+        def set_figure_error_file_format():
+
+            if self.select_file_format == figure_error_selector_phrases.type.height_only:
+                self.figure_error_select_file_format = FIGURE_ERROR_FILE_FORMAT.HEIGHT_ONLY
+                self.useHeightOnly = 1
+                self.usePositionAndHeight = 0
+                self.useSlopeOnly = 0
+                self.useElettraLTPJava = 0
+                self.useElettraLTPDos = 0
+
+            elif self.select_file_format == figure_error_selector_phrases.type.position_and_height:
+                self.figure_error_select_file_format = FIGURE_ERROR_FILE_FORMAT.POSITION_AND_HEIGHT
+                self.useHeightOnly = 0
+                self.usePositionAndHeight = 1
+                self.useSlopeOnly = 0
+                self.useElettraLTPJava = 0
+                self.useElettraLTPDos = 0
+
+            elif self.select_file_format == figure_error_selector_phrases.type.slope_only:
+                self.figure_error_select_file_format = FIGURE_ERROR_FILE_FORMAT.SLOPE_ONLY
+                self.useHeightOnly = 0
+                self.usePositionAndHeight = 0
+                self.useSlopeOnly = 1
+                self.useElettraLTPJava = 0
+                self.useElettraLTPDos = 0
+
+            elif self.select_file_format == figure_error_selector_phrases.type.elettra_ltp_java1:
+                self.figure_error_select_file_format = FIGURE_ERROR_FILE_FORMAT.ELETTRA_LTP_JAVA1
+                self.useHeightOnly = 0
+                self.usePositionAndHeight = 0
+                self.useSlopeOnly = 0
+                self.useElettraLTPJava = 1
+                self.useElettraLTPDos = 0
+
+            elif self.select_file_format == figure_error_selector_phrases.type.elettra_ltp_dos:
+                self.figure_error_select_file_format = FIGURE_ERROR_FILE_FORMAT.ELETTRA_LTP_DOS
+                self.useHeightOnly = 0
+                self.usePositionAndHeight = 0
+                self.useSlopeOnly = 0
+                self.useElettraLTPJava = 0
+                self.useElettraLTPDos = 1
+
+            else:
+                raise ValueError("Such file format does not exist!")
+
+            self.set_UseHeightOnly()
+            self.set_UsePositionAndHeight()
+            self.set_UseSlopeOnly()
+            self.set_UseElettraLTPJava()
+            self.set_UseElettraLTPDos()
+
         if self.has_figure_error_box:
+
             figure_error_tab = oasysgui.tabWidget(self.tab_err)
             error_tab = oasysgui.createTabPage(figure_error_tab, "Error Profile")
             roughness_tab = oasysgui.createTabPage(figure_error_tab, "Roughness")
@@ -140,21 +238,75 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                          items=["None", "User Defined"], labelWidth=230,
                          callback=self.set_UseFigureError, sendSelectedValue=False, orientation="horizontal")
 
-            self.use_figure_error_box = oasysgui.widgetBox(figure_error_box, "", addSpace=True, orientation="vertical", height=210)
-            self.use_figure_error_box_empty = oasysgui.widgetBox(figure_error_box, "", addSpace=True, orientation="vertical", height=210)
+            self.use_figure_error_box = oasysgui.widgetBox(figure_error_box, "", addSpace=True, orientation="vertical", height=230)
+            self.use_figure_error_box_empty = oasysgui.widgetBox(figure_error_box, "", addSpace=True, orientation="vertical", height=0)
 
             gui.comboBox(self.use_figure_error_box, self, "select_file_format", label="File Format",
-                         items=["Single column (height)", "Single column (slopes)", "Two columns (position, height)"],
-                         labelWidth=230, sendSelectedValue=False, orientation="horizontal")
+                         items=figure_error_selector_combos,
+                         labelWidth=230, sendSelectedValue=True, orientation="horizontal", callback=set_figure_error_file_format)
 
-            file_box =  oasysgui.widgetBox(self.use_figure_error_box, "", addSpace=False, orientation="vertical")
+            file_box =  oasysgui.widgetBox(self.use_figure_error_box, "", addSpace=False, orientation="horizontal")
             self.le_figure_error_file = oasysgui.lineEdit(file_box, self, "figure_error_file", "File Name", labelWidth=60, valueType=str, orientation="horizontal")
             gui.button(file_box, self, "Load", callback=self.selectFigureErrorFile)
 
-            self.le_figure_error_step = oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_step", "Step", labelWidth=230, valueType=float, orientation="horizontal")
-            oasysgui.lineEdit(self.use_figure_error_box, self, "skip_rows", "Skip rows", labelWidth=230, valueType=float, orientation="horizontal")
-            oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_amplitude_scaling", "Amplitude scaling factor", labelWidth=230, valueType=float, orientation="horizontal")
-            oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_um_conversion", "User file u.m. to [m] factor", labelWidth=230, valueType=float, orientation="horizontal")
+            options_box = oasysgui.widgetBox(self.use_figure_error_box, "", addSpace=False, orientation="vertical")
+            self.use_heightOnly_box = oasysgui.widgetBox(options_box, "", orientation="vertical", height=230)
+            self.use_heightOnly_box_empty = oasysgui.widgetBox(options_box, "", addSpace=False, addToLayout=False, width=0)
+
+            self.use_positionAndHeight_box = oasysgui.widgetBox(options_box, "", orientation="vertical", height=230)
+            self.use_positionAndHeight_box_empty = oasysgui.widgetBox(options_box, "", addSpace=False, addToLayout=False, width=0)
+
+            self.use_slopeOnly_box = oasysgui.widgetBox(options_box, "", orientation="vertical", height=230)
+            self.use_slopeOnly_box_empty = oasysgui.widgetBox(options_box, "", addSpace=False, addToLayout=False, width=0)
+
+            self.use_ElettraLTPDos_box = oasysgui.widgetBox(options_box, "", orientation="vertical", height=230)
+            self.use_ElettraLTPDos_box_empty = oasysgui.widgetBox(options_box, "", addSpace=False, addToLayout=False, width=0)
+
+            self.use_ElettraLTPJava_box = oasysgui.widgetBox(options_box, "", orientation="vertical", height=230)
+            self.use_ElettraLTPJava_box_empty = oasysgui.widgetBox(options_box, "", addSpace=False, addToLayout=False, width=0)
+
+            set_figure_error_file_format()
+
+            self.le_figure_error_step = oasysgui.lineEdit(self.use_heightOnly_box, self, "figure_error_step", "Step", labelWidth=230, valueType=float, orientation="horizontal")
+            gui.comboBox(self.use_heightOnly_box, self, "figure_error_height_unit", label="Height unit",
+                         items=figure_error_units_combos, labelWidth=230, sendSelectedValue=False, orientation="horizontal")
+
+            oasysgui.lineEdit(self.use_heightOnly_box, self, "figure_error_YScaling", "Custom height scaling (Y)", labelWidth=230, valueType=float, orientation="horizontal")
+            ho_del_rows_box = oasysgui.widgetBox(self.use_heightOnly_box, "", orientation="horizontal")
+            oasysgui.lineEdit(ho_del_rows_box, self, "figure_error_delimiter", "Delimiter", labelWidth=60, valueType=str, orientation="horizontal")
+            oasysgui.lineEdit(ho_del_rows_box, self, "figure_error_skip_rows", "Lines to skip", labelWidth=80, valueType=int, orientation="horizontal")
+
+            oasysgui.lineEdit(self.use_positionAndHeight_box, self, "figure_error_step", "Step", labelWidth=230, valueType=float, orientation="horizontal") # if positionAndHeight, then step * step unit
+            gui.comboBox(self.use_positionAndHeight_box, self, "figure_error_step_unit", label="Step unit",
+                         items=figure_error_units_combos, labelWidth=230, sendSelectedValue=False, orientation="horizontal")
+            gui.comboBox(self.use_positionAndHeight_box, self, "figure_error_height_unit", label="Height unit",
+                         items=figure_error_units_combos, labelWidth=230, sendSelectedValue=False, orientation="horizontal")
+            oasysgui.lineEdit(self.use_positionAndHeight_box, self, "figure_error_YScaling", "Custom height scaling (Y)",
+                              labelWidth=230, valueType=float, orientation="horizontal")
+            pah_del_rows_box = oasysgui.widgetBox(self.use_positionAndHeight_box, "", orientation="horizontal")
+            oasysgui.lineEdit(pah_del_rows_box, self, "figure_error_delimiter", "Delimiter", labelWidth=60, valueType=str, orientation="horizontal")
+            oasysgui.lineEdit(pah_del_rows_box, self, "figure_error_skip_rows", "Lines to skip", labelWidth=80, valueType=int, orientation="horizontal")
+
+            self.le_figure_error_step = oasysgui.lineEdit(self.use_slopeOnly_box, self, "figure_error_step", "Step", labelWidth=230, valueType=float, orientation="horizontal")
+            gui.comboBox(self.use_slopeOnly_box, self, "figure_error_height_unit", label="Slope unit",
+                         items=figure_error_units_combos, labelWidth=230, sendSelectedValue=False,
+                         orientation="horizontal")
+
+            oasysgui.lineEdit(self.use_slopeOnly_box, self, "figure_error_YScaling", "Custom height scaling (Y)",
+                              labelWidth=230, valueType=float, orientation="horizontal")
+            so_del_rows_box = oasysgui.widgetBox(self.use_slopeOnly_box, "", orientation="horizontal")
+            oasysgui.lineEdit(so_del_rows_box, self, "figure_error_delimiter", "Delimiter", labelWidth=60, valueType=str, orientation="horizontal")
+            oasysgui.lineEdit(so_del_rows_box, self, "figure_error_skip_rows", "Lines to skip", labelWidth=80, valueType=int, orientation="horizontal")
+
+            oasysgui.lineEdit(self.use_ElettraLTPJava_box, self, "figure_error_YScaling", "Custom height scaling (Y)",
+                              labelWidth=230, valueType=float, orientation="horizontal")
+
+            oasysgui.lineEdit(self.use_ElettraLTPDos_box, self, "figure_error_YScaling", "Custom height scaling (Y)",
+                              labelWidth=230, valueType=float, orientation="horizontal")
+
+            #oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_skip_rows", "Skip rows", labelWidth=230, valueType=float, orientation="horizontal")
+            #oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_amplitude_scaling", "Amplitude scaling factor", labelWidth=230, valueType=float, orientation="horizontal")
+            #oasysgui.lineEdit(self.use_figure_error_box, self, "figure_error_um_conversion", "User file u.m. to [m] factor", labelWidth=230, valueType=float, orientation="horizontal")
 
             self.set_UseFigureError()
 
@@ -248,6 +400,27 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
     def set_UseSmallDisplacement(self):
         self.use_small_displacements_box.setVisible(self.use_small_displacements == 1)
         self.use_small_displacements_box_empty.setVisible(self.use_small_displacements == 0)
+
+    def set_UseHeightOnly(self):
+        self.use_heightOnly_box.setVisible(self.useHeightOnly == 1)
+        self.use_heightOnly_box_empty.setVisible(self.useHeightOnly == 0)
+
+    def set_UsePositionAndHeight(self):
+        self.use_positionAndHeight_box.setVisible(self.usePositionAndHeight == 1)
+        self.use_positionAndHeight_box_empty.setVisible(self.usePositionAndHeight == 0)
+
+    def set_UseSlopeOnly(self):
+        self.use_slopeOnly_box.setVisible(self.useSlopeOnly == 1)
+        self.use_slopeOnly_box_empty.setVisible(self.useSlopeOnly == 0)
+
+    def set_UseElettraLTPJava(self):
+        self.use_ElettraLTPJava_box.setVisible(self.useElettraLTPJava == 1)
+        self.use_ElettraLTPJava_box_empty.setVisible(self.useElettraLTPJava == 0)
+
+    def set_UseElettraLTPDos(self):
+        self.use_ElettraLTPDos_box.setVisible(self.useElettraLTPDos == 1)
+        self.use_ElettraLTPDos_box_empty.setVisible(self.useElettraLTPDos == 0)
+
 
     def set_CalculationType(self):
         self.empty_box.setVisible(self.calculation_type==0)
@@ -372,11 +545,14 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         if self.use_figure_error == 1:
             libWiserOE.CoreOptics.ComputationSettings.UseFigureError = True
 
-            libWiserOE.CoreOptics.FigureErrorLoad(File = self.figure_error_file,
-                                                  Step = self.figure_error_step * self.workspace_units_to_m,
-                                                  AmplitudeScaling = self.figure_error_amplitude_scaling * self.figure_error_um_conversion,
-                                                  FileFormat = self.select_file_format,
-                                                  SkipRows = self.skip_rows)
+            libWiserOE.CoreOptics.FigureErrorLoadFromFile(PathFile = self.figure_error_file,
+                                                          FileType = self.figure_error_select_file_format,
+                                                          Step = self.figure_error_step * self.workspace_units_to_m,
+                                                          Delimiter = self.figure_error_delimiter,
+                                                          SkipLines = self.figure_error_skip_rows,
+                                                          XScaling = self.figure_error_XScaling,
+                                                          YScaling = self.figure_error_YScaling
+                                                          )
         else:
             libWiserOE.CoreOptics.ComputationSettings.UseFigureError = False
 
