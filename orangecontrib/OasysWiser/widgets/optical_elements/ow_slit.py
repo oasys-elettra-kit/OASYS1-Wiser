@@ -20,7 +20,7 @@ class OWSlits(OWOpticalElement, WidgetDecorator):
 
     length = Setting(0.001)
 
-    OWOpticalElement.WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.DistanceFromPrevious)
+    OWOpticalElement.WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.OasysDefault)
 
     oe_name = Setting("Slit")
 
