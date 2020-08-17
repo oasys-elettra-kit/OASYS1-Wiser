@@ -171,7 +171,6 @@ class WiserWidget(widget.OWWidget):
         gui.button(self.button_box, self, "Compute", callback=self.compute, height=35)
         gui.button(self.button_box, self, "Reset", callback=self.defaults, height=35)
 
-
         gui.separator(self.controlArea, height=10)
 
         self.build_gui()

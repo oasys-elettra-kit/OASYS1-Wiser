@@ -51,58 +51,33 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
     def after_change_workspace_units(self):
         super(OWDetector, self).after_change_workspace_units()
 
-        label = self.le_defocus_start.parent().layout().itemAt(0).widget()
-        label.setText(label.text() + " [" + self.workspace_units_label + "]")
-        label = self.le_defocus_stop.parent().layout().itemAt(0).widget()
-        label.setText(label.text() + " [" + self.workspace_units_label + "]")
-        label = self.le_defocus_step.parent().layout().itemAt(0).widget()
-        label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # label = self.le_defocus_start.parent().layout().itemAt(0).widget()
+        # label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # label = self.le_defocus_stop.parent().layout().itemAt(0).widget()
+        # label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # label = self.le_defocus_step.parent().layout().itemAt(0).widget()
+        # label.setText(label.text() + " [" + self.workspace_units_label + "]")
 
 
     def check_fields(self):
         super(OWDetector, self).check_fields()
 
     def build_mirror_specific_gui(self, container_box):
-        self.tab_sweep = oasysgui.createTabPage(self.tabs_setting, "Focus Sweep Calculation")
 
-        focus_sweep_box = oasysgui.widgetBox(self.tab_sweep, "", orientation="vertical", width=self.CONTROL_AREA_WIDTH-20)
-
-        self.le_defocus_start = oasysgui.lineEdit(focus_sweep_box, self, "defocus_start", "Defocus sweep start", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_defocus_stop  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_stop",  "Defocus sweep stop", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_defocus_step  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_step",  "Defocus sweep step", labelWidth=240, valueType=float, orientation="horizontal")
-
-        gui.separator(focus_sweep_box, height=5)
-
-        gui.checkBox(focus_sweep_box, self, "show_animation", "Show animation during calculation")
-
-        gui.separator(focus_sweep_box, height=5)
-
-        button_box = oasysgui.widgetBox(focus_sweep_box, "", orientation="horizontal", width=self.CONTROL_AREA_WIDTH-20)
-
-        gui.button(button_box, self, "Focus Sweep Start", callback=self.do_best_focus_calculation, height=35)
-        stop_button = gui.button(button_box, self, "Interrupt", callback=self.stop_best_focus_calculation, height=35)
-        font = QFont(stop_button.font())
-        font.setBold(True)
-        stop_button.setFont(font)
-        palette = QPalette(stop_button.palette()) # make a copy of the palette
-        palette.setColor(QPalette.ButtonText, QColor('red'))
-        stop_button.setPalette(palette) # assign new palette
-
-        self.save_button = gui.button(focus_sweep_box, self, "Save Best Focus Calculation Complete Results", callback=self.save_best_focus_results, height=35)
-        self.save_button.setEnabled(False)
-
-        self.best_focus_slider = None
-
-        self.tab_best = oasysgui.createTabPage(self.tabs_setting, "Find Focus Calculation")
+        self.tab_best = oasysgui.createTabPage(self.tabs_setting, "Find Best Focus")
 
         best_focus_box = oasysgui.widgetBox(self.tab_best, "", orientation="vertical",
                                             width=self.CONTROL_AREA_WIDTH - 20)
 
-        self.le_defocus_start = oasysgui.lineEdit(best_focus_box, self, "defocus_start", "Defocus sweep start",
+        bestFocusLabel = "Use for: \n* a complete plot of the spot size through the focal plane\n* a collection of the intensity profiles\n* below-average computational performance\n"
+
+        gui.label(best_focus_box, self, bestFocusLabel, labelWidth=None, box=None, orientation=2)
+
+        self.le_defocus_start = oasysgui.lineEdit(best_focus_box, self, "defocus_start", "Start [mm]",
                                                   labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_defocus_stop = oasysgui.lineEdit(best_focus_box, self, "defocus_stop", "Defocus sweep stop",
+        self.le_defocus_stop = oasysgui.lineEdit(best_focus_box, self, "defocus_stop", "Stop [mm]",
                                                  labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_defocus_step = oasysgui.lineEdit(best_focus_box, self, "defocus_step", "Defocus sweep step",
+        self.le_defocus_step = oasysgui.lineEdit(best_focus_box, self, "defocus_step", "Step [mm]",
                                                  labelWidth=240, valueType=float, orientation="horizontal")
 
         gui.separator(best_focus_box, height=5)
@@ -114,7 +89,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
         button_box = oasysgui.widgetBox(best_focus_box, "", orientation="horizontal",
                                         width=self.CONTROL_AREA_WIDTH - 20)
 
-        gui.button(button_box, self, "Find Focus Start", callback=self.do_best_focus_calculation, height=35)
+        gui.button(button_box, self, "Scan Start", callback=self.do_best_focus_calculation, height=35)
         stop_button = gui.button(button_box, self, "Interrupt", callback=self.stop_best_focus_calculation, height=35)
         font = QFont(stop_button.font())
         font.setBold(True)
@@ -123,8 +98,42 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
         palette.setColor(QPalette.ButtonText, QColor('red'))
         stop_button.setPalette(palette)  # assign new palette
 
-        self.save_button = gui.button(best_focus_box, self, "Save Best Focus Calculation Complete Results",
+        self.save_button = gui.button(best_focus_box, self, "Save Complete Calculation Results",
                                       callback=self.save_best_focus_results, height=35)
+        self.save_button.setEnabled(False)
+
+        self.best_focus_slider = None
+
+        self.tab_sweep = oasysgui.createTabPage(self.tabs_setting, "Through-Focus Scan")
+
+        focus_sweep_box = oasysgui.widgetBox(self.tab_sweep, "", orientation="vertical", width=self.CONTROL_AREA_WIDTH-20)
+
+        focusSweepLabel = "Use for: \n* best focus metrics (HEW, position)\n* intensity profile at best focus position\n* high computational speed\n"
+
+        gui.label(focus_sweep_box, self, focusSweepLabel, labelWidth=None, box=None, orientation=2)
+
+        self.le_defocus_start = oasysgui.lineEdit(focus_sweep_box, self, "defocus_start", "Start [mm]", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_defocus_stop  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_stop",  "Stop [mm]", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_defocus_step  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_step",  "Step [mm]", labelWidth=240, valueType=float, orientation="horizontal")
+
+        gui.separator(focus_sweep_box, height=5)
+
+        gui.checkBox(focus_sweep_box, self, "show_animation", "Show animation during calculation")
+
+        gui.separator(focus_sweep_box, height=5)
+
+        button_box = oasysgui.widgetBox(focus_sweep_box, "", orientation="horizontal", width=self.CONTROL_AREA_WIDTH-20)
+
+        gui.button(button_box, self, "Scan Start", callback=self.do_best_focus_calculation, height=35)
+        stop_button = gui.button(button_box, self, "Interrupt", callback=self.stop_best_focus_calculation, height=35)
+        font = QFont(stop_button.font())
+        font.setBold(True)
+        stop_button.setFont(font)
+        palette = QPalette(stop_button.palette()) # make a copy of the palette
+        palette.setColor(QPalette.ButtonText, QColor('red'))
+        stop_button.setPalette(palette) # assign new palette
+
+        self.save_button = gui.button(focus_sweep_box, self, "Save Complete Calculation Results", callback=self.save_best_focus_results, height=35)
         self.save_button.setEnabled(False)
 
         self.best_focus_slider = None

@@ -614,11 +614,11 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
     def do_wise_calculation(self, beamline=None):
 
-        if beamline == None:
-            beamline = self.do_wiser_beamline()
-
         if self.input_data is None:
             raise Exception("No Input Data!")
+
+        if beamline == None:
+            beamline = self.do_wiser_beamline()
 
         output_data = self.input_data.duplicate()
 

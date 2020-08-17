@@ -9,7 +9,7 @@ except AttributeError:
 
 
 NAME = 'OASYS1-OasysWiser'
-VERSION = '0.0.12'
+VERSION = '0.0.15'
 ISRELEASED = True
 
 DESCRIPTION = 'Wiser in Python'
@@ -43,9 +43,9 @@ SETUP_REQUIRES = [
 ]
 
 INSTALL_REQUIRES = [
-    'LibWiser',
+    'LibWiser>=0.9.8',
     'oasys1>=1.1.19',
-    'WofryWiser'
+    'WofryWiser>=0.0.6'
 ]
 
 PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))

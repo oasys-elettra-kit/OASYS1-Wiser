@@ -159,6 +159,9 @@ class OWGaussianSource1d(WiserWidget):
         self.source_lambda = congruence.checkStrictlyPositiveNumber(self.source_lambda, "Wavelength")
         self.source_waist = congruence.checkStrictlyPositiveNumber(self.source_waist, "Waist")
 
+    def do_wiser_beamline(self):
+        raise Exception("Nothing to apply. Source is the first element of the beamline.")
+
     def do_wise_calculation(self):
         position_directives = self.get_PositionDirectives()
         position_directives.WhichAngle = Optics.TypeOfAngle.SelfFrameOfReference
