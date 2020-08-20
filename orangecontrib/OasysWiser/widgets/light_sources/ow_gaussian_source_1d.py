@@ -188,7 +188,7 @@ class OWGaussianSource1d(WiserWidget):
         return ["Gaussian Source Intensity"]
 
     def getXTitles(self):
-        return ["Y [" + self.workspace_units_label + "]"]
+        return ["Y [um]"]
 
     def getYTitles(self):
         return ["Intensity [arbitrary units]"]
