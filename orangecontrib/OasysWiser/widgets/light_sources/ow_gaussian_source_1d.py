@@ -81,6 +81,7 @@ class OWGaussianSource1d(WiserWidget):
 
     source_lambda = Setting(10)
     XYCentre_checked = Setting(1)
+    source_m2 = Setting(1.)
 
     waist_calculation = Setting(0)
     source_waist = Setting(180)
@@ -94,12 +95,14 @@ class OWGaussianSource1d(WiserWidget):
         oasysgui.lineEdit(source_box, self, "source_name", "Source Name", labelWidth=120, valueType=str, orientation="horizontal")
 
         self.le_source_wl = oasysgui.lineEdit(source_box, self, "source_lambda", "Wavelength [nm]", labelWidth=260, valueType=float, orientation="horizontal", callback=self.set_WaistCalculation)
+        self.le_source_m2 = oasysgui.lineEdit(source_box, self, "source_m2", "M^2", labelWidth=260, valueType=float, orientation="horizontal")
 
         gui.comboBox(source_box, self, "waist_calculation", label="Preset Waist",
                      items=["None", "Fermi FEL1-like", "Fermi FEL2-like", "Fermi Auto"], labelWidth=260,
                      callback=self.set_WaistCalculation, sendSelectedValue=False, orientation="horizontal")
 
         self.le_source_waist = oasysgui.lineEdit(source_box, self, "source_waist", "Waist [um]", labelWidth=260, valueType=float, orientation="horizontal")
+
 
         self.position_box = oasysgui.tabWidget(main_box)#, "Position Settings", orientation="vertical", width=self.CONTROL_AREA_WIDTH-25)
         self.position_box.setFixedWidth(self.CONTROL_AREA_WIDTH-25)
@@ -170,7 +173,8 @@ class OWGaussianSource1d(WiserWidget):
         wise_source = WiserOpticalElement(name=self.source_name,
                                           boundary_shape=None,
                                           native_CoreOptics=Optics.SourceGaussian(self.source_lambda*1e-9,
-                                                                                  self.source_waist*1e-6),
+                                                                                  self.source_waist*1e-6,
+                                                                                  M2=self.source_m2),
                                           isSource=True,
                                           native_PositioningDirectives=position_directives)
 
