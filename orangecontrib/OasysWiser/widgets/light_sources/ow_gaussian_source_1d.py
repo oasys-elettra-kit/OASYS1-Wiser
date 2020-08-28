@@ -95,7 +95,7 @@ class OWGaussianSource1d(WiserWidget):
         oasysgui.lineEdit(source_box, self, "source_name", "Source Name", labelWidth=120, valueType=str, orientation="horizontal")
 
         self.le_source_wl = oasysgui.lineEdit(source_box, self, "source_lambda", "Wavelength [nm]", labelWidth=260, valueType=float, orientation="horizontal", callback=self.set_WaistCalculation)
-        self.le_source_m2 = oasysgui.lineEdit(source_box, self, "source_m2", "M^2", labelWidth=260, valueType=float, orientation="horizontal")
+        self.le_source_m2 = oasysgui.lineEdit(source_box, self, "source_m2", "M\u00B2", labelWidth=260, valueType=float, orientation="horizontal")
 
         gui.comboBox(source_box, self, "waist_calculation", label="Preset Waist",
                      items=["None", "Fermi FEL1-like", "Fermi FEL2-like", "Fermi Auto"], labelWidth=260,
