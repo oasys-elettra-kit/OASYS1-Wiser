@@ -167,7 +167,7 @@ class WiserWidget(widget.OWWidget):
 
         self.button_box = gui.widgetBox(self.controlArea, "", orientation="horizontal")
         #widget buttons: compute, set defaults, help
-        gui.button(self.button_box, self, "Apply", callback=self.do_wiser_beamline, height=35)
+        #gui.button(self.button_box, self, "Apply", callback=self.do_wiser_beamline, height=35)
         gui.button(self.button_box, self, "Compute", callback=self.compute, height=35)
         gui.button(self.button_box, self, "Reset", callback=self.defaults, height=35)
 
@@ -343,17 +343,17 @@ class WiserWidget(widget.OWWidget):
         # Build a combo box with the choice of positioning directions phrases
         if element_type != ElementType.SOURCE:
 
-            le = oasysgui.lineEdit(box_Distance, self, "ReferenceOE", "Reference O.E.", labelWidth=220,
-                                   valueType=str, orientation="horizontal")
-
-            le.setReadOnly(True)
-            font = QFont(le.font())
-            # font.setBold(True)
-            le.setFont(font)
-            palette = QPalette(le.palette())
-            palette.setColor(QPalette.Text, QColor('grey'))
-            palette.setColor(QPalette.Base, QColor(243, 240, 140))
-            le.setPalette(palette)
+            # le = oasysgui.lineEdit(box_Distance, self, "ReferenceOE", "Reference O.E.", labelWidth=220,
+            #                        valueType=str, orientation="horizontal")
+            #
+            # le.setReadOnly(True)
+            # font = QFont(le.font())
+            # # font.setBold(True)
+            # le.setFont(font)
+            # palette = QPalette(le.palette())
+            # palette.setColor(QPalette.Text, QColor('grey'))
+            # palette.setColor(QPalette.Base, QColor(243, 240, 140))
+            # le.setPalette(palette)
 
             box_orientation = oasysgui.widgetBox(box_combos, "", orientation="horizontal", width=width-20)
             gui.label(box_orientation, self, label="Orientation", labelWidth=87)
