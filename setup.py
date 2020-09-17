@@ -9,7 +9,7 @@ except AttributeError:
 
 
 NAME = 'OASYS1-OasysWiser'
-VERSION = '0.0.18'
+VERSION = '0.0.22'
 ISRELEASED = True
 
 DESCRIPTION = 'Wiser in Python'
@@ -23,30 +23,30 @@ MAINTAINER = 'Aljosa Hafner'
 MAINTAINER_EMAIL = 'aljosa.hafner@ceric-eric.eu'
 LICENSE = 'GPLv3'
 
-KEYWORDS = [
+KEYWORDS = (
     'waveoptics',
     'simulator',
-    'oasys1',
-]
+    'oasys1'
+)
 
-CLASSIFIERS = [
+CLASSIFIERS = (
     'Development Status :: 4 - Beta',
     'Environment :: X11 Applications :: Qt',
     'Environment :: Console',
     'Environment :: Plugins',
     'Programming Language :: Python :: 3',
-    'Intended Audience :: Science/Research',
-]
+    'Intended Audience :: Science/Research'
+)
 
-SETUP_REQUIRES = [
-    'setuptools',
-]
+SETUP_REQUIRES = (
+    'setuptools'
+)
 
-INSTALL_REQUIRES = [
-    'LibWiser>=0.9.10',
+INSTALL_REQUIRES = (
+    'LibWiser>=0.9.11',
     'oasys1>=1.1.19',
     'WofryWiser>=0.0.6'
-]
+)
 
 PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))
 

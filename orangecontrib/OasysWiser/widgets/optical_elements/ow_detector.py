@@ -111,8 +111,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
         gui.label(focus_sweep_box, self, focusSweepLabel, labelWidth=None, box=None, orientation=2)
 
-        self.le_defocus_start = oasysgui.lineEdit(focus_sweep_box, self, "defocus_start", "Start [mm]", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_defocus_stop  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_stop",  "Stop [mm]", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_defocus_start = oasysgui.lineEdit(focus_sweep_box, self, "defocus_start", "Lower limit [mm]", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_defocus_stop  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_stop",  "Upper limit [mm]", labelWidth=240, valueType=float, orientation="horizontal")
         self.le_defocus_step  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_step",  "Step [mm]", labelWidth=240, valueType=float, orientation="horizontal")
 
         gui.separator(focus_sweep_box, height=5)
@@ -141,7 +141,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
         super(OWDetector, self).initializeTabs()
 
         self.tab.append(gui.createTabPage(self.tabs, "Field Intensity (Best Focus)"))
-        self.tab.append(gui.createTabPage(self.tabs, "HEW"))
+        self.tab.append(gui.createTabPage(self.tabs, "HEW and SIGMA"))
         self.plot_canvas.append(None)
         self.plot_canvas.append(None)
 
@@ -255,6 +255,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             self.electric_fields_list = []
             self.positions_list = []
             self.hews_list = []
+            self.sigmas_list = []
 
             import copy
             last_element = self.get_last_element()
@@ -284,11 +285,13 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                     norm = 1.0 if norm == 0.0 else norm
                     I = I / norm
                     HEW = HewList[0]
+                    sigma0 = SigmaList[0]
 
                     # E1
                     self.electric_fields_list.append(E)
                     self.positions_list.append(S)
                     self.hews_list.append(HEW)
+                    self.sigmas_list.append(sigma0)
 
                     self.best_focus_slider.setValue(i)
 
@@ -322,10 +325,11 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                                                              )
 
                 i = 0
-                for Result, HEW in zip(ResultList, HewList):
+                for Result, HEW, sigma0 in zip(ResultList, HewList, SigmaList):
                     self.electric_fields_list.append(Result.Field)
                     self.positions_list.append(Result.S)
                     self.hews_list.append(HEW)
+                    self.sigmas_list.append(sigma0)
 
                     hew = round(HEW * 1e6, 11)  # problems with double precision numbers: inconsistent comparisons
 
@@ -356,6 +360,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                             index_min] / 1e-3)) +
                                     "\nHEW: " + str(
                                         round(self.hews_list[index_min] * 1e6, 4)) + " [" + u"\u03BC" + "m]",
+                                    "\nSIGMA: " + str(
+                                        round(self.sigmas_list[index_min] * 1e6, 4)) + " [" + u"\u03BC" + "m]",
                                     QMessageBox.Ok
                                     )
 
@@ -369,7 +375,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                   " (" + str(index_min + 1) + "/" + str(n_defocus) + "), Position: " +
                                   str(self.oe_f2 + (self._defocus_sign * self.defocus_list[
                                       index_min] / 1e-3)) +
-                                  ", HEW: " + str(round(self.hews_list[index_min] * 1e6, 4)) + " [$\mu$m]",
+                                  ", HEW: " + str(round(self.hews_list[index_min] * 1e6, 4)) + " [$\mu$m]" +
+                                  ", SIGMA: " + str(round(self.sigmas_list[index_min] * 1e6, 4)) + " [$\mu$m]",
                             xtitle="Y [$\mu$m]",
                             ytitle="Intensity",
                             log_x=False,
@@ -380,16 +387,33 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                             100,
                             tabs_canvas_index=3,
                             plot_canvas_index=3,
-                            title="HEW vs Defocus Sweep",
+                            title="HEW (blue) and SIGMA (red)",
                             xtitle="",
                             ytitle="",
                             log_x=False,
                             log_y=False)
 
+            self.plot_canvas[3].addCurve(self._defocus_sign * self.defocus_list,
+                                         numpy.multiply(self.sigmas_list, 1e6),
+                                         legend="SIGMA",
+                                         color='red',
+                                         replace=False)
+
+            # self.plot_histo(self._defocus_sign * self.defocus_list,
+            #                 numpy.multiply(self.sigmas_list, 1e6),
+            #                 100,
+            #                 tabs_canvas_index=3,
+            #                 plot_canvas_index=3,
+            #                 title="SIGMA",
+            #                 xtitle="",
+            #                 ytitle="",
+            #                 log_x=False,
+            #                 log_y=False)
+
             self.plot_canvas[3].setDefaultPlotLines(True)
             self.plot_canvas[3].setDefaultPlotPoints(True)
             self.plot_canvas[3].setGraphXLabel("Defocus [" + self.workspace_units_label + "]")
-            self.plot_canvas[3].setGraphYLabel("HEW [$\mu$m]")
+            self.plot_canvas[3].setGraphYLabel("Size [$\mu$m]")
 
             self.best_focus_slider.setValue(index_min)
 
