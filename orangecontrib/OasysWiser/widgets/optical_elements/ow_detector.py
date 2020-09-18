@@ -48,6 +48,10 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
     output_data_best_focus = None
 
     _defocus_sign = 1
+    BestDefocus = Setting(0)
+    BestHew = Setting(0)
+    ActualBestDefocus = Setting(0)
+    ActualBestHew = Setting(0)
 
     def after_change_workspace_units(self):
         super(OWDetector, self).after_change_workspace_units()
@@ -101,6 +105,30 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                       callback=self.save_best_focus_results, height=35)
         self.save_button.setEnabled(False)
 
+        # PROBLEM HERE! STR AND FLOAT!
+
+        le_BD = oasysgui.lineEdit(best_focus_box, self, "ActualBestDefocus", "Best focus at [m]", labelWidth=220,
+                               valueType=float, orientation="horizontal")
+        le_BD.setReadOnly(True)
+        font = QFont(le_BD.font())
+        # font.setBold(True)
+        le_BD.setFont(font)
+        palette = QPalette(le_BD.palette())
+        palette.setColor(QPalette.Text, QColor('grey'))
+        palette.setColor(QPalette.Base, QColor(243, 240, 140))
+        le_BD.setPalette(palette)
+
+        le_HEW = oasysgui.lineEdit(best_focus_box, self, "ActualBestHew", "HEW at best focus [" + u"\u03BC" + "m]", labelWidth=220,
+                               valueType=float, orientation="horizontal")
+        le_HEW.setReadOnly(True)
+        font = QFont(le_HEW.font())
+        # font.setBold(True)
+        le_HEW.setFont(font)
+        palette = QPalette(le_HEW.palette())
+        palette.setColor(QPalette.Text, QColor('grey'))
+        palette.setColor(QPalette.Base, QColor(243, 240, 140))
+        le_HEW.setPalette(palette)
+
         self.best_focus_slider = None
 
         self.tab_sweep = oasysgui.createTabPage(self.tabs_setting, "Through-Focus Scan")
@@ -136,6 +164,12 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
         self.save_button.setEnabled(False)
 
         self.best_focus_slider = None
+
+    def get_ActualBestDefocus(self):
+        return round(self.oe_f2 + self.BestDefocus, 4)
+
+    def get_ActualBestHew(self):
+        return round(self.BestHew * 1e6, 4)
 
     def initializeTabs(self):
         super(OWDetector, self).initializeTabs()
@@ -303,8 +337,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                     title="Defocus Sweep: " + str(
                                         self._defocus_sign * defocus / 1e-3) + " (" + str(
                                         i + 1) + "/" + str(n_defocus) +
-                                          "), HEW: " + str(round(HEW * 1e6, 4)) + " [$\mu$m]",
-                                    xtitle="Y [$\mu$m]",
+                                          "), HEW: " + str(round(HEW * 1e6, 4)) + " [" + u"\u03BC" + "m]",
+                                    xtitle="Y [" + u"\u03BC" + "m]",
                                     ytitle="Intensity",
                                     log_x=False,
                                     log_y=False)
@@ -354,14 +388,12 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             best_focus_positions = self.positions_list[index_min]
 
             QMessageBox.information(self,
-                                    "Best Focus Calculation",
+                                    "Through-focus calculation",
                                     "Best Focus Found!\n\nPosition: " + str(self.oe_f2 + (
                                                 self._defocus_sign * self.defocus_list[
                                             index_min] / 1e-3)) +
                                     "\nHEW: " + str(
                                         round(self.hews_list[index_min] * 1e6, 4)) + " [" + u"\u03BC" + "m]",
-                                    "\nSIGMA: " + str(
-                                        round(self.sigmas_list[index_min] * 1e6, 4)) + " [" + u"\u03BC" + "m]",
                                     QMessageBox.Ok
                                     )
 
@@ -375,9 +407,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                   " (" + str(index_min + 1) + "/" + str(n_defocus) + "), Position: " +
                                   str(self.oe_f2 + (self._defocus_sign * self.defocus_list[
                                       index_min] / 1e-3)) +
-                                  ", HEW: " + str(round(self.hews_list[index_min] * 1e6, 4)) + " [$\mu$m]" +
-                                  ", SIGMA: " + str(round(self.sigmas_list[index_min] * 1e6, 4)) + " [$\mu$m]",
-                            xtitle="Y [$\mu$m]",
+                                  ", HEW: " + str(round(self.hews_list[index_min] * 1e6, 4)) + " [" + u"\u03BC" + "m]",
+                            xtitle="Y [" + u"\u03BC" + "m]",
                             ytitle="Intensity",
                             log_x=False,
                             log_y=False)
@@ -395,7 +426,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
             self.plot_canvas[3].addCurve(self._defocus_sign * self.defocus_list,
                                          numpy.multiply(self.sigmas_list, 1e6),
-                                         legend="SIGMA",
+                                         legend="HEW (blue) and SIGMA (red)",
                                          color='red',
                                          replace=False)
 
@@ -413,7 +444,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             self.plot_canvas[3].setDefaultPlotLines(True)
             self.plot_canvas[3].setDefaultPlotPoints(True)
             self.plot_canvas[3].setGraphXLabel("Defocus [" + self.workspace_units_label + "]")
-            self.plot_canvas[3].setGraphYLabel("Size [$\mu$m]")
+            self.plot_canvas[3].setGraphYLabel("Size [" + u"\u03BC" + "m]")
 
             self.best_focus_slider.setValue(index_min)
 
@@ -466,7 +497,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             self.setStatusMessage("")
             self.progressBarInit()
 
-            progress_bar_increment = 100/n_defocus
+            progress_bar_increment = 100. / self.max_iter
 
             hew_min = numpy.inf
             index_min_list = []
@@ -484,47 +515,51 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
             self.run_calculation = True
 
+            #   Results : struct-like class with the following attributes
+            #   	- BestField : 1d-array (complex)
+            #   				    Field at the best focus
+            #       - BestDefocus : scalar (real)
+            #                       Defocus of the best spot
+	        #       - BestHew : scalar (real)
+            #				        Half energy width of the best spot
+            #       - OptResult : OptimizationResult object
+            #                       Contains the results of the optimization
+
             Results = Foundation.FocusFind(last_element,
                                            DefocusRange=(self.defocus_start*1e-3, self.defocus_stop*1e-3),
                                            DetectorSize = self.length*self.workspace_units_to_m
                                            )
 
             BestField = Results.BestField
-            BestDefocus = Results.BestDefocus
-            BestHew = Results.BestHew
+            self.BestDefocus = Results.BestDefocus
+            self.BestHew = Results.BestHew
             OptResult = Results.OptResult
 
-            # index_min = index_min_list[int(len(index_min_list)/2)] # choosing the central value, when hew reach a pletau
-            #
-            # self.best_focus_index = index_min
-            # best_focus_electric_fields = self.electric_fields_list[index_min]
-            # best_focus_I = abs(best_focus_electric_fields)**2
-            # norm = max(best_focus_I)
-            # norm = 1.0 if norm == 0.0 else norm
-            # best_focus_I = best_focus_I/norm
-            #
-            # best_focus_positions       = self.positions_list[index_min]
-            #
-            # QMessageBox.information(self,
-            #                         "Best Focus Calculation",
-            #                         "Best Focus Found!\n\nPosition: " + str(self.oe_f2 + (self._defocus_sign * self.defocus_list[index_min]/1e-3)) +
-            #                         "\nHEW: " + str(round(self.hews_list[index_min]*1e6, 4)) + " [" + u"\u03BC" + "m]",
-            #                         QMessageBox.Ok
-            #                         )
-            #
-            # self.plot_histo(best_focus_positions * 1e6,
-            #                 best_focus_I,
-            #                 100,
-            #                 tabs_canvas_index=2,
-            #                 plot_canvas_index=2,
-            #                 title="(BEST FOCUS) Defocus Sweep: " + str(self._defocus_sign * self.defocus_list[index_min]/1e-3) +
-            #                       " ("+ str(index_min+1) + "/" + str(n_defocus) + "), Position: " +
-            #                       str(self.oe_f2 + (self._defocus_sign * self.defocus_list[index_min]/1e-3)) +
-            #                       ", HEW: " + str(round(self.hews_list[index_min]*1e6, 4)) + " [$\mu$m]",
-            #                 xtitle="Y [$\mu$m]",
-            #                 ytitle="Intensity",
-            #                 log_x=False,
-            #                 log_y=False)
+            best_focus_I = BestField
+            norm = max(best_focus_I)
+            norm = 1.0 if norm == 0.0 else norm
+            best_focus_I = best_focus_I/norm
+
+            self.ActualBestHew = self.get_ActualBestHew()
+            self.ActualBestDefocus = self.get_ActualBestDefocus()
+
+            QMessageBox.information(self,
+                                    "Best focus calculation",
+                                    "Best Focus Found!\n\nPosition: " + str(self.ActualBestDefocus) + " [m]" +
+                                    "\nHEW: " + str(self.ActualBestHew) + " [" + u"\u03BC" + "m]",
+                                    QMessageBox.Ok
+                                    )
+
+            self.plot_histo(numpy.linspace(0, len(best_focus_I), num=len(best_focus_I)),
+                            numpy.abs(best_focus_I),
+                            100,
+                            tabs_canvas_index=2,
+                            plot_canvas_index=2,
+                            title="(BEST FOCUS) Position: " + str(self.ActualBestDefocus) + ", HEW: " + str(self.ActualBestHew) + " [" + u"\u03BC" + "m]",
+                            xtitle="Y [" + u"\u03BC" + "m]",
+                            ytitle="Intensity",
+                            log_x=False,
+                            log_y=False)
             #
             # self.plot_histo(self._defocus_sign * self.defocus_list,
             #                 numpy.multiply(self.hews_list, 1e6),
@@ -545,9 +580,9 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             # self.best_focus_slider.setValue(index_min)
             #
             # self.tabs.setCurrentIndex(3 if self.show_animation == 1 else 2)
-            # self.setStatusMessage("")
-            #
-            # self.save_button.setEnabled(True)
+            self.setStatusMessage("")
+
+            self.save_button.setEnabled(True)
 
         except Exception as exception:
             QMessageBox.critical(self, "Error", str(exception), QMessageBox.Ok)
@@ -583,10 +618,10 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                 title = "(BEST FOCUS) Defocus Sweep: " + str(self._defocus_sign * self.defocus_list[index]/self.workspace_units_to_m) + \
                         " ("+ str(index+1) + "/" + str(n_defocus) + "), Position: " + \
                         str(self.oe_f2 + (self.defocus_list[index]/self.workspace_units_to_m)) + \
-                        ", HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [$\mu$m]"
+                        ", HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [" + u"\u03BC" + "m]"
             else:
                 title = "Defocus Sweep: " + str(self._defocus_sign * self.defocus_list[index]/self.workspace_units_to_m) + \
-                        " (" + str(index+1) + "/" + str(n_defocus) + "), HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [$\mu$m]"
+                        " (" + str(index+1) + "/" + str(n_defocus) + "), HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [" + u"\u03BC" + "m]"
 
             self.plot_histo(positions * 1e6,
                             I,
@@ -594,7 +629,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                             tabs_canvas_index=1,
                             plot_canvas_index=1,
                             title=title,
-                            xtitle="Y [$\mu$m]",
+                            xtitle="Y [" + u"\u03BC" + "m]",
                             ytitle="Intensity",
                             log_x=False,
                             log_y=False)
