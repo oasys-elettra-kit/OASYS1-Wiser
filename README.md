@@ -38,12 +38,3 @@ https://github.com/oasys-kit/oasys-installation-scripts/wiki/Install-Oasys-in-Wi
     
 3. There is a problem with engineering_notation package, as it seems that it can't be installed automatically (I don't know why, yet), so install manually using pip install engineering_notation
 
-
-[old... forget this]
-----------
-OasysWiser will be pip installable (https://pip.pypa.io/) by:
-
-    pip install oasyswiser
-
-to install it.
-

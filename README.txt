@@ -13,9 +13,9 @@ Work in progress
 
 Installing
 
-OasysWiser will be pip installable (https://pip.pypa.io/) by:
+OasysWiser is pip installable (https://pip.pypa.io/) by:
 
-    pip install oasyswiser
+    pip install OASYS1-OasysWiser
 
 to install it.
 
