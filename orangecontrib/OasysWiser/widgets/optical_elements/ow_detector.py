@@ -391,7 +391,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                     "Through-focus calculation",
                                     "Best Focus Found!\n\nPosition: " + str(self.oe_f2 + (
                                                 self._defocus_sign * self.defocus_list[
-                                            index_min] / 1e-3)) +
+                                            index_min] / 1e-3)) + " [m]" +
                                     "\nHEW: " + str(
                                         round(self.hews_list[index_min] * 1e6, 4)) + " [" + u"\u03BC" + "m]",
                                     QMessageBox.Ok
@@ -406,7 +406,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                 self._defocus_sign * self.defocus_list[index_min] / 1e-3) +
                                   " (" + str(index_min + 1) + "/" + str(n_defocus) + "), Position: " +
                                   str(self.oe_f2 + (self._defocus_sign * self.defocus_list[
-                                      index_min] / 1e-3)) +
+                                      index_min] / 1e-3)) + " [m]" +
                                   ", HEW: " + str(round(self.hews_list[index_min] * 1e6, 4)) + " [" + u"\u03BC" + "m]",
                             xtitle="Y [" + u"\u03BC" + "m]",
                             ytitle="Intensity",
@@ -535,7 +535,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             self.BestHew = Results.BestHew
             OptResult = Results.OptResult
 
-            best_focus_I = BestField
+            best_focus_I = numpy.abs(BestField)**2
             norm = max(best_focus_I)
             norm = 1.0 if norm == 0.0 else norm
             best_focus_I = best_focus_I/norm
@@ -551,7 +551,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                     )
 
             self.plot_histo(numpy.linspace(0, len(best_focus_I), num=len(best_focus_I)),
-                            numpy.abs(best_focus_I),
+                            best_focus_I,
                             100,
                             tabs_canvas_index=2,
                             plot_canvas_index=2,
