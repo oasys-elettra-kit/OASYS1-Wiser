@@ -9,7 +9,7 @@ except AttributeError:
 
 
 NAME = 'OASYS1-OasysWiser'
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 ISRELEASED = True
 
 DESCRIPTION = 'Wiser in Python'
