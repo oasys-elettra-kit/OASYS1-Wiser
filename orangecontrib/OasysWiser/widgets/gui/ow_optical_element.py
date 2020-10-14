@@ -613,33 +613,39 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
 
     def do_wise_calculation(self, beamline=None):
+        try:
+            if self.input_data is None:
+                raise Exception("No Input Data!")
 
-        if self.input_data is None:
-            raise Exception("No Input Data!")
+            if beamline == None:
+                beamline = self.do_wiser_beamline()
 
-        if beamline == None:
-            beamline = self.do_wiser_beamline()
+            output_data = self.input_data.duplicate()
 
-        output_data = self.input_data.duplicate()
+            input_wavefront = output_data.wise_wavefront
 
-        input_wavefront = output_data.wise_wavefront
+            output_data.wise_beamline = beamline
 
-        output_data.wise_beamline = beamline
+            parameters = PropagationParameters(
+                wavefront=input_wavefront if not input_wavefront is None else WiseWavefront(wise_computation_results=None),
+                propagation_elements=output_data.wise_beamline)
 
-        parameters = PropagationParameters(
-            wavefront=input_wavefront if not input_wavefront is None else WiseWavefront(wise_computation_results=None),
-            propagation_elements=output_data.wise_beamline)
+            parameters.set_additional_parameters("single_propagation",
+                                                 True if PropagationManager.Instance().get_propagation_mode(
+                                                     WISE_APPLICATION) == PropagationMode.STEP_BY_STEP else (
+                                                     not self.is_full_propagator))
+            parameters.set_additional_parameters("NPools", self.n_pools if self.use_multipool == 1 else 1)
+            parameters.set_additional_parameters("is_full_propagator", self.is_full_propagator)
 
-        parameters.set_additional_parameters("single_propagation",
-                                             True if PropagationManager.Instance().get_propagation_mode(
-                                                 WISE_APPLICATION) == PropagationMode.STEP_BY_STEP else (
-                                                 not self.is_full_propagator))
-        parameters.set_additional_parameters("NPools", self.n_pools if self.use_multipool == 1 else 1)
-        parameters.set_additional_parameters("is_full_propagator", self.is_full_propagator)
+            output_data.wise_wavefront = PropagationManager.Instance().do_propagation(propagation_parameters=parameters,
+                                                                                          handler_name=WisePropagator.HANDLER_NAME)
+            return output_data
 
-        output_data.wise_wavefront = PropagationManager.Instance().do_propagation(propagation_parameters=parameters,
-                                                                                  handler_name=WisePropagator.HANDLER_NAME)
-        return output_data
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+            self.setStatusMessage("Error")
+
+
 
     #
     # def do_wise_calculation(self):
