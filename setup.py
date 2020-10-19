@@ -8,8 +8,8 @@ except AttributeError:
     from setuptools import find_packages, setup
 
 
-NAME = 'OASYS1-wiser'
-VERSION = '0.1.5'
+NAME = 'OASYS1-oasyswiser'
+VERSION = '0.1.8'
 ISRELEASED = True
 
 DESCRIPTION = 'Wiser in Python'
@@ -45,7 +45,7 @@ SETUP_REQUIRES = (
 INSTALL_REQUIRES = (
     'LibWiser>=0.9.12',
     'oasys1>=1.1.19',
-    'wofrywiser>=0.0.9'
+    'wofrywiser>=0.1.1'
 )
 
 PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))
