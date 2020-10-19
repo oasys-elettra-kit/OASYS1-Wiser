@@ -12,10 +12,10 @@ from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget
 
 from wofry.propagator.wavefront1D.generic_wavefront import GenericWavefront1D
 
-from WofryWiser.propagator.propagator1D.wise_propagator import WisePropagationElements
-from WofryWiser.propagator.wavefront1D.wise_wavefront import WiseWavefront
-from WofryWiser.beamline.beamline_elements import WiserBeamlineElement
-from WofryWiser.beamline.beamline_elements import WiserOpticalElement
+from wofrywiser.propagator.propagator1D.wise_propagator import WiserPropagationElements
+from wofrywiser.propagator.wavefront1D.wise_wavefront import WiserWavefront
+from wofrywiser.beamline.beamline_elements import WiserBeamlineElement
+from wofrywiser.beamline.beamline_elements import WiserOpticalElement
 
 from LibWiser import Foundation, Optics
 
@@ -75,7 +75,7 @@ class OWFromWofryWavefront1d(WiserWidget):
         data_to_plot[0, :] = self.wofry_wavefront._electric_field_array.get_abscissas()/self.workspace_units_to_m
         data_to_plot[1, :] = numpy.abs(self.wofry_wavefront._electric_field_array.get_values())**2
 
-        return self.wofry_wavefront, WiseWavefront.fromGenericWavefront(self.wofry_wavefront), data_to_plot
+        return self.wofry_wavefront, WiserWavefront.fromGenericWavefront(self.wofry_wavefront), data_to_plot
 
     def getTitles(self):
         return ["Wavefront Intensity"]
@@ -93,7 +93,7 @@ class OWFromWofryWavefront1d(WiserWidget):
         wofry_wavefront = calculation_output[0]
         wise_wavefront = calculation_output[1]
 
-        wiser_beamline = WisePropagationElements()
+        wiser_beamline = WiserPropagationElements()
         wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=WiserOpticalElement(native_OpticalElement=get_dummy_source(wofry_wavefront))))
 
         return WiserData(wise_wavefront=wise_wavefront, wise_beamline=wiser_beamline)

@@ -6,7 +6,7 @@ from orangecanvas.scheme.link import SchemeLink
 from oasys.menus.menu import OMenu
 
 from wofry.propagator.propagator import PropagationManager, PropagationMode
-from WofryWiser.propagator.propagator1D.wise_propagator import WISE_APPLICATION
+from wofrywiser.propagator.propagator1D.wise_propagator import WISE_APPLICATION
 
 from orangecontrib.OasysWiser.util.wise_util import showWarningMessage, showCriticalMessage
 from orangecontrib.OasysWiser.widgets.optical_elements.ow_detector import OWDetector

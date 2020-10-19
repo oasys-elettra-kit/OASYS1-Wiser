@@ -11,7 +11,7 @@ from oasys.widgets.widget import AutomaticWidget
 
 from wofry.propagator.wavefront1D.generic_wavefront import GenericWavefront1D
 
-from WofryWiser.propagator.wavefront1D.wise_wavefront import WiseWavefront
+from wofrywiser.propagator.wavefront1D.wise_wavefront import WiserWavefront
 
 from orangecontrib.OasysWiser.util.wise_objects import WiserData
 

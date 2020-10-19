@@ -14,7 +14,7 @@ from syned.widget.widget_decorator import WidgetDecorator
 
 from LibWiser import Foundation, Optics
 
-from WofryWiser.beamline.beamline_elements import WiserOpticalElement
+from wofrywiser.beamline.beamline_elements import WiserOpticalElement
 
 from orangecontrib.OasysWiser.widgets.gui.ow_optical_element import OWOpticalElement
 from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import PositioningDirectivesPhrases

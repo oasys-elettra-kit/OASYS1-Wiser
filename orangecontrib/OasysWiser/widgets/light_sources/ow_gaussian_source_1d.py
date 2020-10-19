@@ -12,9 +12,9 @@ from LibWiser import Optics
 import LibWiser.FermiSource as Fermi
 from LibWiser.Foundation import PositioningDirectives
 
-from WofryWiser.propagator.propagator1D.wise_propagator import WisePropagationElements
+from wofrywiser.propagator.propagator1D.wise_propagator import WiserPropagationElements
 
-from WofryWiser.beamline.beamline_elements import WiserBeamlineElement, WiserOpticalElement
+from wofrywiser.beamline.beamline_elements import WiserBeamlineElement, WiserOpticalElement
 
 from orangecontrib.OasysWiser.util.wise_objects import WiserData
 from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget, ElementType, PositioningDirectivesPhrases
@@ -201,7 +201,7 @@ class OWGaussianSource1d(WiserWidget):
         return calculation_output[1]
 
     def extract_wise_data_from_calculation_output(self, calculation_output):
-        beamline = WisePropagationElements()
+        beamline = WiserPropagationElements()
         beamline.add_beamline_element(WiserBeamlineElement(optical_element=calculation_output[0]))
 
         return WiserData(wise_wavefront=None, wise_beamline=beamline)

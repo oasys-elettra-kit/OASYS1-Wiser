@@ -19,13 +19,13 @@ from LibWiser.Foundation import PositioningDirectives
 import LibWiser.Optics as Optics
 
 from wofry.propagator.propagator import PropagationManager, PropagationMode, WavefrontDimension
-from WofryWiser.propagator.propagator1D.wise_propagator import WisePropagator, WISE_APPLICATION
+from wofrywiser.propagator.propagator1D.wise_propagator import WiserPropagator, WISE_APPLICATION
 
 def initialize_propagator_1D():
     propagation_manager = PropagationManager.Instance()
 
     if not propagation_manager.is_initialized(WISE_APPLICATION):
-        if not propagation_manager.has_propagator(WisePropagator.HANDLER_NAME, WavefrontDimension.ONE): propagation_manager.add_propagator(WisePropagator())
+        if not propagation_manager.has_propagator(WiserPropagator.HANDLER_NAME, WavefrontDimension.ONE): propagation_manager.add_propagator(WiserPropagator())
 
         propagation_manager.set_propagation_mode(WISE_APPLICATION, PropagationMode.STEP_BY_STEP)
 

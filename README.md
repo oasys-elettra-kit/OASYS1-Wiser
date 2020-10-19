@@ -13,8 +13,8 @@ OasysWiser is the GUI part of Wiser in Oasys.
 
 Hierarchy:
 * LibWiser - Python implementation of WISE (numerical integration using Huygens integral)
-* WofryWiser - intermediate layer, taking care of compatibility with the rest of Oasys packages
-* OasysWiser - GUI part, calling WofryWiser intermediate routines
+* wofrywiser - intermediate layer, taking care of compatibility with the rest of Oasys packages
+* OasysWiser - GUI part, calling wofrywiser intermediate routines
 
 Installation
 ----------
@@ -31,7 +31,7 @@ https://github.com/oasys-kit/oasys-installation-scripts/wiki/Install-Oasys-in-Wi
    
 3) Restart OASYS.
 
-    a) If it complains about WofryWiser, then install WofryWiser and LibWiser manually through add-on manager [advanced users]. Restart OASYS again.
+    a) If it complains about wofrywiser, then install wofrywiser and LibWiser manually through add-on manager [advanced users]. Restart OASYS again.
     
     b) If you are experiencing other issues, please report them
     

@@ -6,7 +6,7 @@ from orangewidget.settings import Setting
 
 from LibWiser import Optics
 
-from WofryWiser.beamline.beamline_elements import WiserOpticalElement
+from wofrywiser.beamline.beamline_elements import WiserOpticalElement
 
 from orangecontrib.OasysWiser.widgets.gui.ow_optical_element import OWOpticalElement
 from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import PositioningDirectivesPhrases

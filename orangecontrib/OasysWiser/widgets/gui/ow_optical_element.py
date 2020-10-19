@@ -14,9 +14,9 @@ from syned.beamline.optical_elements.mirrors.mirror import Mirror
 
 from wofry.propagator.propagator import PropagationManager, PropagationParameters, PropagationMode
 
-from WofryWiser.propagator.propagator1D.wise_propagator import WisePropagator, WisePropagationElements, WISE_APPLICATION
-from WofryWiser.propagator.wavefront1D.wise_wavefront import WiseWavefront
-from WofryWiser.beamline.beamline_elements import WiserBeamlineElement
+from wofrywiser.propagator.propagator1D.wise_propagator import WiserPropagator, WiserPropagationElements, WISE_APPLICATION
+from wofrywiser.propagator.wavefront1D.wise_wavefront import WiserWavefront
+from wofrywiser.beamline.beamline_elements import WiserBeamlineElement
 
 from orangecontrib.OasysWiser.util.wise_objects import WiserData, WiserPreInputData
 from orangecontrib.OasysWiser.widgets.gui.ow_wise_widget import WiserWidget, ElementType, PositioningDirectivesPhrases
@@ -596,7 +596,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
         wiser_beamline = self.input_data.duplicate().wise_beamline
 
-        if wiser_beamline is None: wiser_beamline = WisePropagationElements()
+        if wiser_beamline is None: wiser_beamline = WiserPropagationElements()
 
         wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=oasysWiserOE))
 
@@ -627,7 +627,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
             output_data.wise_beamline = beamline
 
             parameters = PropagationParameters(
-                wavefront=input_wavefront if not input_wavefront is None else WiseWavefront(wise_computation_results=None),
+                wavefront=input_wavefront if not input_wavefront is None else WiserWavefront(wiser_computation_results=None),
                 propagation_elements=output_data.wise_beamline)
 
             parameters.set_additional_parameters("single_propagation",
@@ -638,7 +638,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
             parameters.set_additional_parameters("is_full_propagator", self.is_full_propagator)
 
             output_data.wise_wavefront = PropagationManager.Instance().do_propagation(propagation_parameters=parameters,
-                                                                                          handler_name=WisePropagator.HANDLER_NAME)
+                                                                                          handler_name=WiserPropagator.HANDLER_NAME)
             return output_data
 
         except Exception as e:
@@ -705,11 +705,11 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
     #
     #     input_wavefront = output_data.wise_wavefront
     #
-    #     if output_data.wise_beamline is None: output_data.wise_beamline = WisePropagationElements()
+    #     if output_data.wise_beamline is None: output_data.wise_beamline = WiserPropagationElements()
     #
     #     output_data.wise_beamline.add_beamline_element(WiserBeamlineElement(optical_element=optical_element))
     #
-    #     parameters = PropagationParameters(wavefront=input_wavefront if not input_wavefront is None else WiseWavefront(wise_computation_results=None),
+    #     parameters = PropagationParameters(wavefront=input_wavefront if not input_wavefront is None else WiserWavefront(wiser_computation_results=None),
     #                                        propagation_elements=output_data.wise_beamline)
     #
     #     parameters.set_additional_parameters("single_propagation", True if PropagationManager.Instance().get_propagation_mode(WISE_APPLICATION) == PropagationMode.STEP_BY_STEP else (not self.is_full_propagator))
@@ -719,7 +719,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
     #     print("Current beamline state, with distances...")
     #     print(output_data.wise_beamline.get_wise_propagation_elements())
     #
-    #     output_data.wise_wavefront = PropagationManager.Instance().do_propagation(propagation_parameters=parameters, handler_name=WisePropagator.HANDLER_NAME)
+    #     output_data.wise_wavefront = PropagationManager.Instance().do_propagation(propagation_parameters=parameters, handler_name=WiserPropagator.HANDLER_NAME)
     #
     #     return output_data
 
@@ -750,11 +750,11 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
     def extract_plot_data_from_calculation_output(self, calculation_output):
         output_wavefront = calculation_output.wise_wavefront
 
-        if not output_wavefront is None and not output_wavefront.wise_computation_result is None:
+        if not output_wavefront is None and not output_wavefront.wiser_computation_result is None:
             native_optical_element = calculation_output.wise_beamline.get_wise_propagation_element(-1)
 
-            S = output_wavefront.wise_computation_result.S
-            E = output_wavefront.wise_computation_result.Field
+            S = output_wavefront.wiser_computation_result.S
+            E = output_wavefront.wiser_computation_result.Field
             I = abs(E)**2
             norm = max(I)
             norm = 1.0 if norm == 0.0 else norm
