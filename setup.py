@@ -8,7 +8,7 @@ except AttributeError:
     from setuptools import find_packages, setup
 
 
-NAME = 'OASYS1-OasysWiser'
+NAME = 'OASYS1-wiser'
 VERSION = '0.1.5'
 ISRELEASED = True
 
@@ -51,21 +51,21 @@ INSTALL_REQUIRES = (
 PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))
 
 PACKAGE_DATA = {
-    "orangecontrib.OasysWiser.widgets.light_sources":["icons/*.png", "icons/*.jpg"],
-    "orangecontrib.OasysWiser.widgets.optical_elements":["icons/*.png", "icons/*.jpg"],
-    "orangecontrib.OasysWiser.widgets.tools":["icons/*.png", "icons/*.jpg"],
+    "orangecontrib.wiser.widgets.light_sources":["icons/*.png", "icons/*.jpg"],
+    "orangecontrib.wiser.widgets.optical_elements":["icons/*.png", "icons/*.jpg"],
+    "orangecontrib.wiser.widgets.tools":["icons/*.png", "icons/*.jpg"],
 }
 
-NAMESPACE_PACAKGES = ["orangecontrib", "orangecontrib.OasysWiser", "orangecontrib.OasysWiser.widgets"]
+NAMESPACE_PACAKGES = ["orangecontrib", "orangecontrib.wiser", "orangecontrib.wiser.widgets"]
 
 ENTRY_POINTS = {
-    'oasys.addons' : ("wise = orangecontrib.OasysWiser", ),
+    'oasys.addons' : ("wise = orangecontrib.wiser", ),
     'oasys.widgets' : (
-        "Wiser Light Sources = orangecontrib.OasysWiser.widgets.light_sources",
-        "Wiser Optical Elements = orangecontrib.OasysWiser.widgets.optical_elements",
-        "Wiser Tools = orangecontrib.OasysWiser.widgets.tools",
+        "Wiser Light Sources = orangecontrib.wiser.widgets.light_sources",
+        "Wiser Optical Elements = orangecontrib.wiser.widgets.optical_elements",
+        "Wiser Tools = orangecontrib.wiser.widgets.tools",
     ),
-    'oasys.menus' : ("wisemenu = orangecontrib.OasysWiser.menu",)
+    'oasys.menus' : ("wisemenu = orangecontrib.wiser.menu",)
 }
 
 if __name__ == '__main__':
