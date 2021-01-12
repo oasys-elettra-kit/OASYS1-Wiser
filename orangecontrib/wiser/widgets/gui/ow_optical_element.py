@@ -217,7 +217,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                 self.useElettraLTPDos = 1
 
             else:
-                raise ValueError("Such file format does not exist!")
+                raise Exception("Such file format does not exist!")
 
             self.set_UseHeightOnly()
             self.set_UsePositionAndHeight()
@@ -455,7 +455,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         if not input_data is None:
             try:
                 if input_data.wise_beamline is None or input_data.wise_beamline.get_propagation_elements_number() == 0:
-                    if input_data.wise_wavefront is None: raise ValueError("Input Data contains no wavefront and/or no source to perform wavefront propagation")
+                    if input_data.wise_wavefront is None: raise Exception("Input Data contains no wavefront and/or no source to perform wavefront propagation")
 
                 self.input_data = input_data.duplicate()
 
@@ -530,7 +530,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         libWiserOE = oasysWiserOE.native_optical_element
 
         if libWiserOE.Name == None:
-            raise ValueError("No LibWiser optical element found")
+            raise Exception("No LibWiser optical element found")
 
         libWiserOE.CoreOptics.ComputationSettings.Ignore = (self.ignore == 1)
         libWiserOE.CoreOptics.Orientation = self.Orientation
@@ -583,7 +583,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
             self.use_roughness = 0
             self.set_UseRoughness()
 
-            raise NotImplementedError("Roughness Not yet supported")
+            raise Exception("Roughness Not yet supported")
         else:
             libWiserOE.CoreOptics.ComputationSettings.UseRoughness = False
 
@@ -614,13 +614,14 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
     def do_wise_calculation(self, beamline=None):
         try:
-            if self.input_data is None:
-                raise Exception("No Input Data!")
-
             if beamline == None:
                 beamline = self.do_wiser_beamline()
 
-            output_data = self.input_data.duplicate()
+            try:
+                output_data = self.input_data.duplicate()
+            except Exception as e:
+                QMessageBox.critical(self, "No input data", str(e), QMessageBox.Ok)
+                self.setStatusMessage("No input data")
 
             input_wavefront = output_data.wise_wavefront
 

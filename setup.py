@@ -45,7 +45,7 @@ SETUP_REQUIRES = (
 INSTALL_REQUIRES = (
     'LibWiser>=0.9.15',
     'oasys1>=1.1.19',
-    'wofrywiser>=0.1.1'
+    'wofrywiser>=0.1.3'
 )
 
 PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))

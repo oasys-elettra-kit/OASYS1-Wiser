@@ -326,7 +326,7 @@ class WiserWidget(widget.OWWidget):
                     pass
 
                 else:
-                    raise ValueError("Wrong PositioningDirectives, only WhatWhereReferTo are allowed!")
+                    raise Exception("Wrong PositioningDirectives, only WhatWhereReferTo are allowed!")
 
                 self.use_distance_box.setVisible(self.UseDistance)
                 self.use_distance_box_empty.setVisible(self.UseDistance)
@@ -528,7 +528,7 @@ class WiserWidget(widget.OWWidget):
         elif self.OrientationGUI == PositioningDirectivesPhrases.Orientation.Any:
             self.Orientation == Optics.OPTICS_ORIENTATION.ANY
         else:
-            raise ValueError("Something wrong with set_Orientation()")
+            raise Exception("Something wrong with set_Orientation()")
 
     def set_UseDistance(self):
 
@@ -548,7 +548,7 @@ class WiserWidget(widget.OWWidget):
             self.Distance_checked = 0
             self.UseDistance = 0
         else:
-            raise ValueError("Something wrong with set_UseDistance()")
+            raise Exception("Something wrong with set_UseDistance()")
 
     def set_UseDefocus(self):
 
@@ -569,7 +569,7 @@ class WiserWidget(widget.OWWidget):
             self.Distance_checked = 1
             self.UseDefocus = 0
         else:
-            raise ValueError("Something wrong with set_UseDefocus()")
+            raise Exception("Something wrong with set_UseDefocus()")
 
     def set_UseCustom(self):
 
@@ -588,7 +588,7 @@ class WiserWidget(widget.OWWidget):
         elif self.WhatWhereReferTo == PositioningDirectivesPhrases.Type.Custom:
             self.UseCustom = 1
         else:
-            raise ValueError("Something wrong with set_UseCustom()")
+            raise Exception("Something wrong with set_UseCustom()")
 
     def get_PositionDirectives(self):
         return PositioningDirectives(PlaceWhat=self.What,
@@ -746,11 +746,8 @@ class WiserWidget(widget.OWWidget):
 
             self.progressBarSet(50)
 
-            if calculation_output is None:
-                raise Exception("Wise gave no result")
-            else:
-                self.setStatusMessage("Plotting Results")
-
+            self.setStatusMessage("Plotting Results")
+            try:
                 self.plot_data = self.extract_plot_data_from_calculation_output(calculation_output)
 
                 self.plot_results(self.plot_data, progressBarValue=60)
@@ -760,13 +757,21 @@ class WiserWidget(widget.OWWidget):
                 wise_data = self.extract_wise_data_from_calculation_output(calculation_output)
                 if not wise_data is None: self.send("WiserData", wise_data)
 
+            except Exception as exception:
+                QtWidgets.QMessageBox.critical(self, "No input data",
+                                               str(exception), QtWidgets.QMessageBox.Ok)
+
+                self.setStatusMessage("Calculation impossible")
+
+                # raise exception
+
         except Exception as exception:
-            QtWidgets.QMessageBox.critical(self, "Error",
+            QtWidgets.QMessageBox.critical(self, "Compute impossible",
                                        str(exception), QtWidgets.QMessageBox.Ok)
 
-            self.setStatusMessage("Error!")
+            self.setStatusMessage("Error")
 
-            raise exception
+            # raise exception
 
         self.progressBarFinished()
 
