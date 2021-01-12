@@ -9,7 +9,7 @@ except AttributeError:
 
 
 NAME = 'OASYS1-oasyswiser'
-VERSION = '0.1.8'
+VERSION = '0.1.12'
 ISRELEASED = True
 
 DESCRIPTION = 'Wiser in Python'
@@ -23,27 +23,27 @@ MAINTAINER = 'Aljosa Hafner'
 MAINTAINER_EMAIL = 'aljosa.hafner@ceric-eric.eu'
 LICENSE = 'GPLv3'
 
-KEYWORDS = (
+KEYWORDS = [
     'waveoptics',
     'simulator',
     'oasys1'
-)
+]
 
-CLASSIFIERS = (
+CLASSIFIERS = [
     'Development Status :: 4 - Beta',
     'Environment :: X11 Applications :: Qt',
     'Environment :: Console',
     'Environment :: Plugins',
     'Programming Language :: Python :: 3',
     'Intended Audience :: Science/Research'
-)
+]
 
 SETUP_REQUIRES = (
     'setuptools'
 )
 
 INSTALL_REQUIRES = (
-    'LibWiser>=0.9.12',
+    'LibWiser>=0.9.15',
     'oasys1>=1.1.19',
     'wofrywiser>=0.1.1'
 )
@@ -53,19 +53,21 @@ PACKAGES = find_packages(exclude=('*.tests', '*.tests.*', 'tests.*', 'tests'))
 PACKAGE_DATA = {
     "orangecontrib.wiser.widgets.light_sources":["icons/*.png", "icons/*.jpg"],
     "orangecontrib.wiser.widgets.optical_elements":["icons/*.png", "icons/*.jpg"],
-    "orangecontrib.wiser.widgets.tools":["icons/*.png", "icons/*.jpg"],
+    "orangecontrib.wiser.widgets.tools":["icons/*.png", "icons/*.jpg"]
 }
 
-NAMESPACE_PACAKGES = ["orangecontrib", "orangecontrib.wiser", "orangecontrib.wiser.widgets"]
+NAMESPACE_PACAKGES = ["orangecontrib",
+                      "orangecontrib.wiser",
+                      "orangecontrib.wiser.widgets"]
 
 ENTRY_POINTS = {
-    'oasys.addons' : ("wise = orangecontrib.wiser", ),
+    'oasys.addons' : ("wise = orangecontrib.wiser" ),
     'oasys.widgets' : (
         "Wiser Light Sources = orangecontrib.wiser.widgets.light_sources",
         "Wiser Optical Elements = orangecontrib.wiser.widgets.optical_elements",
-        "Wiser Tools = orangecontrib.wiser.widgets.tools",
+        "Wiser Tools = orangecontrib.wiser.widgets.tools"
     ),
-    'oasys.menus' : ("wisemenu = orangecontrib.wiser.menu",)
+    'oasys.menus' : ("wisemenu = orangecontrib.wiser.menu")
 }
 
 if __name__ == '__main__':
