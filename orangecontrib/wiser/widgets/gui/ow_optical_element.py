@@ -605,8 +605,8 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
         self.get_ReferenceOE(beamline=wiser_beamline)
 
-        print("Current beamline state, with distances...")
-        print(wiser_beamline.get_wise_propagation_elements())
+        # print("Current beamline state, with distances...")
+        # print(wiser_beamline.get_wise_propagation_elements())
 
         return wiser_beamline
 
