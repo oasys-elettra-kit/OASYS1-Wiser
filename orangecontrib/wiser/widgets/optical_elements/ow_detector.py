@@ -174,7 +174,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
     def initializeTabs(self):
         super(OWDetector, self).initializeTabs()
 
-        self.tab.append(gui.createTabPage(self.tabs, "Field Intensity (Best Focus)"))
+        self.tab.append(gui.createTabPage(self.tabs, "Intensity (Best Focus)"))
         self.tab.append(gui.createTabPage(self.tabs, "HEW and SIGMA"))
         self.plot_canvas.append(None)
         self.plot_canvas.append(None)
@@ -201,10 +201,10 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
         pass
 
     def getTabTitles(self):
-        return ["Field Intensity (O.E. Focus)", "Phase (O.E. Focus)"]
+        return ["Intensity (O.E. Focus)", "Phase (O.E. Focus)"]
 
     def getTitles(self):
-        return ["Field Intensity (O.E. Focus)", "Phase (O.E. Focus)"]
+        return ["Intensity (O.E. Focus)", "Phase (O.E. Focus)"]
 
     def getXTitles(self):
         return ["S [" + self.workspace_units_label + "]", "S [" + self.workspace_units_label + "]"]
@@ -428,6 +428,11 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                          numpy.multiply(self.sigmas_list, 1e6),
                                          legend="HEW (blue) and SIGMA (red)",
                                          color='red',
+                                         replace=False)
+
+            self.plot_canvas[3].addCurve(self._defocus_sign * self.defocus_list,
+                                         numpy.multiply(self.hews_list, 1e6),
+                                         color='blue',
                                          replace=False)
 
             # self.plot_histo(self._defocus_sign * self.defocus_list,

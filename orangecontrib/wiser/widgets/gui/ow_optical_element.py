@@ -731,10 +731,10 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         raise NotImplementedError()
 
     def getTabTitles(self):
-        return ["Field Intensity (O.E.)", "Phase (O.E.)", "Figure Error"]
+        return ["Intensity (O.E.)", "Phase (O.E.)", "Figure Error"]
 
     def getTitles(self):
-        return ["Field Intensity (O.E.)", "Phase (O.E.)", "Figure Error"]
+        return ["Intensity (O.E.)", "Phase (O.E.)", "Figure Error"]
 
     def getXTitles(self):
         return ["S [" + self.workspace_units_label + "]", "S [" + self.workspace_units_label + "]", "S [" + self.workspace_units_label + "]"]

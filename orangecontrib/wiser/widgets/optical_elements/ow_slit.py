@@ -21,8 +21,6 @@ class OWSlits(OWOpticalElement, WidgetDecorator):
     length = Setting(0.01)
     alpha = Setting(90.0)
 
-    OWOpticalElement.WhatWhereReferTo = Setting(PositioningDirectivesPhrases.Type.OasysDefault)
-
     oe_name = Setting("Slit")
 
     def after_change_workspace_units(self):
