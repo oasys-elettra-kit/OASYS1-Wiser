@@ -42,7 +42,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
     defocus_start = Setting(-1.0)
     defocus_stop = Setting(1.0)
     defocus_step = Setting(0.1)
-    max_iter = Setting(31)
+    defocus_Nsteps = Setting(10)
+    max_iter = Setting(50)
     show_animation = Setting(0)
 
     output_data_best_focus = None
@@ -80,7 +81,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
         self.le_defocus_start = oasysgui.lineEdit(best_focus_box, self, "defocus_start", "Start [mm]", labelWidth=240, valueType=float, orientation="horizontal")
         self.le_defocus_stop = oasysgui.lineEdit(best_focus_box, self, "defocus_stop", "Stop [mm]", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_defocus_step = oasysgui.lineEdit(best_focus_box, self, "defocus_step", "Step [mm]", labelWidth=240, valueType=float, orientation="horizontal")
+        # self.le_defocus_step = oasysgui.lineEdit(best_focus_box, self, "defocus_step", "Step [mm]", labelWidth=240, valueType=float, orientation="horizontal")
         self.le_max_iter = oasysgui.lineEdit(best_focus_box, self, "max_iter", "Max. iterations", labelWidth=240, valueType=int, orientation="horizontal")
 
         # gui.separator(best_focus_box, height=5)
@@ -131,7 +132,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
         self.best_focus_slider = None
 
-        self.tab_sweep = oasysgui.createTabPage(self.tabs_setting, "Through-Focus Scan")
+        self.tab_sweep = oasysgui.createTabPage(self.tabs_setting, "Focal Scan")
 
         focus_sweep_box = oasysgui.widgetBox(self.tab_sweep, "", orientation="vertical", width=self.CONTROL_AREA_WIDTH-20)
 
@@ -141,7 +142,16 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
         self.le_defocus_start = oasysgui.lineEdit(focus_sweep_box, self, "defocus_start", "Lower limit [mm]", labelWidth=240, valueType=float, orientation="horizontal")
         self.le_defocus_stop  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_stop",  "Upper limit [mm]", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_defocus_step  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_step",  "Step [mm]", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_defocus_Nsteps  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_Nsteps",  "No. of steps", labelWidth=240, valueType=int, orientation="horizontal", callbackOnType=True, callback=self.get_StepSize)
+        le_defocus_step = oasysgui.lineEdit(focus_sweep_box, self, "defocus_step",  "Step [mm]", labelWidth=240, valueType=float, orientation="horizontal")
+
+        le_defocus_step.setReadOnly(True)
+        font = QFont(le_defocus_step.font())
+        le_defocus_step.setFont(font)
+        palette = QPalette(le_defocus_step.palette())
+        palette.setColor(QPalette.Text, QColor('grey'))
+        palette.setColor(QPalette.Base, QColor(243, 240, 140))
+        le_defocus_step.setPalette(palette)
 
         gui.separator(focus_sweep_box, height=5)
 
@@ -164,6 +174,12 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
         self.save_button.setEnabled(False)
 
         self.best_focus_slider = None
+
+    def get_StepSize(self):
+        try:
+            self.defocus_step = (self.defocus_stop - self.defocus_start) / self.defocus_Nsteps
+        except:
+            pass
 
     def get_ActualBestDefocus(self):
         return round(self.oe_f2 + self.BestDefocus, 4)
@@ -386,6 +402,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             best_focus_I = best_focus_I / norm
 
             best_focus_positions = self.positions_list[index_min]
+            self.ActualBestDefocus = self.get_ActualBestDefocus()
+            self.ActualBestHew = self.get_ActualBestHew()
 
             QMessageBox.information(self,
                                     "Through-focus calculation",
@@ -402,12 +420,11 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                             100,
                             tabs_canvas_index=2,
                             plot_canvas_index=2,
-                            title="(BEST FOCUS) Defocus Sweep: " + str(
-                                self._defocus_sign * self.defocus_list[index_min] / 1e-3) +
+                            title="(BEST FOCUS) Defocus Sweep: " + str(round(
+                                self._defocus_sign * self.defocus_list[index_min] / 1e-3, 4)) +
                                   " (" + str(index_min + 1) + "/" + str(n_defocus) + "), Position: " +
-                                  str(self.oe_f2 + (self._defocus_sign * self.defocus_list[
-                                      index_min] / 1e-3)) + " [m]" +
-                                  ", HEW: " + str(round(self.hews_list[index_min] * 1e6, 4)) + " [" + u"\u03BC" + "m]",
+                                  str(self.ActualBestDefocus) + " [m]" +
+                                  ", HEW: " + str(self.ActualBestHew) + " [" + u"\u03BC" + "m]",
                             xtitle="Y [" + u"\u03BC" + "m]",
                             ytitle="Intensity",
                             log_x=False,
