@@ -34,10 +34,10 @@ class OWEllipticMirror(OWOpticalElement, WidgetDecorator):
         # I don't know why exactly, but the label displays correctly with the two lines commented
         # label = self.le_length.parent().layout().itemAt(0).widget()
         # label.setText(label.text() + " [" + self.workspace_units_label + "]")
-        label = self.le_f1.parent().layout().itemAt(0).widget()
-        label.setText(label.text() + " [" + self.workspace_units_label + "]")
-        label = self.le_f2.parent().layout().itemAt(0).widget()
-        label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # label = self.le_f1.parent().layout().itemAt(0).widget()
+        # label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # label = self.le_f2.parent().layout().itemAt(0).widget()
+        # label.setText(label.text() + " [" + self.workspace_units_label + "]")
 
     def check_fields(self):
         super(OWEllipticMirror, self).check_fields()
@@ -46,13 +46,13 @@ class OWEllipticMirror(OWOpticalElement, WidgetDecorator):
         self.f2 = congruence.checkStrictlyPositiveNumber(self.f2, "F2")
 
     def build_mirror_specific_gui(self, container_box):
-        self.le_f1 = oasysgui.lineEdit(container_box, self, "f1", "F1", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_f2 = oasysgui.lineEdit(container_box, self, "f2", "F2", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_f1 = oasysgui.lineEdit(container_box, self, "f1", "F1 [m]", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_f2 = oasysgui.lineEdit(container_box, self, "f2", "F2 [m]", labelWidth=240, valueType=float, orientation="horizontal")
 
     def get_native_optical_element(self):
-        return Optics.MirrorElliptic(f1=self.f1*self.workspace_units_to_m,
-                                     f2=self.f2*self.workspace_units_to_m,
-                                     L=self.length*self.workspace_units_to_m,
+        return Optics.MirrorElliptic(f1=self.f1,
+                                     f2=self.f2,
+                                     L=self.length,
                                      Alpha=numpy.deg2rad(self.alpha))
 
     def get_optical_element(self, native_optical_element):
@@ -64,8 +64,8 @@ class OWEllipticMirror(OWOpticalElement, WidgetDecorator):
     def receive_specific_syned_data(self, optical_element):
         p, q = optical_element._surface_shape.get_p_q(numpy.radians(self.alpha))
 
-        self.f1 = numpy.round(p/self.workspace_units_to_m, 6)
-        self.f2 = numpy.round(q/self.workspace_units_to_m, 6)
+        self.f1 = numpy.round(p, 6)
+        self.f2 = numpy.round(q, 6)
 
     def check_syned_shape(self, optical_element):
         if not isinstance(optical_element._surface_shape, Ellipsoid):

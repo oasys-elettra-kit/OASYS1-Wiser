@@ -200,7 +200,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             tab.setFixedWidth(self.IMAGE_WIDTH)
 
     def get_native_optical_element(self):
-        return Optics.Detector(L=self.length*self.workspace_units_to_m,
+        return Optics.Detector(L=self.length,
                                AngleGrazing=numpy.deg2rad(self.alpha))
 
     def get_optical_element(self, native_optical_element):
@@ -325,8 +325,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                         return
 
                     ResultList, HewList, SigmaList, More = Foundation.FocusSweep(last_element, [self.defocus_list[i]],
-                                                                                 DetectorSize=self.length * self.workspace_units_to_m
-                                                                                 )
+                                                                                 DetectorSize=self.length)
 
                     S = ResultList[0].S
                     E = ResultList[0].Field
@@ -371,8 +370,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             else:  # NOT INTERACTIVE
                 ResultList, HewList, SigmaList, More = Foundation.FocusSweep(last_element,
                                                                              self.defocus_list,
-                                                                             DetectorSize=self.length * self.workspace_units_to_m
-                                                                             )
+                                                                             DetectorSize=self.length)
 
                 i = 0
                 for Result, HEW, sigma0 in zip(ResultList, HewList, SigmaList):
@@ -406,7 +404,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             self.ActualBestHew = self.get_ActualBestHew()
 
             QMessageBox.information(self,
-                                    "Through-focus calculation",
+                                    "Focal Scan calculation",
                                     "Best Focus Found!\n\nPosition: " + str(self.oe_f2 + (
                                                 self._defocus_sign * self.defocus_list[
                                             index_min] / 1e-3)) + " [m]" +
@@ -549,8 +547,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
             Results = Foundation.FocusFind(last_element,
                                            DefocusRange=(self.defocus_start*1e-3, self.defocus_stop*1e-3),
-                                           DetectorSize = self.length*self.workspace_units_to_m
-                                           )
+                                           DetectorSize = self.length)
 
             BestField = Results.BestField
             self.BestDefocus = Results.BestDefocus
@@ -637,12 +634,12 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             positions       = self.positions_list[index]
 
             if index == self.best_focus_index:
-                title = "(BEST FOCUS) Defocus Sweep: " + str(self._defocus_sign * self.defocus_list[index]/self.workspace_units_to_m) + \
+                title = "(BEST FOCUS) Defocus Sweep: " + str(self._defocus_sign * self.defocus_list[index]) + \
                         " ("+ str(index+1) + "/" + str(n_defocus) + "), Position: " + \
-                        str(self.oe_f2 + (self.defocus_list[index]/self.workspace_units_to_m)) + \
+                        str(self.oe_f2 + (self.defocus_list[index])) + \
                         ", HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [" + u"\u03BC" + "m]"
             else:
-                title = "Defocus Sweep: " + str(self._defocus_sign * self.defocus_list[index]/self.workspace_units_to_m) + \
+                title = "Defocus Sweep: " + str(self._defocus_sign * self.defocus_list[index]) + \
                         " (" + str(index+1) + "/" + str(n_defocus) + "), HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [" + u"\u03BC" + "m]"
 
             self.plot_histo(positions * 1e6,

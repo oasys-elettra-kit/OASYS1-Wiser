@@ -124,8 +124,8 @@ class OWGaussianSource1d(WiserWidget):
         self.use_small_displacements_box_empty = oasysgui.widgetBox(self.tab_dis, "", addSpace=True, orientation="vertical", height=150, width=self.CONTROL_AREA_WIDTH-40)
 
         oasysgui.lineEdit(self.use_small_displacements_box, self, "rotation", "Rotation [deg]", labelWidth=260, valueType=float, orientation="horizontal")
-        self.le_transverse = oasysgui.lineEdit(self.use_small_displacements_box, self, "transverse", "Transverse displacement", labelWidth=260, valueType=float, orientation="horizontal")
-        self.le_longitudinal = oasysgui.lineEdit(self.use_small_displacements_box, self, "longitudinal", "Longitudinal displacement", labelWidth=260, valueType=float, orientation="horizontal")
+        self.le_transverse = oasysgui.lineEdit(self.use_small_displacements_box, self, "transverse", "Transverse displacement [m]", labelWidth=260, valueType=float, orientation="horizontal")
+        self.le_longitudinal = oasysgui.lineEdit(self.use_small_displacements_box, self, "longitudinal", "Longitudinal displacement [m]", labelWidth=260, valueType=float, orientation="horizontal")
 
         self.set_UseSmallDisplacement()
 
@@ -141,13 +141,13 @@ class OWGaussianSource1d(WiserWidget):
     def after_change_workspace_units(self):
         super(OWGaussianSource1d, self).after_change_workspace_units()
 
-        if hasattr(self, "le_transverse"):
-            label = self.le_transverse.parent().layout().itemAt(0).widget()
-            label.setText(label.text() + " [" + self.workspace_units_label + "]")
-
-        if hasattr(self, "le_longitudinal"):
-            label = self.le_longitudinal.parent().layout().itemAt(0).widget()
-            label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # if hasattr(self, "le_transverse"):
+        #     label = self.le_transverse.parent().layout().itemAt(0).widget()
+        #     label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        #
+        # if hasattr(self, "le_longitudinal"):
+        #     label = self.le_longitudinal.parent().layout().itemAt(0).widget()
+        #     label.setText(label.text() + " [" + self.workspace_units_label + "]")
 
         # self.source_lambda = self.source_lambda / self.workspace_units_to_m
         # self.source_waist = self.source_waist / self.workspace_units_to_m

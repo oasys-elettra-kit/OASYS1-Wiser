@@ -29,7 +29,7 @@ class OWPlaneMirror(OWOpticalElement, WidgetDecorator):
         pass
 
     def get_native_optical_element(self):
-        return Optics.MirrorPlane(L=self.length*self.workspace_units_to_m,
+        return Optics.MirrorPlane(L=self.length,
                                   AngleGrazing = numpy.deg2rad(self.alpha))
 
     def get_optical_element(self, native_optical_element):

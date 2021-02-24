@@ -125,7 +125,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         oasysgui.lineEdit(main_box, self, "oe_name", "O.E. Name", labelWidth=120, valueType=str, orientation="horizontal")
 
         oasysgui.lineEdit(main_box, self, "alpha", "Incidence Angle (from surface) [deg]", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_length = oasysgui.lineEdit(main_box, self, "length", "Length", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_length = oasysgui.lineEdit(main_box, self, "length", "Length [m]", labelWidth=240, valueType=float, orientation="horizontal")
 
 
         self.build_mirror_specific_gui(main_box)
@@ -167,8 +167,8 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         self.use_small_displacements_box_empty = oasysgui.widgetBox(self.tab_dis, "", addSpace=True, orientation="vertical", height=150, width=self.CONTROL_AREA_WIDTH - 55)
 
         oasysgui.lineEdit(self.use_small_displacements_box, self, "rotation", "Rotation [deg]", labelWidth=260, valueType=float, orientation="horizontal")
-        self.le_transverse = oasysgui.lineEdit(self.use_small_displacements_box, self, "transverse", "Transverse displacement", labelWidth=260, valueType=float, orientation="horizontal")
-        self.le_longitudinal = oasysgui.lineEdit(self.use_small_displacements_box, self, "longitudinal", "Longitudinal displacement", labelWidth=260, valueType=float, orientation="horizontal")
+        self.le_transverse = oasysgui.lineEdit(self.use_small_displacements_box, self, "transverse", "Transverse displacement [m]", labelWidth=260, valueType=float, orientation="horizontal")
+        self.le_longitudinal = oasysgui.lineEdit(self.use_small_displacements_box, self, "longitudinal", "Longitudinal displacement [m]", labelWidth=260, valueType=float, orientation="horizontal")
 
         self.set_UseSmallDisplacement()
 
@@ -267,7 +267,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
             set_figure_error_file_format()
 
-            self.le_figure_error_step_ho = oasysgui.lineEdit(self.use_heightOnly_box, self, "figure_error_step", "Step", labelWidth=230, valueType=float, orientation="horizontal")
+            self.le_figure_error_step_ho = oasysgui.lineEdit(self.use_heightOnly_box, self, "figure_error_step", "Step [m]", labelWidth=230, valueType=float, orientation="horizontal")
             gui.comboBox(self.use_heightOnly_box, self, "figure_error_height_unit", label="Height unit",
                          items=figure_error_units_combos, labelWidth=230, sendSelectedValue=False, valueType=int, orientation="horizontal")
             oasysgui.lineEdit(self.use_heightOnly_box, self, "figure_error_YScaling", "Custom height scaling (Y)", labelWidth=230, valueType=float, orientation="horizontal")
@@ -286,7 +286,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
             oasysgui.lineEdit(pah_del_rows_box, self, "figure_error_delimiter", "Delimiter", labelWidth=60, valueType=str, orientation="horizontal")
             oasysgui.lineEdit(pah_del_rows_box, self, "figure_error_skip_rows", "Lines to skip", labelWidth=80, valueType=int, orientation="horizontal")
 
-            self.le_figure_error_step_so = oasysgui.lineEdit(self.use_slopeOnly_box, self, "figure_error_step", "Step", labelWidth=230, valueType=float, orientation="horizontal")
+            self.le_figure_error_step_so = oasysgui.lineEdit(self.use_slopeOnly_box, self, "figure_error_step", "Step [m]", labelWidth=230, valueType=float, orientation="horizontal")
             gui.comboBox(self.use_slopeOnly_box, self, "figure_error_height_unit", label="Slope unit",
                          items=figure_error_units_combos, labelWidth=230, sendSelectedValue=False, valueType=int, orientation="horizontal")
             oasysgui.lineEdit(self.use_slopeOnly_box, self, "figure_error_YScaling", "Custom height scaling (Y)",
@@ -430,21 +430,21 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
     def after_change_workspace_units(self):
         super(OWOpticalElement, self).after_change_workspace_units()
 
-        self.length = self.length / self.workspace_units_to_m
+        # self.length = self.length / self.workspace_units_to_m
 
-        label = self.le_length.parent().layout().itemAt(0).widget()
-        label.setText(label.text() + " [" + self.workspace_units_label + "]")
-        if self.has_figure_error_box:
-            label = self.le_figure_error_step_ho.parent().layout().itemAt(0).widget()
-            label.setText(label.text() + " [" + self.workspace_units_label + "]")
-            #label = self.le_figure_error_step_pah.parent().layout().itemAt(0).widget()
-            #label.setText(label.text() + " [" + self.workspace_units_label + "]")
-            label = self.le_figure_error_step_so.parent().layout().itemAt(0).widget()
-            label.setText(label.text() + " [" + self.workspace_units_label + "]")
-        label = self.le_transverse.parent().layout().itemAt(0).widget()
-        label.setText(label.text() + " [" + self.workspace_units_label + "]")
-        label = self.le_longitudinal.parent().layout().itemAt(0).widget()
-        label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # label = self.le_length.parent().layout().itemAt(0).widget()
+        # label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # if self.has_figure_error_box:
+        #     label = self.le_figure_error_step_ho.parent().layout().itemAt(0).widget()
+        #     label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        #     #label = self.le_figure_error_step_pah.parent().layout().itemAt(0).widget()
+        #     #label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        #     label = self.le_figure_error_step_so.parent().layout().itemAt(0).widget()
+        #     label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # label = self.le_transverse.parent().layout().itemAt(0).widget()
+        # label.setText(label.text() + " [" + self.workspace_units_label + "]")
+        # label = self.le_longitudinal.parent().layout().itemAt(0).widget()
+        # label.setText(label.text() + " [" + self.workspace_units_label + "]")
 
     def build_mirror_specific_gui(self, container_box):
         raise NotImplementedError()
@@ -538,8 +538,8 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         if self.use_small_displacements == 1:
             libWiserOE.CoreOptics.ComputationSettings.UseSmallDisplacements = True  # serve per traslare/ruotare l'EO
             libWiserOE.CoreOptics.SmallDisplacements.Rotation = numpy.deg2rad(self.rotation)
-            libWiserOE.CoreOptics.SmallDisplacements.Trans = self.transverse * self.workspace_units_to_m  # Transverse displacement (rispetto al raggio uscente, magari faremo scegliere)
-            libWiserOE.CoreOptics.SmallDisplacements.Long = self.longitudinal * self.workspace_units_to_m  # Longitudinal displacement (idem)
+            libWiserOE.CoreOptics.SmallDisplacements.Trans = self.transverse  # Transverse displacement (rispetto al raggio uscente, magari faremo scegliere)
+            libWiserOE.CoreOptics.SmallDisplacements.Long = self.longitudinal  # Longitudinal displacement (idem)
         else:
             libWiserOE.CoreOptics.ComputationSettings.UseSmallDisplacements = False
 
@@ -548,7 +548,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
             if ((self.figure_error_select_file_format == FIGURE_ERROR_FILE_FORMAT.HEIGHT_ONLY) or
                     (self.figure_error_select_file_format == FIGURE_ERROR_FILE_FORMAT.SLOPE_ONLY)):
-                figure_error_step_final = self.figure_error_step * self.workspace_units_to_m
+                figure_error_step_final = self.figure_error_step
                 figure_error_xscaling_final = 1.
                 figure_error_yscaling_final = self.figure_error_YScaling * figure_error_units[self.figure_error_height_unit]
 
@@ -764,7 +764,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
             #------------------------------------------------------------
 
             data_to_plot = numpy.zeros((3, len(S)))
-            data_to_plot[0, :] = S / self.workspace_units_to_m
+            data_to_plot[0, :] = S
             data_to_plot[1, :] = I
             data_to_plot[2, :] = numpy.imag(E)
 
@@ -866,8 +866,8 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
                 boundaries = optical_element._boundary_shape.get_boundaries()
 
-                tangential_size=round(abs(boundaries[3] - boundaries[2])/self.workspace_units_to_m, 6)
-                sagittal_size=round(abs(boundaries[1] - boundaries[0])/self.workspace_units_to_m, 6)
+                tangential_size=round(abs(boundaries[3] - boundaries[2]), 6)
+                sagittal_size=round(abs(boundaries[1] - boundaries[0]), 6)
 
                 axis = QInputDialog.getItem(self, "Projection Axis", "Select Direction", ("Horizontal", "Vertical"), 0, False)
 
