@@ -78,6 +78,7 @@ class OWGaussianSource1d(WiserWidget):
     Where = Setting(PositioningDirectives.Where.Centre)
 
     source_name = Setting("Gaussian Source")
+    rayleigh_range = Setting(0.)
 
     source_lambda = Setting(10)
     XYCentre_checked = Setting(1)
@@ -178,18 +179,22 @@ class OWGaussianSource1d(WiserWidget):
                                           isSource=True,
                                           native_PositioningDirectives=position_directives)
 
-        data_to_plot = numpy.zeros((2, 100))
+        z = wise_source.native_optical_element.CoreOptics.RayleighRange # [metres]
+        x = 4. * wise_source.native_optical_element.CoreOptics.Fwhm(z)
+        self.rayleigh_range = z
 
-        sigma = self.source_waist/2
+        data_to_plot = numpy.zeros((2, 201))
+
+        sigma = self.source_waist * 1e-6 / 2.
         mu = 0.0 if self.XYCentre_checked else self.YCentre
 
-        data_to_plot[0, :] = numpy.linspace((-5*sigma) + mu, mu + (5*sigma), 100)
-        data_to_plot[1, :] = (norm.pdf(data_to_plot[0, :], mu, sigma))**2
+        data_to_plot[0, :] = numpy.linspace(-x + mu, mu + x, 201)
+        data_to_plot[1, :] = norm.pdf(data_to_plot[0, :], mu, sigma)
 
         return wise_source, data_to_plot
 
     def getTitles(self):
-        return ["Gaussian Source Intensity"]
+        return ["Gaussian source intensity at Rayleigh range ($z_R$ = {:.3f} [m])".format(self.rayleigh_range)]
 
     def getXTitles(self):
         return ["Y [um]"]
