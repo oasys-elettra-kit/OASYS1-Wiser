@@ -553,6 +553,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             self.BestDefocus = Results.BestDefocus
             self.BestHew = Results.BestHew
             OptResult = Results.OptResult
+            S = Results.S
 
             best_focus_I = numpy.abs(BestField)**2
             norm = max(best_focus_I)
@@ -569,7 +570,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                     QMessageBox.Ok
                                     )
 
-            self.plot_histo(numpy.linspace(0, len(best_focus_I), num=len(best_focus_I)),
+            self.plot_histo(S * 1e6,
                             best_focus_I,
                             100,
                             tabs_canvas_index=2,
@@ -598,7 +599,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             #
             # self.best_focus_slider.setValue(index_min)
             #
-            # self.tabs.setCurrentIndex(3 if self.show_animation == 1 else 2)
+            self.tabs.setCurrentIndex(2)
             self.setStatusMessage("")
 
             self.save_button.setEnabled(True)
