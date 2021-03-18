@@ -75,7 +75,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
         best_focus_box = oasysgui.widgetBox(self.tab_best, "", orientation="vertical",
                                             width=self.CONTROL_AREA_WIDTH - 20)
 
-        bestFocusLabel = "Use for: \n* a complete plot of the spot size through the focal plane\n* a collection of the intensity profiles\n* below-average computational performance\n"
+        bestFocusLabel = "Use for: \n* best focus metrics (HEW, position)\n* intensity profile at best focus position\n* high computational speed\n"
 
         gui.label(best_focus_box, self, bestFocusLabel, labelWidth=None, box=None, orientation=2)
 
@@ -136,7 +136,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
         focus_sweep_box = oasysgui.widgetBox(self.tab_sweep, "", orientation="vertical", width=self.CONTROL_AREA_WIDTH-20)
 
-        focusSweepLabel = "Use for: \n* best focus metrics (HEW, position)\n* intensity profile at best focus position\n* high computational speed\n"
+        focusSweepLabel = "Use for: \n* a complete plot of the spot size through the focal plane\n* a collection of the intensity profiles\n* below-average computational performance\n"
 
         gui.label(focus_sweep_box, self, focusSweepLabel, labelWidth=None, box=None, orientation=2)
 
@@ -223,7 +223,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
         return ["Intensity (O.E. Focus)", "Phase (O.E. Focus)"]
 
     def getXTitles(self):
-        return ["S [" + self.workspace_units_label + "]", "S [" + self.workspace_units_label + "]"]
+        return ["S [m]", "S [m]"]
 
     def getYTitles(self):
         return ["|E0|**2", "Phase"]
@@ -243,6 +243,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
         return self.output_data_best_focus
 
     def do_focus_sweep_calculation(self):
+        # Equivalent to Focal scan in the GUI
         try:
             if self.input_data is None:
                 raise Exception("No Input Data!")
@@ -350,7 +351,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                     tabs_canvas_index=2,
                                     plot_canvas_index=2,
                                     title="Defocus Sweep: " + str(
-                                        self._defocus_sign * defocus / 1e-3) + " (" + str(
+                                        self._defocus_sign * round(defocus, 2) / 1e-3) + " (" + str(
                                         i + 1) + "/" + str(n_defocus) +
                                           "), HEW: " + str(round(HEW * 1e6, 4)) + " [" + u"\u03BC" + "m]",
                                     xtitle="Y [" + u"\u03BC" + "m]",
@@ -406,8 +407,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             QMessageBox.information(self,
                                     "Focal Scan calculation",
                                     "Best Focus Found!\n\nPosition: " + str(self.oe_f2 + (
-                                                self._defocus_sign * self.defocus_list[
-                                            index_min] / 1e-3)) + " [m]" +
+                                                self._defocus_sign * round(self.defocus_list[
+                                            index_min], 2) / 1e-3)) + " [m]" +
                                     "\nHEW: " + str(
                                         round(self.hews_list[index_min] * 1e6, 4)) + " [" + u"\u03BC" + "m]",
                                     QMessageBox.Ok
@@ -421,14 +422,14 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                             title="(BEST FOCUS) Defocus Sweep: " + str(round(
                                 self._defocus_sign * self.defocus_list[index_min] / 1e-3, 4)) +
                                   " (" + str(index_min + 1) + "/" + str(n_defocus) + "), Position: " +
-                                  str(self.ActualBestDefocus) + " [m]" +
-                                  ", HEW: " + str(self.ActualBestHew) + " [" + u"\u03BC" + "m]",
+                                  str(self.oe_f2 + (self._defocus_sign * round(self.defocus_list[index_min], 2) / 1e-3))
+                                  + " [m]" + ", HEW: " + str(self.ActualBestHew) + " [" + u"\u03BC" + "m]",
                             xtitle="Y [" + u"\u03BC" + "m]",
                             ytitle="Intensity",
                             log_x=False,
                             log_y=False)
 
-            self.plot_histo(self._defocus_sign * self.defocus_list,
+            self.plot_histo(self._defocus_sign * self.defocus_list * 1e3,
                             numpy.multiply(self.hews_list, 1e6),
                             100,
                             tabs_canvas_index=3,
@@ -439,13 +440,13 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                             log_x=False,
                             log_y=False)
 
-            self.plot_canvas[3].addCurve(self._defocus_sign * self.defocus_list,
+            self.plot_canvas[3].addCurve(self._defocus_sign * self.defocus_list * 1e3,
                                          numpy.multiply(self.sigmas_list, 1e6),
                                          legend="HEW (blue) and SIGMA (red)",
                                          color='red',
                                          replace=False)
 
-            self.plot_canvas[3].addCurve(self._defocus_sign * self.defocus_list,
+            self.plot_canvas[3].addCurve(self._defocus_sign * self.defocus_list * 1e3,
                                          numpy.multiply(self.hews_list, 1e6),
                                          color='blue',
                                          replace=False)
@@ -463,7 +464,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
             self.plot_canvas[3].setDefaultPlotLines(True)
             self.plot_canvas[3].setDefaultPlotPoints(True)
-            self.plot_canvas[3].setGraphXLabel("Defocus [" + self.workspace_units_label + "]")
+            self.plot_canvas[3].setGraphXLabel("Defocus [mm]")
             self.plot_canvas[3].setGraphYLabel("Size [" + u"\u03BC" + "m]")
 
             self.best_focus_slider.setValue(index_min)
@@ -482,7 +483,6 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
         if not self.best_focus_slider is None: self.best_focus_slider.valueChanged.connect(self.plot_detail)
         self.progressBarFinished()
-
 
     # Function below MUST be completed to account for all the particularities of FocusFind compared to FocusSweep
     def do_find_focus_calculation(self):
@@ -574,7 +574,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                             100,
                             tabs_canvas_index=2,
                             plot_canvas_index=2,
-                            title="(BEST FOCUS) Position: " + str(self.ActualBestDefocus) + ", HEW: " + str(self.ActualBestHew) + " [" + u"\u03BC" + "m]",
+                            title="(BEST FOCUS) Position: " + str(self.ActualBestDefocus) + " [m] , HEW: " + str(self.ActualBestHew) + " [" + u"\u03BC" + "m]",
                             xtitle="Y [" + u"\u03BC" + "m]",
                             ytitle="Intensity",
                             log_x=False,
@@ -634,19 +634,21 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             positions       = self.positions_list[index]
 
             if index == self.best_focus_index:
-                title = "(BEST FOCUS) Defocus Sweep: " + str(self._defocus_sign * self.defocus_list[index]) + \
+                title = "(BEST FOCUS) Defocus Sweep: " + \
+                        str(1e3 * self._defocus_sign * round(self.defocus_list[index], 4)) + " [mm] "\
                         " ("+ str(index+1) + "/" + str(n_defocus) + "), Position: " + \
                         str(self.oe_f2 + (self.defocus_list[index])) + \
-                        ", HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [" + u"\u03BC" + "m]"
+                        " [m], HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [" + u"\u03BC" + "m]"
             else:
-                title = "Defocus Sweep: " + str(self._defocus_sign * self.defocus_list[index]) + \
+                title = "Defocus Sweep: " + str(1e3 * self._defocus_sign * round(self.defocus_list[index], 4)) + " [mm] " +\
                         " (" + str(index+1) + "/" + str(n_defocus) + "), HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [" + u"\u03BC" + "m]"
+
 
             self.plot_histo(positions * 1e6,
                             I,
                             100,
-                            tabs_canvas_index=1,
-                            plot_canvas_index=1,
+                            tabs_canvas_index=2,
+                            plot_canvas_index=2,
                             title=title,
                             xtitle="Y [" + u"\u03BC" + "m]",
                             ytitle="Intensity",
