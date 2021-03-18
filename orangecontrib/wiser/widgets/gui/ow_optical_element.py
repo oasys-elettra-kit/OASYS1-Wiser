@@ -738,7 +738,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         return ["Intensity (O.E.)", "Phase (O.E.)", "Figure Error"]
 
     def getXTitles(self):
-        return ["S [" + self.workspace_units_label + "]", "S [" + self.workspace_units_label + "]", "S [" + self.workspace_units_label + "]"]
+        return ["S [m]", "S [m]", "S [m]"]
 
     def getYTitles(self):
         return ["|E0|**2", "Phase", "Height Error [nm]"]
