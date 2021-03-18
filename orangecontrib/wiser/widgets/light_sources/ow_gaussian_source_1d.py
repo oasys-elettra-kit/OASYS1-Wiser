@@ -189,7 +189,7 @@ class OWGaussianSource1d(WiserWidget):
         mu = 0.0 if self.XYCentre_checked else self.YCentre
 
         data_to_plot[0, :] = numpy.linspace(-x + mu, mu + x, 201)
-        data_to_plot[1, :] = norm.pdf(data_to_plot[0, :], mu, sigma)
+        data_to_plot[1, :] = (norm.pdf(data_to_plot[0, :], mu, sigma))**2
 
         return wise_source, data_to_plot
 
