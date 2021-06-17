@@ -110,7 +110,7 @@ class OWFromWofryWavefront1d(WiserWidget):
 def get_dummy_source(wofry_wavefront):
     return Foundation.OpticalElement(Name="Wofry Source",
                                      IsSource=True,
-                                     Element=DummyElement(wofry_wavefront=wofry_wavefront),
+                                     CoreOpticsElement=DummyElement(wofry_wavefront=wofry_wavefront),
                                      PositioningDirectives=Foundation.PositioningDirectives(ReferTo=Foundation.PositioningDirectives.ReferTo.AbsoluteReference,
                                                                                             XYCentre=[0.0, 0.0],
                                                                                             Angle=0.0))

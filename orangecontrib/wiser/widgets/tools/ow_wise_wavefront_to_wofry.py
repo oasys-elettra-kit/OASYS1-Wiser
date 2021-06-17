@@ -56,7 +56,7 @@ class OWWiseSourceToWofryWavefront1d(AutomaticWidget):
         self.controlArea.setFixedWidth(self.MAX_WIDTH-10)
         self.controlArea.setFixedHeight(self.MAX_HEIGHT-10)
 
-        main_box = oasysgui.widgetBox(self.controlArea, "WISE Wavefront to Wofry Wavefront Converter", orientation="vertical", width=self.CONTROL_AREA_WIDTH-5, height=100)
+        main_box = oasysgui.widgetBox(self.controlArea, "Wiser Wavefront to Wofry Wavefront Converter", orientation="vertical", width=self.CONTROL_AREA_WIDTH-5, height=100)
 
         gui.button(main_box, self, "Compute", height=40, callback=self.compute)
 
