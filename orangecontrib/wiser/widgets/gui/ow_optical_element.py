@@ -816,11 +816,13 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                     try:
                         if index < 2:
                             if not plot_data_1 is None:
-                                xPrefix = Units.GetEngPrefix(plot_data_1[x_index, 0])
-                                # yPrefix = Units.GetEngPrefix(plot_data[y_index, 0])
-                                xScale = Units.GetEngFactor(plot_data_1[x_index, 0])
+                                # xPrefix = Units.GetEngPrefix(plot_data_1[x_index, 0])
+                                # # yPrefix = Units.GetEngPrefix(plot_data[y_index, 0])
+                                # xScale = Units.GetEngFactor(plot_data_1[x_index, 0])
+                                #
+                                # xPlot = plot_data_1[x_index, :] * 1 / xScale
 
-                                xPlot = plot_data_1[x_index, :] * 1 / xScale
+                                xPlot, xPrefix = Units.GetAxisSI(plot_data_1[x_index, :])
 
                                 if xPrefix is "_":
                                     xPrefix = ""
@@ -837,11 +839,13 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                                                 log_y=log_y)
                         else:
                             if not plot_data_2 is None:
-                                xPrefix = Units.GetEngPrefix(plot_data_2[x_index, 0])
-                                # yPrefix = Units.GetEngPrefix(plot_data[y_index, 0])
-                                xScale = Units.GetEngFactor(plot_data_2[x_index, 0])
+                                # xPrefix = Units.GetEngPrefix(plot_data_2[x_index, 0])
+                                # # yPrefix = Units.GetEngPrefix(plot_data[y_index, 0])
+                                # xScale = Units.GetEngFactor(plot_data_2[x_index, 0])
+                                #
+                                # xPlot = plot_data_2[x_index, :] * 1 / xScale
 
-                                xPlot = plot_data_2[x_index, :] * 1 / xScale
+                                xPlot, xPrefix = Units.GetAxisSI(plot_data_2[x_index, :])
 
                                 if xPrefix is "_":
                                     xPrefix = ""

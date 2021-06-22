@@ -698,11 +698,13 @@ class WiserWidget(widget.OWWidget):
                     log_x, log_y = self.getLogPlot()[index]
 
                     try:
-                        xPrefix = Units.GetEngPrefix(plot_data[x_index, 0])
-                        # yPrefix = Units.GetEngPrefix(plot_data[y_index, 0])
-                        xScale = Units.GetEngFactor(plot_data[x_index, 0])
+                        # xPrefix = Units.GetEngPrefix(plot_data[x_index, 0])
+                        # # yPrefix = Units.GetEngPrefix(plot_data[y_index, 0])
+                        # xScale = Units.GetEngFactor(plot_data[x_index, 0])
+                        #
+                        # xPlot = plot_data[x_index, :] * 1/xScale
 
-                        xPlot = plot_data[x_index, :] * 1/xScale
+                        xPlot, xPrefix = Units.GetAxisSI(plot_data[x_index, :])
 
                         if xPrefix is "_":
                             xPrefix = ""
