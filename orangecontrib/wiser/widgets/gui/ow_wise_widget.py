@@ -17,6 +17,7 @@ from orangecontrib.wiser.util.wise_objects import WiserData
 
 from LibWiser.Foundation import PositioningDirectives
 import LibWiser.Optics as Optics
+import LibWiser.Units as Units
 
 from wofry.propagator.propagator import PropagationManager, PropagationMode, WavefrontDimension
 from wofrywiser.propagator.propagator1D.wise_propagator import WiserPropagator, WISE_APPLICATION
@@ -646,10 +647,16 @@ class WiserWidget(widget.OWWidget):
         return ["Calculation Result"]
 
     def getXTitles(self):
-        return ["Energy [eV]"]
+        return ["Energy"]
+
+    def getXUnits(self):
+        return ["eV"]
 
     def getYTitles(self):
-        return ["X [$\mu$m]"]
+        return ["X"]
+
+    def getYUnits(self):
+        return ["m"]
 
     def getVariablesToPlot(self):
         return [(0, 1)]
@@ -681,6 +688,9 @@ class WiserWidget(widget.OWWidget):
                 xtitles = self.getXTitles()
                 ytitles = self.getYTitles()
 
+                xunits = self.getXUnits()
+                yunits = self.getYUnits()
+
                 progress_bar_step = (100-progressBarValue)/len(titles)
 
                 for index in range(0, len(titles)):
@@ -688,14 +698,23 @@ class WiserWidget(widget.OWWidget):
                     log_x, log_y = self.getLogPlot()[index]
 
                     try:
-                        self.plot_histo(plot_data[x_index, :],
+                        xPrefix = Units.GetEngPrefix(plot_data[x_index, 0])
+                        # yPrefix = Units.GetEngPrefix(plot_data[y_index, 0])
+                        xScale = Units.GetEngFactor(plot_data[x_index, 0])
+
+                        xPlot = plot_data[x_index, :] * 1/xScale
+
+                        if xPrefix is "_":
+                            xPrefix = ""
+
+                        self.plot_histo(xPlot,
                                         plot_data[y_index, :],
                                         progressBarValue + ((index+1)*progress_bar_step),
                                         tabs_canvas_index=index,
                                         plot_canvas_index=index,
                                         title=titles[index],
-                                        xtitle=xtitles[index],
-                                        ytitle=ytitles[index],
+                                        xtitle=xtitles[index] + " [" + xPrefix + xunits[index] + "]",
+                                        ytitle=ytitles[index],# + " [" + yPrefix + yunits[index] + "]",
                                         log_x=log_x,
                                         log_y=log_y)
                     except Exception as e:

@@ -223,7 +223,10 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
         return ["Intensity (O.E. Focus)", "Phase (O.E. Focus)"]
 
     def getXTitles(self):
-        return ["S [m]", "S [m]"]
+        return ["S", "S"]
+
+    def getXUnits(self):
+        return ["m", "m"]
 
     def getYTitles(self):
         return ["|E0|**2", "Phase"]

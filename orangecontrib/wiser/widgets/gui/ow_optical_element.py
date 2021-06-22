@@ -738,10 +738,13 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         return ["Intensity (O.E.)", "Phase (O.E.)", "Figure Error"]
 
     def getXTitles(self):
-        return ["S [m]", "S [m]", "S [m]"]
+        return ["S", "S", "S"]
 
     def getYTitles(self):
         return ["|E0|**2", "Phase", "Height Error [nm]"]
+
+    def getXUnits(self):
+        return ["m", "m", "m"]
 
     def getVariablesToPlot(self):
         return [(0, 1), (0, 2), (0, 1)]
@@ -801,6 +804,9 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                 xtitles = self.getXTitles()
                 ytitles = self.getYTitles()
 
+                xunits = self.getXUnits()
+                yunits = self.getYUnits()
+
                 progress_bar_step = (100-progressBarValue)/len(titles)
 
                 for index in range(0, len(titles)):
@@ -810,25 +816,43 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                     try:
                         if index < 2:
                             if not plot_data_1 is None:
-                                self.plot_histo(plot_data_1[x_index, :],
+                                xPrefix = Units.GetEngPrefix(plot_data_1[x_index, 0])
+                                # yPrefix = Units.GetEngPrefix(plot_data[y_index, 0])
+                                xScale = Units.GetEngFactor(plot_data_1[x_index, 0])
+
+                                xPlot = plot_data_1[x_index, :] * 1 / xScale
+
+                                if xPrefix is "_":
+                                    xPrefix = ""
+
+                                self.plot_histo(xPlot,
                                                 plot_data_1[y_index, :],
                                                 progressBarValue + ((index+1)*progress_bar_step),
                                                 tabs_canvas_index=index,
                                                 plot_canvas_index=index,
                                                 title=titles[index],
-                                                xtitle=xtitles[index],
+                                                xtitle=xtitles[index] + " [" + xPrefix + xunits[index] + "]",
                                                 ytitle=ytitles[index],
                                                 log_x=log_x,
                                                 log_y=log_y)
                         else:
                             if not plot_data_2 is None:
-                                self.plot_histo(plot_data_2[x_index, :],
+                                xPrefix = Units.GetEngPrefix(plot_data_2[x_index, 0])
+                                # yPrefix = Units.GetEngPrefix(plot_data[y_index, 0])
+                                xScale = Units.GetEngFactor(plot_data_2[x_index, 0])
+
+                                xPlot = plot_data_2[x_index, :] * 1 / xScale
+
+                                if xPrefix is "_":
+                                    xPrefix = ""
+
+                                self.plot_histo(xPlot,
                                                 plot_data_2[y_index, :],
                                                 progressBarValue + ((index+1)*progress_bar_step),
                                                 tabs_canvas_index=index,
                                                 plot_canvas_index=index,
                                                 title=titles[index],
-                                                xtitle=xtitles[index],
+                                                xtitle=xtitles[index] + " [" + xPrefix + xunits[index] + "]",
                                                 ytitle=ytitles[index],
                                                 log_x=log_x,
                                                 log_y=log_y)

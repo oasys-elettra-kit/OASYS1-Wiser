@@ -197,7 +197,10 @@ class OWGaussianSource1d(WiserWidget):
         return ["Gaussian source intensity at Rayleigh range ($z_R$ = {:.3f} [m])".format(self.rayleigh_range)]
 
     def getXTitles(self):
-        return ["Y [um]"]
+        return ["Y"]
+
+    def getXUnits(self):
+        return ["m"]
 
     def getYTitles(self):
         return ["Intensity [arbitrary units]"]
