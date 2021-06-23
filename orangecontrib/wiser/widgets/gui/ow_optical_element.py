@@ -822,7 +822,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                                 #
                                 # xPlot = plot_data_1[x_index, :] * 1 / xScale
 
-                                xPlot, xPrefix = Units.GetAxisSI(plot_data_1[x_index, :])
+                                xPlot, xPrefix, xExponent = Units.GetAxisSI(plot_data_1[x_index, :])
 
                                 if xPrefix is "_":
                                     xPrefix = ""
@@ -845,7 +845,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                                 #
                                 # xPlot = plot_data_2[x_index, :] * 1 / xScale
 
-                                xPlot, xPrefix = Units.GetAxisSI(plot_data_2[x_index, :])
+                                xPlot, xPrefix, xExponent = Units.GetAxisSI(plot_data_2[x_index, :])
 
                                 if xPrefix is "_":
                                     xPrefix = ""
