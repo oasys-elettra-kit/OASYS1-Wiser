@@ -572,7 +572,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                                                           FileType=self.figure_error_select_file_format,
                                                           Step=figure_error_step_final,
                                                           #Delimiter=self.figure_error_delimiter,
-                                                          SkipLines=self.figure_error_skip_rows,
+                                                          SkipLines=int(self.figure_error_skip_rows),
                                                           XScaling=figure_error_xscaling_final,
                                                           YScaling=figure_error_yscaling_final
                                                           )
@@ -625,7 +625,6 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                 self.setStatusMessage("No input data")
 
             input_wavefront = output_data.wise_wavefront
-
             output_data.wise_beamline = beamline
 
             parameters = PropagationParameters(
@@ -636,6 +635,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                                                  True if PropagationManager.Instance().get_propagation_mode(
                                                      WISE_APPLICATION) == PropagationMode.STEP_BY_STEP else (
                                                      not self.is_full_propagator))
+
             parameters.set_additional_parameters("NPools", self.n_pools if self.use_multipool == 1 else 1)
             parameters.set_additional_parameters("is_full_propagator", self.is_full_propagator)
 
@@ -822,7 +822,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                                 #
                                 # xPlot = plot_data_1[x_index, :] * 1 / xScale
 
-                                xPlot, xPrefix, xExponent = Units.GetAxisSI(plot_data_1[x_index, :])
+                                xPlot, xPrefix = Units.GetAxisSI(plot_data_1[x_index, :])
 
                                 if xPrefix is "_":
                                     xPrefix = ""
@@ -845,7 +845,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                                 #
                                 # xPlot = plot_data_2[x_index, :] * 1 / xScale
 
-                                xPlot, xPrefix, xExponent = Units.GetAxisSI(plot_data_2[x_index, :])
+                                xPlot, xPrefix = Units.GetAxisSI(plot_data_2[x_index, :])
 
                                 if xPrefix is "_":
                                     xPrefix = ""
