@@ -64,15 +64,15 @@ class OWFromWofryWavefront1d(WiserWidget):
         rinorm = numpy.sqrt(self.normalization_factor/numpy.max(self.wofry_wavefront.get_intensity()))
 
         if self.reset_phase:
-            electric_fields = self.wofry_wavefront.get_amplitude()*rinorm + 0j
+            electric_fields = self.wofry_wavefront.get_amplitude()*rinorm
         else:
-            electric_fields = self.wofry_wavefront.get_amplitude()*rinorm + 1j*self.wofry_wavefront.get_phase()
+            electric_fields = self.wofry_wavefront.get_amplitude()*rinorm * numpy.exp(1j*self.wofry_wavefront.get_phase())
 
         self.wofry_wavefront.set_complex_amplitude(electric_fields)
 
         data_to_plot = numpy.zeros((2, self.wofry_wavefront.size()))
 
-        data_to_plot[0, :] = self.wofry_wavefront._electric_field_array.get_abscissas()/self.workspace_units_to_m
+        data_to_plot[0, :] = self.wofry_wavefront._electric_field_array.get_abscissas()#/self.workspace_units_to_m
         data_to_plot[1, :] = numpy.abs(self.wofry_wavefront._electric_field_array.get_values())**2
 
         return self.wofry_wavefront, WiserWavefront.fromGenericWavefront(self.wofry_wavefront), data_to_plot

@@ -704,6 +704,9 @@ class WiserWidget(widget.OWWidget):
                         #
                         # xPlot = plot_data[x_index, :] * 1/xScale
 
+                        # xPlot = plot_data[x_index, :]
+                        # xPrefix = ""
+
                         xPlot, xPrefix = Units.GetAxisSI(plot_data[x_index, :])
 
                         if xPrefix is "_":
