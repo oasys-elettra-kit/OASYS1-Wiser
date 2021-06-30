@@ -94,7 +94,7 @@ class OWFromWofryWavefront1d(WiserWidget):
         wise_wavefront = calculation_output[1]
 
         wiser_beamline = WiserPropagationElements()
-        wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=WiserOpticalElement(native_OpticalElement=get_numerical_source(wofry_wavefront))))
+        wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=get_numerical_source(wofry_wavefront)))
         wiser_beamline.get_wise_propagation_element(-1).CoreOptics.GetInitComputationData()
 
         return WiserData(wise_wavefront=wise_wavefront, wise_beamline=wiser_beamline)
@@ -119,14 +119,15 @@ def get_dummy_source(wofry_wavefront):
 def get_numerical_source(wofry_wavefront):
     mesh_x = wofry_wavefront.get_abscissas()
 
-    return Foundation.OpticalElement(Name="Wofry Source",
-                                     IsSource=True,
-                                     CoreOpticsElement=Optics.SourceNumerical(Lambda=wofry_wavefront.get_wavelength(),
-                                                                              L=numpy.abs(mesh_x[0]) + numpy.abs(mesh_x[-1]),
-                                                                              Field=wofry_wavefront.get_amplitude() * numpy.exp(1j*wofry_wavefront.get_phase())),
-                                     PositioningDirectives=Foundation.PositioningDirectives(ReferTo=Foundation.PositioningDirectives.ReferTo.AbsoluteReference,
-                                                                                            XYCentre=[0.0, 0.0],
-                                                                                            Angle=0.0))
+    return WiserOpticalElement(name="Wofry Source",
+                               isSource=True,
+                               native_CoreOptics=Optics.SourceNumerical(Lambda=wofry_wavefront.get_wavelength(),
+                                                                        L=numpy.abs(mesh_x[0]) + numpy.abs(mesh_x[-1]),
+                                                                        Field=wofry_wavefront.get_amplitude() * numpy.exp(1j*wofry_wavefront.get_phase()),
+                                                                        Orientation = Optics.OPTICS_ORIENTATION.ISOTROPIC),
+                               native_PositioningDirectives=Foundation.PositioningDirectives(ReferTo=Foundation.PositioningDirectives.ReferTo.AbsoluteReference,
+                                                                                             XYCentre=[0.0, 0.0],
+                                                                                             Angle=0.0))
 
 class DummyElement(Optics.SourceGaussian):
     def __init__(self, wofry_wavefront=GenericWavefront1D()):
