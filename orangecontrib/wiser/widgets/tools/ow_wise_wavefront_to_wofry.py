@@ -19,7 +19,7 @@ class OWWiseSourceToWofryWavefront1d(AutomaticWidget):
     name = "Wise Wavefront To Wofry Wavefront 1D"
     id = "toWofryWavefront1D"
     description = "Wise Wavefront To Wofry Wavefront 1D"
-    icon = "icons/wf_to_wofry_wavefront_1d.png"
+    icon = "icons/wf_to_wofry_wavefront_1d_new.png"
     priority = 11
     category = ""
     keywords = ["wise", "gaussian"]
