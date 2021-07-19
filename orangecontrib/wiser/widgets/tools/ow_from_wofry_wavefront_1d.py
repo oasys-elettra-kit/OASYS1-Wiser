@@ -96,7 +96,8 @@ class OWFromWofryWavefront1d(WiserWidget):
         wiser_beamline = WiserPropagationElements()
         wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=get_virtual_source()))
         wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=get_wavefront_source(wofry_wavefront)))
-        wiser_beamline.get_wise_propagation_element(-1).CoreOptics.GetInitComputationData()
+        wiser_beamline.get_wise_propagation_element(-1).ComputationData = wiser_beamline.get_wise_propagation_element(-1).CoreOptics.GetInitComputationData()
+
 
         return WiserData(wise_wavefront=wise_wavefront, wise_beamline=wiser_beamline)
 
