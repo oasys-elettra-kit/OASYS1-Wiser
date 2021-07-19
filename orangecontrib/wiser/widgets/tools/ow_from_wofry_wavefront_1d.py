@@ -34,6 +34,7 @@ class OWFromWofryWavefront1d(WiserWidget):
     reset_phase = Setting(0)
     normalization_factor = Setting(1.0)
     deltaSource = Setting(0.0)
+    number_of_points = Setting(5000)
 
     source_lambda = 0.0
 
@@ -54,11 +55,18 @@ class OWFromWofryWavefront1d(WiserWidget):
         gui.separator(main_box, height=5)
 
         gui.comboBox(main_box, self, "reset_phase", label="Reset Phase",
-                                            items=["No", "Yes"], labelWidth=300, sendSelectedValue=False, orientation="horizontal")
+                                            items=["No", "Yes"], labelWidth=260, sendSelectedValue=False, orientation="horizontal")
 
         oasysgui.lineEdit(main_box, self, "normalization_factor", "Normalization Factor", labelWidth=260, valueType=float, orientation="horizontal")
 
+        gui.separator(main_box, height=5)
+
         le_deltaSource = oasysgui.lineEdit(main_box, self, "deltaSource", "Offset distance from source point [m]", labelWidth=260, valueType=float, orientation="horizontal")
+
+        gui.separator(main_box, height=5)
+
+        le_sampling = oasysgui.lineEdit(main_box, self, "number_of_points", "Number of Points (field will be resampled)", labelWidth=260, valueType=int, orientation="horizontal")
+
 
     def check_fields(self):
         self.source_lambda = congruence.checkStrictlyPositiveNumber(self.source_lambda, "Wavelength")
@@ -100,8 +108,10 @@ class OWFromWofryWavefront1d(WiserWidget):
         wiser_beamline = WiserPropagationElements()
         wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=get_virtual_source()))
         wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=get_wavefront_source(wofry_wavefront, self.deltaSource)))
-        wiser_beamline.get_wise_propagation_element(-1).ComputationData = wiser_beamline.get_wise_propagation_element(-1).CoreOptics.GetInitComputationData()
-
+        s2 = wiser_beamline.get_wise_propagation_element(-1)
+        s2.ComputationData = s2.CoreOptics.GetInitComputationData()
+        s2.ComputationSettings.UseCustomSampling = True
+        s2.NSamples = self.number_of_points
 
         return WiserData(wise_wavefront=wise_wavefront, wise_beamline=wiser_beamline)
 
