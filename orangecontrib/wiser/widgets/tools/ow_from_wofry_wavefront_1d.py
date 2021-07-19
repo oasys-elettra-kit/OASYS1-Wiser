@@ -33,12 +33,13 @@ class OWFromWofryWavefront1d(WiserWidget):
     wofry_wavefront = None
     reset_phase = Setting(0)
     normalization_factor = Setting(1.0)
+    deltaSource = Setting(0.0)
 
     source_lambda = 0.0
 
     def build_gui(self):
 
-        main_box = oasysgui.widgetBox(self.controlArea, "Wofry Wavefront Parameters", orientation="vertical", width=self.CONTROL_AREA_WIDTH-5, height=300)
+        main_box = oasysgui.widgetBox(self.controlArea, "Wavefront Parameters", orientation="vertical", width=self.CONTROL_AREA_WIDTH-5, height=300)
 
         le = oasysgui.lineEdit(main_box, self, "source_lambda", "Wavelength [nm]", labelWidth=260, valueType=float, orientation="horizontal")
         le.setReadOnly(True)
@@ -57,8 +58,11 @@ class OWFromWofryWavefront1d(WiserWidget):
 
         oasysgui.lineEdit(main_box, self, "normalization_factor", "Normalization Factor", labelWidth=260, valueType=float, orientation="horizontal")
 
+        le_deltaSource = oasysgui.lineEdit(main_box, self, "deltaSource", "Offset distance from source point [m]", labelWidth=260, valueType=float, orientation="horizontal")
+
     def check_fields(self):
         self.source_lambda = congruence.checkStrictlyPositiveNumber(self.source_lambda, "Wavelength")
+        self.deltaSource = congruence.checkPositiveNumber(self.deltaSource, "Offset distance from source point")
 
     def do_wise_calculation(self):
         rinorm = numpy.sqrt(self.normalization_factor/numpy.max(self.wofry_wavefront.get_intensity()))
@@ -95,7 +99,7 @@ class OWFromWofryWavefront1d(WiserWidget):
 
         wiser_beamline = WiserPropagationElements()
         wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=get_virtual_source()))
-        wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=get_wavefront_source(wofry_wavefront)))
+        wiser_beamline.add_beamline_element(WiserBeamlineElement(optical_element=get_wavefront_source(wofry_wavefront, self.deltaSource)))
         wiser_beamline.get_wise_propagation_element(-1).ComputationData = wiser_beamline.get_wise_propagation_element(-1).CoreOptics.GetInitComputationData()
 
 
@@ -128,7 +132,7 @@ def get_virtual_source():
                                                                                              Angle=0.0))
 
 
-def get_wavefront_source(wofry_wavefront):
+def get_wavefront_source(wofry_wavefront, deltaSource):
     mesh_x = wofry_wavefront.get_abscissas()
 
     return WiserOpticalElement(name="Wavefront Source",
@@ -140,7 +144,7 @@ def get_wavefront_source(wofry_wavefront):
                                native_PositioningDirectives=Foundation.PositioningDirectives(ReferTo=Foundation.PositioningDirectives.ReferTo.Source,
                                                                                              PlaceWhat='centre',
                                                                                              PlaceWhere='centre',
-                                                                                             Distance=4))
+                                                                                             Distance=deltaSource))
 
 class DummyElement(Optics.SourceGaussian):
     def __init__(self, wofry_wavefront=GenericWavefront1D()):
