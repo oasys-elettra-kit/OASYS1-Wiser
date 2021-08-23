@@ -9,7 +9,7 @@ except AttributeError:
 
 
 NAME = 'OASYS1-oasyswiser'
-VERSION = '0.3.0'
+VERSION = '0.3.2'
 ISRELEASED = True
 
 DESCRIPTION = 'Wiser in Python'
@@ -43,7 +43,7 @@ SETUP_REQUIRES = (
 )
 
 INSTALL_REQUIRES = (
-    'LibWiser>=0.12.2',
+    'LibWiser>=0.12.7',
     'oasys1>=1.1.19',
     'wofrywiser>=0.1.3'
 )

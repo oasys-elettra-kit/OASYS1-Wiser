@@ -21,6 +21,7 @@ from wofrywiser.beamline.beamline_elements import WiserBeamlineElement
 from orangecontrib.wiser.util.wise_objects import WiserData, WiserPreInputData
 from orangecontrib.wiser.widgets.gui.ow_wise_widget import WiserWidget, ElementType, PositioningDirectivesPhrases
 
+from LibWiser.Optics import Slits
 from LibWiser.Optics import FIGURE_ERROR_FILE_FORMAT
 import LibWiser.Units as Units
 
@@ -774,18 +775,24 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
             self.is_tab_2_enabled = False
 
-            if not native_optical_element.CoreOptics.FigureErrors is None and len(native_optical_element.CoreOptics.FigureErrors) > 0:
-                self.is_tab_2_enabled = True
-                figure_error_x = numpy.linspace(0, self.length, len(native_optical_element.CoreOptics.FigureErrors[0]))
-                data_to_plot_fe = numpy.zeros((2, len(figure_error_x)))
-
-                data_to_plot_fe[0, :] = figure_error_x
-                data_to_plot_fe[1, :] = native_optical_element.CoreOptics.FigureErrors[0]*1e9 # nm
-            else:
+            if type(native_optical_element.CoreOptics) is Slits:
                 data_to_plot_fe = numpy.zeros((2, 1))
 
                 data_to_plot_fe[0, :] = numpy.zeros(1)
                 data_to_plot_fe[1, :] = numpy.zeros(1)
+            else:
+                if not native_optical_element.CoreOptics.FigureErrors is None and len(native_optical_element.CoreOptics.FigureErrors) > 0:
+                    self.is_tab_2_enabled = True
+                    figure_error_x = numpy.linspace(0, self.length, len(native_optical_element.CoreOptics.FigureErrors[0]))
+                    data_to_plot_fe = numpy.zeros((2, len(figure_error_x)))
+
+                    data_to_plot_fe[0, :] = figure_error_x
+                    data_to_plot_fe[1, :] = native_optical_element.CoreOptics.FigureErrors[0]*1e9 # nm
+                else:
+                    data_to_plot_fe = numpy.zeros((2, 1))
+
+                    data_to_plot_fe[0, :] = numpy.zeros(1)
+                    data_to_plot_fe[1, :] = numpy.zeros(1)
 
             return data_to_plot, data_to_plot_fe
         else:
