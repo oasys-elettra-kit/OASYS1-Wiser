@@ -30,7 +30,7 @@ class OWSlits(OWOpticalElement, WidgetDecorator):
         pass
 
     def get_native_optical_element(self):
-        return Optics.Slits(L=self.length)
+        return Optics.Slits(L=self.length, AngleGrazing=self.alpha)
 
     def get_optical_element(self, native_optical_element):
          return WiserOpticalElement(name=self.oe_name,
