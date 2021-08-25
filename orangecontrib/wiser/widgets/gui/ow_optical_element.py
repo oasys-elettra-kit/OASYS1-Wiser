@@ -775,12 +775,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
             self.is_tab_2_enabled = False
 
-            if type(native_optical_element.CoreOptics) is Slits:
-                data_to_plot_fe = numpy.zeros((2, 1))
-
-                data_to_plot_fe[0, :] = numpy.zeros(1)
-                data_to_plot_fe[1, :] = numpy.zeros(1)
-            else:
+            if hasattr(native_optical_element.CoreOptics, 'FigureErrors'):
                 if not native_optical_element.CoreOptics.FigureErrors is None and len(native_optical_element.CoreOptics.FigureErrors) > 0:
                     self.is_tab_2_enabled = True
                     figure_error_x = numpy.linspace(0, self.length, len(native_optical_element.CoreOptics.FigureErrors[0]))
@@ -793,6 +788,12 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
                     data_to_plot_fe[0, :] = numpy.zeros(1)
                     data_to_plot_fe[1, :] = numpy.zeros(1)
+
+            else:
+                data_to_plot_fe = numpy.zeros((2, 1))
+
+                data_to_plot_fe[0, :] = numpy.zeros(1)
+                data_to_plot_fe[1, :] = numpy.zeros(1)
 
             return data_to_plot, data_to_plot_fe
         else:
