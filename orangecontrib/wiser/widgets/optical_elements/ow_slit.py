@@ -3,6 +3,7 @@ import numpy
 from syned.widget.widget_decorator import WidgetDecorator
 from syned.beamline.shape import Plane
 from orangewidget.settings import Setting
+from orangewidget import gui
 
 from LibWiser import Optics
 
@@ -20,6 +21,7 @@ class OWSlits(OWOpticalElement, WidgetDecorator):
 
     length = Setting(0.01)
     alpha = Setting(90.0)
+    useAsReference = Setting(True)
 
     oe_name = Setting("Slit")
 
@@ -27,10 +29,11 @@ class OWSlits(OWOpticalElement, WidgetDecorator):
         super(OWSlits, self).after_change_workspace_units()
 
     def build_mirror_specific_gui(self, container_box):
+        gui.comboBox(container_box, self, "useAsReference", label="Use as reference for positioning", items=["No", "Yes"], labelWidth=240, sendSelectedValue=False, orientation="horizontal")
         pass
 
     def get_native_optical_element(self):
-        return Optics.Slits(L=self.length, AngleGrazing=numpy.deg2rad(self.alpha))
+        return Optics.Slits(L=self.length, AngleGrazing=numpy.deg2rad(self.alpha), UseAsReference=self.useAsReference)
 
     def get_optical_element(self, native_optical_element):
          return WiserOpticalElement(name=self.oe_name,
