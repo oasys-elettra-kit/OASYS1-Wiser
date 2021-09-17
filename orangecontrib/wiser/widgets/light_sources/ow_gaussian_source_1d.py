@@ -179,6 +179,14 @@ class OWGaussianSource1d(WiserWidget):
                                           isSource=True,
                                           native_PositioningDirectives=position_directives)
 
+        if self.use_small_displacements == 1:
+            wise_source.native_optical_element.CoreOptics.ComputationSettings.UseSmallDisplacements = True  # serve per traslare/ruotare l'EO
+            wise_source.native_optical_element.CoreOptics.SmallDisplacements.Rotation = numpy.deg2rad(self.rotation)
+            wise_source.native_optical_element.CoreOptics.SmallDisplacements.Trans = self.transverse  # Transverse displacement (rispetto al raggio uscente, magari faremo scegliere)
+            wise_source.native_optical_element.CoreOptics.SmallDisplacements.Long = self.longitudinal  # Longitudinal displacement (idem)
+        else:
+            wise_source.native_optical_element.CoreOptics.ComputationSettings.UseSmallDisplacements = False
+
         z = wise_source.native_optical_element.CoreOptics.RayleighRange # [metres]
         x = 4. * wise_source.native_optical_element.CoreOptics.Fwhm(z)
         self.rayleigh_range = z
