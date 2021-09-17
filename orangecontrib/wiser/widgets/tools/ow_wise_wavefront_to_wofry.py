@@ -24,7 +24,7 @@ class OWWiseSourceToWofryWavefront1d(AutomaticWidget):
     category = ""
     keywords = ["wise", "gaussian"]
 
-    inputs = [("WiseData", WiserData, "set_input")]
+    inputs = [("WiserData", WiserData, "set_input")]
 
     outputs = [{"name":"GenericWavefront1D",
                 "type":GenericWavefront1D,
