@@ -31,8 +31,10 @@ class OWFromOasysBeamlineToWiserBeamline(WiserWidget):
 
         oasysgui.lineEdit(main_box, self, "selectIndex", "Select Element Index", labelWidth=260, valueType=float, orientation="horizontal")
 
-        # print(self.GetWiserBeamline(self.input_data))
+        gui.button(main_box, self, "Print beamline", callback=self.printBeamline, height=35)
 
+    def printBeamline(self):
+        print(self.GetWiserBeamline(self.input_data))#, int(self.selectIndex)))
 
     def GetWiserBeamline(self, in_object, Index=None):
         '''
@@ -52,27 +54,35 @@ class OWFromOasysBeamlineToWiserBeamline(WiserWidget):
         return WiserBeamline
 
     def check_fields(self):
-        self.selectIndex = congruence.checkPositiveNumber(self.selectIndex, "Element index")
+        # self.selectIndex = congruence.checkPositiveNumber(self.selectIndex, "Element index")
+        pass
+
+    def do_wiser_beamline(self):
+        wiser_beamline = self.input_data.duplicate().wise_beamline
+
+        return wiser_beamline
 
     def do_wise_calculation(self):
-
         output_wavefront = self.input_data.wise_wavefront
 
         S = output_wavefront.wiser_computation_result.S
-        E = output_wavefront.wiser_computation_result.Field
-        I = abs(E) ** 2
-        norm = max(I)
-        norm = 1.0 if norm == 0.0 else norm
-        I = I / norm
+        # E = output_wavefront.wiser_computation_result.Field
+        # I = abs(E) ** 2
+        # norm = max(I)
+        # norm = 1.0 if norm == 0.0 else norm
+        # I = I / norm
 
         # ------------------------------------------------------------
 
         data_to_plot = numpy.zeros((3, len(S)))
-        data_to_plot[0, :] = S
-        data_to_plot[1, :] = I
-        data_to_plot[2, :] = numpy.imag(E)
+        # data_to_plot[0, :] = S
+        # data_to_plot[1, :] = I
+        # data_to_plot[2, :] = numpy.imag(E)
 
-        return self.GetWiserBeamline(self.in_object_1, self.selectIndex), data_to_plot
+        return self.GetWiserBeamline(self.input_data), data_to_plot
+
+    def extract_plot_data_from_calculation_output(self, calculation_output):
+        return
 
     def getTitles(self):
         return ["Wavefront Intensity"]
@@ -85,16 +95,18 @@ class OWFromOasysBeamlineToWiserBeamline(WiserWidget):
 
     def set_input(self, input_data):
         self.setStatusMessage("")
-
+        print("line 102")
         if not input_data is None:
             try:
-                if not input_data.wise_wavefront is None:
-
+                print("line 105")
+                if not input_data.wise_beamline is None:
+                    print("line 107")
                     self.input_data = input_data.duplicate()
-
+                    print("line 109")
                     if self.is_automatic_run:
                         self.compute()
                 else:
+                    print("line 113")
                     raise ValueError("No wavefront is present in input data")
             except Exception as exception:
                 QMessageBox.critical(self, "Error", str(exception), QMessageBox.Ok)

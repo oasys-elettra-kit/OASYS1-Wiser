@@ -140,8 +140,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
         gui.label(focus_sweep_box, self, focusSweepLabel, labelWidth=None, box=None, orientation=2)
 
-        self.le_defocus_start = oasysgui.lineEdit(focus_sweep_box, self, "defocus_start", "Lower limit [mm]", labelWidth=240, valueType=float, orientation="horizontal")
-        self.le_defocus_stop  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_stop",  "Upper limit [mm]", labelWidth=240, valueType=float, orientation="horizontal")
+        self.le_defocus_start = oasysgui.lineEdit(focus_sweep_box, self, "defocus_start", "Lower limit [mm]", labelWidth=240, valueType=float, orientation="horizontal", callbackOnType=True, callback=self.get_StepSize)
+        self.le_defocus_stop  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_stop",  "Upper limit [mm]", labelWidth=240, valueType=float, orientation="horizontal", callbackOnType=True, callback=self.get_StepSize)
         self.le_defocus_Nsteps  = oasysgui.lineEdit(focus_sweep_box, self, "defocus_Nsteps",  "No. of steps", labelWidth=240, valueType=int, orientation="horizontal", callbackOnType=True, callback=self.get_StepSize)
         le_defocus_step = oasysgui.lineEdit(focus_sweep_box, self, "defocus_step",  "Step [mm]", labelWidth=240, valueType=float, orientation="horizontal")
 
