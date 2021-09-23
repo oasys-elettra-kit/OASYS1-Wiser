@@ -26,8 +26,8 @@ class OWEllipticMirror(OWOpticalElement, WidgetDecorator):
 
     oe_name = Setting("Elliptic mirror")
 
-    f1 = Setting(98.0)
-    f2 = Setting(1.2)
+    f1 = Setting(0)
+    f2 = Setting(0)
 
     def after_change_workspace_units(self):
         super(OWEllipticMirror, self).after_change_workspace_units()
