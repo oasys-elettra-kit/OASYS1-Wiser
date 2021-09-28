@@ -13,6 +13,7 @@ from orangewidget.settings import Setting
 from syned.widget.widget_decorator import WidgetDecorator
 
 from LibWiser import Foundation, Optics
+from LibWiser import Units as Units
 
 from wofrywiser.beamline.beamline_elements import WiserOpticalElement
 
@@ -323,6 +324,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
             if self.show_animation == 1:
                 for i, defocus in enumerate(self.defocus_list):
+                    self.progressBarSet(int((i+1) * 1/len(self.defocus_list)* 100))
                     if not self.run_calculation:
                         if not self.best_focus_slider is None: self.best_focus_slider.valueChanged.connect(
                             self.plot_detail)
@@ -353,10 +355,9 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                     i * progress_bar_increment,
                                     tabs_canvas_index=2,
                                     plot_canvas_index=2,
-                                    title="Defocus Sweep: " + str(
-                                        self._defocus_sign * round(defocus, 2) / 1e-3) + " (" + str(
+                                    title="Defocus Sweep: " + Units.SmartFormatter(self._defocus_sign * defocus / 1e-3, {'unit': 'm'}) + " (" + str(
                                         i + 1) + "/" + str(n_defocus) +
-                                          "), HEW: " + str(round(HEW * 1e6, 4)) + " [" + u"\u03BC" + "m]",
+                                          "), HEW: " + Units.SmartFormatter(HEW, {'unit': 'm'}),
                                     xtitle="Y [" + u"\u03BC" + "m]",
                                     ytitle="Intensity",
                                     log_x=False,
@@ -378,6 +379,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
                 i = 0
                 for Result, HEW, sigma0 in zip(ResultList, HewList, SigmaList):
+
                     self.electric_fields_list.append(Result.Field)
                     self.positions_list.append(Result.S)
                     self.hews_list.append(HEW)
@@ -409,24 +411,23 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
             QMessageBox.information(self,
                                     "Focal Scan calculation",
-                                    "Best Focus Found!\n\nPosition: " + str(self.oe_f2 + (
-                                                self._defocus_sign * round(self.defocus_list[
-                                            index_min], 2) / 1e-3)) + " [m]" +
-                                    "\nHEW: " + str(
-                                        round(self.hews_list[index_min] * 1e6, 4)) + " [" + u"\u03BC" + "m]",
-                                    QMessageBox.Ok
-                                    )
+                                    "Best Focus Found!\n\nPosition: " + Units.SmartFormatter(self.oe_f2 + (
+                                            self._defocus_sign *
+                                            self.defocus_list[index_min] / 1e-3), {'unit': 'm'}) +
+                                    "\nHEW: " + Units.SmartFormatter(self.hews_list[index_min], {'unit': 'm'}),
+                                    QMessageBox.Ok)
 
             self.plot_histo(best_focus_positions * 1e6,
                             best_focus_I,
                             100,
                             tabs_canvas_index=2,
                             plot_canvas_index=2,
-                            title="(BEST FOCUS) Defocus Sweep: " + str(round(
-                                self._defocus_sign * self.defocus_list[index_min] / 1e-3, 4)) +
+                            title="(BEST FOCUS) Defocus Sweep: " + Units.SmartFormatter(self._defocus_sign * self.defocus_list[index_min] / 1e-3, {'unit': 'm'}) +
                                   " (" + str(index_min + 1) + "/" + str(n_defocus) + "), Position: " +
-                                  str(self.oe_f2 + (self._defocus_sign * round(self.defocus_list[index_min], 2) / 1e-3))
-                                  + " [m]" + ", HEW: " + str(self.ActualBestHew) + " [" + u"\u03BC" + "m]",
+                                  Units.SmartFormatter(self.oe_f2 +
+                                                       (self._defocus_sign * self.defocus_list[index_min] / 1e-3),
+                                                       {'unit': 'm'}) + ", HEW: " +
+                                  Units.SmartFormatter(self.ActualBestHew * 1e-6, {'unit': 'm'}),
                             xtitle="Y [" + u"\u03BC" + "m]",
                             ytitle="Intensity",
                             log_x=False,
@@ -552,6 +553,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                            DefocusRange=(self.defocus_start*1e-3, self.defocus_stop*1e-3),
                                            DetectorSize = self.length)
 
+            self.progressBarSet(50)
+
             BestField = Results.BestField
             self.BestDefocus = Results.BestDefocus
             self.BestHew = Results.BestHew
@@ -568,8 +571,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
 
             QMessageBox.information(self,
                                     "Best focus calculation",
-                                    "Best Focus Found!\n\nPosition: " + str(self.ActualBestDefocus) + " [m]" +
-                                    "\nHEW: " + str(self.ActualBestHew) + " [" + u"\u03BC" + "m]",
+                                    "Best Focus Found!\n\nPosition: " + Units.SmartFormatter(self.ActualBestDefocus, {'unit': 'm'}) +
+                                    "\nHEW: " + Units.SmartFormatter(self.ActualBestHew * 1e-6, {'unit': 'm'}),
                                     QMessageBox.Ok
                                     )
 
@@ -578,7 +581,8 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                             100,
                             tabs_canvas_index=2,
                             plot_canvas_index=2,
-                            title="(BEST FOCUS) Position: " + str(self.ActualBestDefocus) + " [m] , HEW: " + str(self.ActualBestHew) + " [" + u"\u03BC" + "m]",
+                            title="(BEST FOCUS) Position: " + Units.SmartFormatter(self.ActualBestDefocus, {'unit': 'm'}) +
+                            ", HEW: " + Units.SmartFormatter(self.ActualBestHew * 1e-6, {'unit': 'm'}),
                             xtitle="Y [" + u"\u03BC" + "m]",
                             ytitle="Intensity",
                             log_x=False,
@@ -638,14 +642,14 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
             positions       = self.positions_list[index]
 
             if index == self.best_focus_index:
-                title = "(BEST FOCUS) Defocus Sweep: " + \
-                        str(1e3 * self._defocus_sign * round(self.defocus_list[index], 4)) + " [mm] "\
-                        " ("+ str(index+1) + "/" + str(n_defocus) + "), Position: " + \
-                        str(self.oe_f2 + (self.defocus_list[index])) + \
-                        " [m], HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [" + u"\u03BC" + "m]"
+                title = "(BEST FOCUS) Defocus Sweep: " +\
+                        Units.SmartFormatter(self._defocus_sign * self.defocus_list[index], {'unit': 'm'}) +\
+                        " ("+ str(index+1) + "/" + str(n_defocus) + "), Position: " +\
+                        Units.SmartFormatter(self.oe_f2 + self.defocus_list[index], {'unit': 'm'}) +\
+                        ", HEW: " + Units.SmartFormatter(self.hews_list[index], {'unit': 'm'})
             else:
-                title = "Defocus Sweep: " + str(1e3 * self._defocus_sign * round(self.defocus_list[index], 4)) + " [mm] " +\
-                        " (" + str(index+1) + "/" + str(n_defocus) + "), HEW: " + str(round(self.hews_list[index]*1e6, 4)) + " [" + u"\u03BC" + "m]"
+                title = "Defocus Sweep: " + Units.SmartFormatter(self._defocus_sign * self.defocus_list[index], {'unit': 'm'}) +\
+                        " (" + str(index+1) + "/" + str(n_defocus) + "), HEW: " + Units.SmartFormatter(self.hews_list[index], {'unit': 'm'})
 
 
             self.plot_histo(positions * 1e6,
