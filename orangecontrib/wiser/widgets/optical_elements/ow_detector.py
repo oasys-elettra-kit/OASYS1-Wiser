@@ -355,7 +355,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                     i * progress_bar_increment,
                                     tabs_canvas_index=2,
                                     plot_canvas_index=2,
-                                    title="Defocus Sweep: " + Units.SmartFormatter(self._defocus_sign * defocus / 1e-3, {'unit': 'm'}) + " (" + str(
+                                    title="Defocus Sweep: " + Units.SmartFormatter(self._defocus_sign * defocus, {'unit': 'm'}) + " (" + str(
                                         i + 1) + "/" + str(n_defocus) +
                                           "), HEW: " + Units.SmartFormatter(HEW, {'unit': 'm'}),
                                     xtitle="Y [" + u"\u03BC" + "m]",
@@ -413,7 +413,7 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                                     "Focal Scan calculation",
                                     "Best Focus Found!\n\nPosition: " + Units.SmartFormatter(self.oe_f2 + (
                                             self._defocus_sign *
-                                            self.defocus_list[index_min] / 1e-3), {'unit': 'm'}) +
+                                            self.defocus_list[index_min]), {'unit': 'm'}) +
                                     "\nHEW: " + Units.SmartFormatter(self.hews_list[index_min], {'unit': 'm'}),
                                     QMessageBox.Ok)
 
@@ -422,10 +422,10 @@ class OWDetector(OWOpticalElement, WidgetDecorator):
                             100,
                             tabs_canvas_index=2,
                             plot_canvas_index=2,
-                            title="(BEST FOCUS) Defocus Sweep: " + Units.SmartFormatter(self._defocus_sign * self.defocus_list[index_min] / 1e-3, {'unit': 'm'}) +
+                            title="(BEST FOCUS) Defocus Sweep: " + Units.SmartFormatter(self._defocus_sign * self.defocus_list[index_min], {'unit': 'm'}) +
                                   " (" + str(index_min + 1) + "/" + str(n_defocus) + "), Position: " +
                                   Units.SmartFormatter(self.oe_f2 +
-                                                       (self._defocus_sign * self.defocus_list[index_min] / 1e-3),
+                                                       (self._defocus_sign * self.defocus_list[index_min]),
                                                        {'unit': 'm'}) + ", HEW: " +
                                   Units.SmartFormatter(self.ActualBestHew * 1e-6, {'unit': 'm'}),
                             xtitle="Y [" + u"\u03BC" + "m]",
