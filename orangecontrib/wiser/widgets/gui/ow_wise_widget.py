@@ -774,12 +774,11 @@ class WiserWidget(widget.OWWidget):
             self.setStatusMessage("Plotting Results")
             try:
                 self.plot_data = self.extract_plot_data_from_calculation_output(calculation_output)
-
                 self.plot_results(self.plot_data, progressBarValue=60)
-
                 self.setStatusMessage("")
 
                 wise_data = self.extract_wise_data_from_calculation_output(calculation_output)
+
                 if not wise_data is None: self.send("WiserData", wise_data)
 
             except Exception as exception:
