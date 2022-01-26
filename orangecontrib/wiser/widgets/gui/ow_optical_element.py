@@ -753,7 +753,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
         return ["S", "S", "S"]
 
     def getYTitles(self):
-        return ["|E0|**2", "Phase", "Height Error [nm]"]
+        return ["|E0|**2", "Phase", "Height Error"]
 
     def getXUnits(self):
         return ["m", "m", "m"]
@@ -793,7 +793,7 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                     data_to_plot_fe = numpy.zeros((2, len(figure_error_x)))
 
                     data_to_plot_fe[0, :] = figure_error_x
-                    data_to_plot_fe[1, :] = native_optical_element.CoreOptics.FigureErrors[0]*1e9 # nm
+                    data_to_plot_fe[1, :] = native_optical_element.CoreOptics.FigureErrors[0]#*1e9 nm
                 else:
                     data_to_plot_fe = numpy.zeros((2, 1))
 
@@ -870,17 +870,27 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                                 # xPrefix = ""
                                 xPlot, xPrefix = Units.GetAxisSI(plot_data_2[x_index, :])
 
+                                if index == 2:
+                                    yPlot, yPrefix = Units.GetAxisSI((plot_data_2[y_index, :]))
+                                    if yPrefix is "_":
+                                        yPrefix = ""
+                                    yTitle = ytitles[index] + " [" + yPrefix + "m]"
+
+                                else:
+                                    yPlot = plot_data_2[y_index, :]
+                                    yTitle = ytitles[index]
+
                                 if xPrefix is "_":
                                     xPrefix = ""
 
                                 self.plot_histo(xPlot,
-                                                plot_data_2[y_index, :],
+                                                yPlot,
                                                 progressBarValue + ((index+1)*progress_bar_step),
                                                 tabs_canvas_index=index,
                                                 plot_canvas_index=index,
                                                 title=titles[index],
                                                 xtitle=xtitles[index] + " [" + xPrefix + xunits[index] + "]",
-                                                ytitle=ytitles[index],
+                                                ytitle=yTitle,
                                                 log_x=log_x,
                                                 log_y=log_y)
 

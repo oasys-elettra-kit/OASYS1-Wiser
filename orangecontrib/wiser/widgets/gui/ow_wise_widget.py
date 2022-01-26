@@ -707,19 +707,28 @@ class WiserWidget(widget.OWWidget):
                         # xPlot = plot_data[x_index, :]
                         # xPrefix = ""
 
+                        if index==2:
+                            yPlot, yPrefix = Units.GetAxisSI((plot_data[y_index, :]))
+                            if yPrefix is "_":
+                                yPrefix = ""
+                            yTitle = ytitles[index] + " [" + yPrefix + "m]"
+                        else:
+                            yPlot = plot_data[y_index, :]
+                            yTitle = ytitles[index]
+
                         xPlot, xPrefix = Units.GetAxisSI(plot_data[x_index, :])
 
                         if xPrefix is "_":
                             xPrefix = ""
 
                         self.plot_histo(xPlot,
-                                        plot_data[y_index, :],
+                                        yPlot,
                                         progressBarValue + ((index+1)*progress_bar_step),
                                         tabs_canvas_index=index,
                                         plot_canvas_index=index,
                                         title=titles[index],
                                         xtitle=xtitles[index] + " [" + xPrefix + xunits[index] + "]",
-                                        ytitle=ytitles[index],# + " [" + yPrefix + yunits[index] + "]",
+                                        ytitle=yTitle,
                                         log_x=log_x,
                                         log_y=log_y)
                     except Exception as e:
