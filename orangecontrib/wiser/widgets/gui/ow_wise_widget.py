@@ -791,7 +791,7 @@ class WiserWidget(widget.OWWidget):
                 if not wise_data is None: self.send("WiserData", wise_data)
 
             except Exception as exception:
-                QtWidgets.QMessageBox.critical(self, "No input data",
+                QtWidgets.QMessageBox.critical(self, "No input data in compute()",
                                                str(exception), QtWidgets.QMessageBox.Ok)
 
                 self.setStatusMessage("Calculation impossible")

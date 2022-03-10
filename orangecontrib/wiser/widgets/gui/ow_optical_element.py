@@ -574,8 +574,8 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
                                                           Step=figure_error_step_final,
                                                           #Delimiter=self.figure_error_delimiter,
                                                           SkipLines=int(self.figure_error_skip_rows),
-                                                          XScaling=figure_error_xscaling_final,
-                                                          YScaling=figure_error_yscaling_final
+                                                          XScaleFactor=figure_error_xscaling_final,
+                                                          YScaleFactor=figure_error_yscaling_final
                                                           )
 
         else:
@@ -766,7 +766,6 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
     def extract_plot_data_from_calculation_output(self, calculation_output):
         output_wavefront = calculation_output.wise_wavefront
-
         if not output_wavefront is None and not output_wavefront.wiser_computation_result is None:
             native_optical_element = calculation_output.wise_beamline.get_wise_propagation_element(-1)
 
