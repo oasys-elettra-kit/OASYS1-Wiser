@@ -766,48 +766,65 @@ class OWOpticalElement(WiserWidget, WidgetDecorator):
 
     def extract_plot_data_from_calculation_output(self, calculation_output):
         output_wavefront = calculation_output.wise_wavefront
-        if not output_wavefront is None and not output_wavefront.wiser_computation_result is None:
-            native_optical_element = calculation_output.wise_beamline.get_wise_propagation_element(-1)
+        # LibWiserOE = self.get_optical_element(self.get_native_optical_element()).native_optical_element
+        # if hasattr(LibWiserOE, 'ComputationSettings.Ignore'):
+        if self.ignore == False:
+            if not output_wavefront is None and not output_wavefront.wiser_computation_result is None:
+                native_optical_element = calculation_output.wise_beamline.get_wise_propagation_element(-1)
 
-            S = output_wavefront.wiser_computation_result.S
-            E = output_wavefront.wiser_computation_result.Field
-            I = abs(E)**2
-            norm = max(I)
-            norm = 1.0 if norm == 0.0 else norm
-            I = I/norm
+                S = output_wavefront.wiser_computation_result.S
+                E = output_wavefront.wiser_computation_result.Field
+                I = abs(E)**2
+                norm = max(I)
+                norm = 1.0 if norm == 0.0 else norm
+                I = I/norm
 
-            #------------------------------------------------------------
+                #------------------------------------------------------------
 
-            data_to_plot = numpy.zeros((3, len(S)))
-            data_to_plot[0, :] = S
-            data_to_plot[1, :] = I
-            data_to_plot[2, :] = numpy.imag(E)
+                data_to_plot = numpy.zeros((3, len(S)))
+                data_to_plot[0, :] = S
+                data_to_plot[1, :] = I
+                data_to_plot[2, :] = numpy.imag(E)
 
-            self.is_tab_2_enabled = False
+                self.is_tab_2_enabled = False
 
-            if hasattr(native_optical_element.CoreOptics, 'FigureErrors'):
-                if not native_optical_element.CoreOptics.FigureErrors is None and len(native_optical_element.CoreOptics.FigureErrors) > 0:
-                    self.is_tab_2_enabled = True
-                    figure_error_x = numpy.linspace(0, self.length, len(native_optical_element.CoreOptics.FigureErrors[0]))
-                    data_to_plot_fe = numpy.zeros((2, len(figure_error_x)))
+                if hasattr(native_optical_element.CoreOptics, 'FigureErrors'):
+                    if not native_optical_element.CoreOptics.FigureErrors is None and len(native_optical_element.CoreOptics.FigureErrors) > 0:
+                        self.is_tab_2_enabled = True
+                        figure_error_x = numpy.linspace(0, self.length, len(native_optical_element.CoreOptics.FigureErrors[0]))
+                        data_to_plot_fe = numpy.zeros((2, len(figure_error_x)))
 
-                    data_to_plot_fe[0, :] = figure_error_x
-                    data_to_plot_fe[1, :] = native_optical_element.CoreOptics.FigureErrors[0]#*1e9 nm
+                        data_to_plot_fe[0, :] = figure_error_x
+                        data_to_plot_fe[1, :] = native_optical_element.CoreOptics.FigureErrors[0]#*1e9 nm
+                    else:
+                        data_to_plot_fe = numpy.zeros((2, 1))
+
+                        data_to_plot_fe[0, :] = numpy.zeros(1)
+                        data_to_plot_fe[1, :] = numpy.zeros(1)
+
                 else:
                     data_to_plot_fe = numpy.zeros((2, 1))
 
                     data_to_plot_fe[0, :] = numpy.zeros(1)
                     data_to_plot_fe[1, :] = numpy.zeros(1)
 
+                return data_to_plot, data_to_plot_fe
             else:
-                data_to_plot_fe = numpy.zeros((2, 1))
-
-                data_to_plot_fe[0, :] = numpy.zeros(1)
-                data_to_plot_fe[1, :] = numpy.zeros(1)
-
-            return data_to_plot, data_to_plot_fe
+                return None, None
         else:
+            # data_to_plot = numpy.zeros((3, 1))
+            # data_to_plot[0, :] = numpy.zeros(1)
+            # data_to_plot[1, :] = numpy.zeros(1)
+            # data_to_plot[2, :] = numpy.zeros(1)
+            #
+            # data_to_plot_fe = numpy.zeros((2, 1))
+            #
+            # data_to_plot_fe[0, :] = numpy.zeros(1)
+            # data_to_plot_fe[1, :] = numpy.zeros(1)
+
             return None, None
+        # else:
+        #     return None, None
 
     def plot_results(self, plot_data, progressBarValue=80):
         if not self.view_type == 0:
