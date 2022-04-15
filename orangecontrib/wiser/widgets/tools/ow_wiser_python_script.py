@@ -27,6 +27,9 @@ from oasys.util.script import itemmodels
 from orangewidget import gui
 from orangewidget.settings import Setting
 
+import urllib.request
+import json
+
 __all__ = ["OWWiserPythonScript"]
 
 
@@ -387,6 +390,9 @@ class OWWiserPythonScript(widget.OWWidget):
     splitterState = Setting(None)
     auto_execute = Setting(False)
     want_control_area = False
+    repository = Setting("https://raw.githubusercontent.com/PaNOSC-ViNYL/Oasys-PaNOSC-Workspaces/master/mainList.json")
+    selectedIndex = Setting([0])
+    selectedURL = Setting("")
 
     fonts = ["8", "9", "10", "11", "12", "14", "16", "20", "24"]
     font_size = Setting(4)
@@ -425,10 +431,18 @@ class OWWiserPythonScript(widget.OWWidget):
         set_tab = oasysgui.createTabPage(self.main_tabs, "Settings")
         txt_tab = oasysgui.createTabPage(self.main_tabs, "Editor")
 
+        self.le_repoName = oasysgui.lineEdit(set_tab, self, "repository", "Repository Index URL (JSON): ", labelWidth=180,
+                                             valueType=str, orientation="vertical", callbackOnType=self.changeRepoURL)
+
         set_tab_main = oasysgui.widgetBox(set_tab, '', addSpace=False, orientation="horizontal")
         set_tab_left = oasysgui.widgetBox(set_tab_main, '', addSpace=False, orientation="vertical")
         set_tab_right = oasysgui.widgetBox(set_tab_main, 'Library', addSpace=False, orientation="vertical")
 
+        right_box = oasysgui.widgetBox(set_tab_main, "Metadata", addSpace=True, orientation="vertical")
+
+        self.metadataLabel = ""
+        self.md_label = "%(metadataLabel)s"
+        self.box_metaData = gui.label(right_box, self, self.md_label, orientation="vertical")
 
         self.infoBox = gui.widgetBox(set_tab_left, 'Info')
         gui.label(
@@ -439,6 +453,7 @@ class OWWiserPythonScript(widget.OWWidget):
             "<li>".join(t.name for t in self.outputs) + \
             "</ul></p>"
         )
+        # self.beamlineList = gui.listBox(left_box, self, "selectedIndex", callback=self.selectedItemListBox)
 
         self.optionBox = oasysgui.widgetBox(set_tab_left, 'Options')
 
@@ -446,46 +461,49 @@ class OWWiserPythonScript(widget.OWWidget):
                      items=self.fonts,
                      sendSelectedValue=False, orientation="horizontal", callback=self.changeFont)
 
-        self.libraryList = itemmodels.PyListModel(
-            [], self,
-            flags=Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
-
-        self.libraryList.wrap(self.libraryListSource)
-
+        # self.libraryList = itemmodels.PyListModel(
+        #     [], self,
+        #     flags=Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
+        #
+        # self.libraryList.wrap(self.libraryListSource)
+        #
         self.controlBox = gui.widgetBox(set_tab_right)
         self.controlBox.layout().setSpacing(1)
 
-        self.libraryView = QListView(
-            editTriggers=QListView.DoubleClicked |
-                         QListView.EditKeyPressed,
-            sizePolicy=QSizePolicy(QSizePolicy.Ignored,
-                                   QSizePolicy.Preferred)
-        )
-        self.libraryView.setItemDelegate(ScriptItemDelegate(self))
-        self.libraryView.setModel(self.libraryList)
+        self.scriptList = gui.listBox(set_tab_right, self, "selectedIndex", callback=self.selectedItemListBox)
 
-        self.libraryView.selectionModel().selectionChanged.connect(
-            self.onSelectedScriptChanged
-        )
-        self.controlBox.layout().addWidget(self.libraryView)
-
+        #
+        # self.libraryView = QListView(
+        #     editTriggers=QListView.DoubleClicked |
+        #                  QListView.EditKeyPressed,
+        #     sizePolicy=QSizePolicy(QSizePolicy.Ignored,
+        #                            QSizePolicy.Preferred)
+        # )
+        # self.libraryView.setItemDelegate(ScriptItemDelegate(self))
+        # self.libraryView.setModel(self.libraryList)
+        #
+        # self.libraryView.selectionModel().selectionChanged.connect(
+        #     self.onSelectedScriptChanged
+        # )
+        # self.controlBox.layout().addWidget(self.libraryView)
+        #
         w = itemmodels.ModelActionsWidget()
-
-        self.addNewScriptAction = action = QAction("+", self)
-        action.setToolTip("Add a new script to the library")
-        action.triggered.connect(self.onAddScript)
-        w.addAction(action)
-
-        action = QAction(unicodedata.lookup("MINUS SIGN"), self)
-        action.setToolTip("Remove script from library")
-        action.triggered.connect(self.onRemoveScript)
-        w.addAction(action)
-
-        action = QAction("Update", self)
-        action.setToolTip("Save changes in the editor to library")
-        action.setShortcut(QKeySequence(QKeySequence.Save))
-        action.triggered.connect(self.commitChangesToLibrary)
-        w.addAction(action)
+        #
+        # self.addNewScriptAction = action = QAction("+", self)
+        # action.setToolTip("Add a new script to the library")
+        # action.triggered.connect(self.onAddScript)
+        # w.addAction(action)
+        #
+        # action = QAction(unicodedata.lookup("MINUS SIGN"), self)
+        # action.setToolTip("Remove script from library")
+        # action.triggered.connect(self.onRemoveScript)
+        # w.addAction(action)
+        #
+        # action = QAction("Update", self)
+        # action.setToolTip("Save changes in the editor to library")
+        # action.setShortcut(QKeySequence(QKeySequence.Save))
+        # action.triggered.connect(self.commitChangesToLibrary)
+        # w.addAction(action)
 
         action = QAction("More", self, toolTip="More actions")
 
@@ -543,7 +561,7 @@ class OWWiserPythonScript(widget.OWWidget):
                      tooltip="Run the script automatically whenever " +
                              "the inputs to the widget change.")
 
-        select_row(self.libraryView, self.currentScriptIndex)
+        # select_row(self.libraryView, self.currentScriptIndex)
 
         self.splitCanvas.setSizes([2, 1])
         if self.splitterState is not None:
@@ -553,6 +571,7 @@ class OWWiserPythonScript(widget.OWWidget):
         txt_tab.layout().addStretch(1)
         self.resize(800, 600)
 
+        self.changeRepoURL()
         self.changeFont()
 
     def setExampleTable(self, et):
@@ -601,12 +620,35 @@ class OWWiserPythonScript(widget.OWWidget):
         if self.auto_execute:
             self.execute()
 
+    def changeRepoURL(self):
+        response = urllib.request.urlopen(self.repository)
+        beamlineJson = json.loads(response.read())
+
+        beamlines = beamlineJson['OASYS_Remote_Workspaces_PaNOSC']['beamlines']
+        namesOfBeamlines = []
+        self.metadataList = []
+        self.urlsOfScripts = []
+
+
+        for i, beamline in enumerate(beamlines):
+            currentName = beamline['institute'] + ' - ' + beamline['name']
+            currentURL = beamline['url_workspace']
+            currentMetadata = "Institute: " + beamline['institute'] + "\n" + "Beamline: " + beamline['name'] + "\n" + "Creator: " + beamline['uploaded_by'] + "\n" + "Date: " + beamline['date'] + "\n" + "Other info: " + beamline['url_info']
+            namesOfBeamlines.append(currentName)
+            self.metadataList.append(currentMetadata)
+            self.urlsOfScripts.append(currentURL)
+            self.scriptList.insertItem(i, currentName)
+
     def selectedScriptIndex(self):
         rows = self.libraryView.selectionModel().selectedRows()
         if rows:
             return  [i.row() for i in rows][0]
         else:
             return None
+
+    def selectedItemListBox(self):
+        self.selectedURL = self.urlsOfScripts[self.selectedIndex[0]]
+        self.metadataLabel = self.metadataList[self.selectedIndex[0]]
 
     def setSelectedScript(self, index):
         select_row(self.libraryView, index)
