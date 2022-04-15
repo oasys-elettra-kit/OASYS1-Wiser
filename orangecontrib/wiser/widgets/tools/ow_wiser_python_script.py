@@ -10,7 +10,7 @@ from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtWidgets import (
     QListView, QSizePolicy, QAction,
     QMenu, QSplitter, QToolButton,
-    QFileDialog
+    QFileDialog, QMessageBox
 )
 
 from PyQt5.QtGui import (
@@ -29,6 +29,8 @@ from orangewidget.settings import Setting
 
 import urllib.request
 import json
+from os.path import expanduser
+import requests
 
 __all__ = ["OWWiserPythonScript"]
 
@@ -384,8 +386,7 @@ class OWWiserPythonScript(widget.OWWidget):
 
     outputs = [("out_object", object, widget.Dynamic)]
 
-    libraryListSource = \
-        Setting([Script("Hello world", "print('Hello world')\n")])
+    libraryListSource = Setting([Script("Hello world", "print('Hello world')\n")])
     currentScriptIndex = Setting(0)
     splitterState = Setting(None)
     auto_execute = Setting(False)
@@ -393,6 +394,7 @@ class OWWiserPythonScript(widget.OWWidget):
     repository = Setting("https://raw.githubusercontent.com/PaNOSC-ViNYL/Oasys-PaNOSC-Workspaces/master/mainList.json")
     selectedIndex = Setting([0])
     selectedURL = Setting("")
+    metadataList = []
 
     fonts = ["8", "9", "10", "11", "12", "14", "16", "20", "24"]
     font_size = Setting(4)
@@ -431,8 +433,12 @@ class OWWiserPythonScript(widget.OWWidget):
         set_tab = oasysgui.createTabPage(self.main_tabs, "Settings")
         txt_tab = oasysgui.createTabPage(self.main_tabs, "Editor")
 
-        self.le_repoName = oasysgui.lineEdit(set_tab, self, "repository", "Repository Index URL (JSON): ", labelWidth=180,
-                                             valueType=str, orientation="vertical", callbackOnType=self.changeRepoURL)
+        addr_tab = oasysgui.widgetBox(set_tab, '', addSpace=False, orientation="horizontal")
+
+        self.le_repoName = oasysgui.lineEdit(addr_tab, self, "repository", "Repository Index URL: ", labelWidth=135,
+                                             valueType=str, orientation="horizontal", callbackOnType=self.changeRepoURL)
+
+        gui.button(addr_tab, self, "Load", callback=self.download_scheme)
 
         set_tab_main = oasysgui.widgetBox(set_tab, '', addSpace=False, orientation="horizontal")
         set_tab_left = oasysgui.widgetBox(set_tab_main, '', addSpace=False, orientation="vertical")
@@ -461,49 +467,48 @@ class OWWiserPythonScript(widget.OWWidget):
                      items=self.fonts,
                      sendSelectedValue=False, orientation="horizontal", callback=self.changeFont)
 
-        # self.libraryList = itemmodels.PyListModel(
-        #     [], self,
-        #     flags=Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
-        #
-        # self.libraryList.wrap(self.libraryListSource)
-        #
+        self.libraryList = itemmodels.PyListModel([], self, flags=Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable)
+
+        self.libraryList.wrap(self.libraryListSource)
+
         self.controlBox = gui.widgetBox(set_tab_right)
         self.controlBox.layout().setSpacing(1)
 
-        self.scriptList = gui.listBox(set_tab_right, self, "selectedIndex", callback=self.selectedItemListBox)
+        # self.scriptList = gui.listBox(set_tab_right, self, "selectedIndex", callback=self.selectedItemListBox)
 
-        #
-        # self.libraryView = QListView(
-        #     editTriggers=QListView.DoubleClicked |
-        #                  QListView.EditKeyPressed,
-        #     sizePolicy=QSizePolicy(QSizePolicy.Ignored,
-        #                            QSizePolicy.Preferred)
-        # )
-        # self.libraryView.setItemDelegate(ScriptItemDelegate(self))
-        # self.libraryView.setModel(self.libraryList)
-        #
-        # self.libraryView.selectionModel().selectionChanged.connect(
-        #     self.onSelectedScriptChanged
-        # )
-        # self.controlBox.layout().addWidget(self.libraryView)
-        #
+
+        self.libraryView = QListView(editTriggers=QListView.DoubleClicked | QListView.EditKeyPressed, sizePolicy=QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred))
+        self.libraryView.setItemDelegate(ScriptItemDelegate(self))
+        self.libraryView.setModel(self.libraryList)
+
+        self.libraryView.selectionModel().selectionChanged.connect(
+            self.onSelectedScriptChanged
+        )
+        self.libraryView.selectionModel().selectionChanged.connect(
+            self.selectedItemListBox
+        )
+
+        # print(self.libraryView.selectionModel().selectedRows())
+        # self.metadataLabel = self.metadataList[self.libraryView.selectionModel().selectedRows()]
+        self.controlBox.layout().addWidget(self.libraryView)
+
         w = itemmodels.ModelActionsWidget()
-        #
-        # self.addNewScriptAction = action = QAction("+", self)
-        # action.setToolTip("Add a new script to the library")
-        # action.triggered.connect(self.onAddScript)
-        # w.addAction(action)
-        #
-        # action = QAction(unicodedata.lookup("MINUS SIGN"), self)
-        # action.setToolTip("Remove script from library")
-        # action.triggered.connect(self.onRemoveScript)
-        # w.addAction(action)
-        #
-        # action = QAction("Update", self)
-        # action.setToolTip("Save changes in the editor to library")
-        # action.setShortcut(QKeySequence(QKeySequence.Save))
-        # action.triggered.connect(self.commitChangesToLibrary)
-        # w.addAction(action)
+
+        self.addNewScriptAction = action = QAction("+", self)
+        action.setToolTip("Add a new script to the library")
+        action.triggered.connect(self.onAddScript)
+        w.addAction(action)
+
+        action = QAction(unicodedata.lookup("MINUS SIGN"), self)
+        action.setToolTip("Remove script from library")
+        action.triggered.connect(self.onRemoveScript)
+        w.addAction(action)
+
+        action = QAction("Update", self)
+        action.setToolTip("Save changes in the editor to library")
+        action.setShortcut(QKeySequence(QKeySequence.Save))
+        action.triggered.connect(self.commitChangesToLibrary)
+        w.addAction(action)
 
         action = QAction("More", self, toolTip="More actions")
 
@@ -571,7 +576,7 @@ class OWWiserPythonScript(widget.OWWidget):
         txt_tab.layout().addStretch(1)
         self.resize(800, 600)
 
-        self.changeRepoURL()
+        # self.changeRepoURL()
         self.changeFont()
 
     def setExampleTable(self, et):
@@ -626,7 +631,6 @@ class OWWiserPythonScript(widget.OWWidget):
 
         beamlines = beamlineJson['OASYS_Remote_Workspaces_PaNOSC']['beamlines']
         namesOfBeamlines = []
-        self.metadataList = []
         self.urlsOfScripts = []
 
 
@@ -637,18 +641,53 @@ class OWWiserPythonScript(widget.OWWidget):
             namesOfBeamlines.append(currentName)
             self.metadataList.append(currentMetadata)
             self.urlsOfScripts.append(currentURL)
-            self.scriptList.insertItem(i, currentName)
+            self.libraryList.append(Script(currentName, "", 0))
+            # self.setSelectedScript(len(self.libraryList) - 1)
+
+            # self.scriptList.insertItem(i, currentName)
+
+    def download_scheme(self):
+        """Open a new scheme. Return QDialog.Rejected if the user canceled
+        the operation and QDialog.Accepted otherwise.
+
+        """
+
+        self.changeRepoURL()
+
+        try:
+            for i, selectedURL in enumerate(self.urlsOfScripts):
+                params = {'stream': True}
+                response = requests.get(selectedURL, params=params)
+
+                local_filename = selectedURL.split('/')[-1]
+
+                if response.status_code == 200:
+                    with open(local_filename, 'wb') as f:
+                        for chunk in response.iter_content(chunk_size=1024):
+                            if chunk:
+                                f.write(chunk)
+
+            QMessageBox.information(self, "Success", "Number of files saved: " + str(i+1), QMessageBox.Ok)
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e), QMessageBox.Ok)
+
+            self.setStatusMessage("Error")
 
     def selectedScriptIndex(self):
         rows = self.libraryView.selectionModel().selectedRows()
         if rows:
-            return  [i.row() for i in rows][0]
+            return [i.row() for i in rows][0]
         else:
             return None
 
     def selectedItemListBox(self):
-        self.selectedURL = self.urlsOfScripts[self.selectedIndex[0]]
-        self.metadataLabel = self.metadataList[self.selectedIndex[0]]
+
+        selectedIndices = self.selectedScriptIndex()
+        print(selectedIndices)
+        if selectedIndices:
+            self.selectedURL = self.urlsOfScripts[selectedIndices-1]
+            self.metadataLabel = self.metadataList[selectedIndices-1]
 
     def setSelectedScript(self, index):
         select_row(self.libraryView, index)
